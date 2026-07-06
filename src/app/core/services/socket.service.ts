@@ -3,7 +3,7 @@ import { io, Socket } from "socket.io-client";
 import { getOrCreateAnonId } from "./anon-id";
 
 //export const BACKEND_URL = "http://localhost:3050";
-export const BACKEND_URL = "https://lol-game-production.up.railway.app";
+export const BACKEND_URL = "https://rift-party-backend-production.up.railway.app";
 
 /**
  * Wrapper unique autour de socket.io-client. Tous les services (RoomService,
