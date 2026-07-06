@@ -4,3 +4,9 @@
 [build]
   command = "npm run build"
   publish = "dist/rift-party-frontend/browser"
+
+# NODE_ENV=production ferait sauter les devDependencies (dont @angular/cli,
+# d'ou "ng: not found") lors du npm install des runners Netlify. Le build
+# Angular reste bien en configuration production (angular.json defaultConfiguration).
+[build.environment]
+  NODE_ENV = "development"
