@@ -1,6 +1,8 @@
 # Deploiement "pre-built" : le build Angular est fait EN LOCAL (`npm run build`)
-# et le resultat (dist/) est committe dans le repo. Netlify ne build rien :
-# il publie directement le dossier ci-dessous. Ce fichier prime sur l'UI.
+# et le resultat (dist/) est committe dans le repo. Netlify ne build rien.
+# `base` pointe dans dist/ : aucun package.json ne s'y trouve, donc Netlify
+# saute aussi l'installation des dependances (c'est elle qui prenait des minutes).
 [build]
+  base = "dist/rift-party-frontend"
+  publish = "browser"
   command = "echo 'Build local deja committe, rien a builder.'"
-  publish = "dist/rift-party-frontend/browser"
