@@ -1,0 +1,6 @@
+# Config de build Netlify : prime sur les reglages saisis dans l'UI.
+# `npm run build` (et non `ng build` : le CLI Angular n'est pas installe
+# globalement sur les runners Netlify, il vient de node_modules).
+[build]
+  command = "npm run build"
+  publish = "dist/rift-party-frontend/browser"
