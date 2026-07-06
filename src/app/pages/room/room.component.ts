@@ -62,6 +62,7 @@ export class RoomComponent implements OnDestroy {
   });
 
   protected readonly copiedCode = signal(false);
+  protected readonly copiedInvite = signal(false);
   protected readonly isDevMode = isDevMode;
 
   /** Ecran cinematique affiche en debut de manche (nom + regles du jeu, interlude pour les petits jeux). */
@@ -151,8 +152,8 @@ export class RoomComponent implements OnDestroy {
   partyMix() { return this.games().find((g) => g.id === 'party-mix'); }
   secondaryGames() { return this.games().filter((g) => g.id !== 'party-mix'); }
   componentFor(gameId: string) { return MINI_GAME_COMPONENTS[gameId] ?? null; }
-  iconFor(gameId: string): IconName { return ({ 'party-mix': 'sparkle', 'draft-battle': 'sword', 'guess-champion': 'question', 'fusion-champions': 'flask', 'turret-tank': 'tower', 'tiktok-ranking': 'list', 'whos-inting': 'skull', 'undercover-champion': 'mask', 'brume': 'fog', 'loldle': 'letters', 'intrus': 'search', 'vote-party': 'scale', 'last-survivor': 'crown', 'qui-suis-je': 'eye' } as Record<string, IconName>)[gameId] ?? 'sparkle'; }
-  accentFor(gameId?: string | null): string { return ({ 'party-mix': '#c8aa6e', 'draft-battle': '#c8aa6e', 'guess-champion': '#0ac8b9', 'fusion-champions': '#b673ff', 'turret-tank': '#ffb347', 'tiktok-ranking': '#ff4fd8', 'whos-inting': '#c13c4d', 'undercover-champion': '#6c5ce7', 'brume': '#c13c4d', 'loldle': '#3fd67a', 'intrus': '#e0a94a', 'vote-party': '#ff4fd8', 'last-survivor': '#c13c4d', 'qui-suis-je': '#0ac8b9' } as Record<string, string>)[gameId ?? ''] ?? '#c8aa6e'; }
+  iconFor(gameId: string): IconName { return ({ 'party-mix': 'sparkle', 'draft-battle': 'sword', 'guess-champion': 'question', 'fusion-champions': 'flask', 'turret-tank': 'tower', 'tiktok-ranking': 'list', 'whos-inting': 'skull', 'undercover-champion': 'mask', 'brume': 'fog', 'loldle': 'letters', 'intrus': 'search', 'vote-party': 'scale', 'last-survivor': 'crown', 'qui-suis-je': 'eye', 'croquis': 'brush' } as Record<string, IconName>)[gameId] ?? 'sparkle'; }
+  accentFor(gameId?: string | null): string { return ({ 'party-mix': '#c8aa6e', 'draft-battle': '#c8aa6e', 'guess-champion': '#0ac8b9', 'fusion-champions': '#b673ff', 'turret-tank': '#ffb347', 'tiktok-ranking': '#ff4fd8', 'whos-inting': '#c13c4d', 'undercover-champion': '#6c5ce7', 'brume': '#c13c4d', 'loldle': '#3fd67a', 'intrus': '#e0a94a', 'vote-party': '#ff4fd8', 'last-survivor': '#c13c4d', 'qui-suis-je': '#0ac8b9', 'croquis': '#b673ff' } as Record<string, string>)[gameId ?? ''] ?? '#c8aa6e'; }
   labelFor(gameId?: string | null): string { return this.games().find((g) => g.id === gameId)?.label ?? (gameId || 'Mini-jeu'); }
   openSettings(gameId: string) { this.settingsGameId.set(gameId); }
   closeSettings() { this.settingsGameId.set(null); }
@@ -283,6 +284,8 @@ export class RoomComponent implements OnDestroy {
   toggleIncluded(gameId: string, event: Event) { const checked = (event.target as HTMLInputElement).checked; this.settings.update((s) => { const next = { ...s, included: { ...s.included, [gameId]: checked } }; localStorage.setItem('rift-party-included', JSON.stringify(next.included)); return next; }); }
   togglePremium(event: Event) { const checked = (event.target as HTMLInputElement).checked; localStorage.setItem('rift-party-premium-dev', String(checked)); this.premiumUnlocked.set(checked); }
   copyCode(code: string): void { navigator.clipboard?.writeText(code).catch(() => undefined); this.copiedCode.set(true); window.setTimeout(() => this.copiedCode.set(false), 1200); }
+  /** Lien d'invitation direct : la home lit ?join=CODE et pre-remplit l'onglet Rejoindre. */
+  copyInviteLink(code: string): void { navigator.clipboard?.writeText(`${window.location.origin}/?join=${code}`).catch(() => undefined); this.copiedInvite.set(true); window.setTimeout(() => this.copiedInvite.set(false), 1200); }
   leave(): void { this.room.leaveRoom(); this.router.navigate(['/']); }
 }
 

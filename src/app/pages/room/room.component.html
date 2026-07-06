@@ -24,6 +24,10 @@
         <span class="label">Code du lobby</span>
         <button class="code" [class.copied]="copiedCode()" (click)="copyCode(currentRoom.code)">{{ copiedCode() ? 'COPIÉ !' : currentRoom.code }}</button>
         <small>{{ copiedCode() ? 'Code copié dans le presse-papiers' : '' }}</small>
+        <button class="invite-link" [class.copied]="copiedInvite()" (click)="copyInviteLink(currentRoom.code)">
+          <app-icon name="send" [size]="14" />
+          <span>{{ copiedInvite() ? 'Lien copié !' : "Copier le lien d'invitation" }}</span>
+        </button>
       </div>
       <div class="players card">
         <span class="label">Joueurs ({{ currentRoom.players.length }})</span>
@@ -281,7 +285,7 @@
         <span class="eyebrow">Paramètres</span>
         <h2>{{ labelFor(gameId) }}</h2>
         <label>Temps par manche <strong>{{ gameSettings.roundTimeSec() }}s</strong><input type="range" min="15" max="90" step="5" [value]="gameSettings.roundTimeSec()" (input)="updateRoundTime($event)" /></label>
-        @if (gameId !== 'party-mix' && gameId !== 'draft-battle' && gameId !== 'undercover-champion' && gameId !== 'brume' && gameId !== 'loldle' && gameId !== 'last-survivor' && gameId !== 'qui-suis-je') {
+        @if (gameId !== 'party-mix' && gameId !== 'draft-battle' && gameId !== 'undercover-champion' && gameId !== 'brume' && gameId !== 'loldle' && gameId !== 'last-survivor' && gameId !== 'qui-suis-je' && gameId !== 'croquis') {
           <label>Nombre de manches <strong>{{ gameSettings.roundsFor(gameId) }}</strong><input type="range" min="1" max="20" step="1" [value]="gameSettings.roundsFor(gameId)" (input)="updateGameRounds(gameId, $event)" /></label>
         }
         @if (gameId === 'loldle') {

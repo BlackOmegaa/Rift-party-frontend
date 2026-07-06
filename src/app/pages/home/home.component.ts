@@ -5,7 +5,7 @@ import {
 	signal,
 } from "@angular/core";
 import { FormsModule } from "@angular/forms";
-import { Router } from "@angular/router";
+import { ActivatedRoute, Router } from "@angular/router";
 import { RoomService } from "../../core/services/room.service";
 
 type Mode = "create" | "join";
@@ -26,11 +26,20 @@ export class HomeComponent {
 	constructor(
 		protected readonly roomService: RoomService,
 		private readonly router: Router,
+		route: ActivatedRoute,
 	) {
 		effect(() => {
 			const room = this.roomService.room();
 			if (room) this.router.navigate(["/room", room.code]);
 		});
+
+		// Lien d'invitation (?join=CODE, voir copyInviteLink dans RoomComponent) :
+		// bascule sur l'onglet Rejoindre avec le code pre-rempli, reste juste le pseudo.
+		const joinCode = route.snapshot.queryParamMap.get("join");
+		if (joinCode) {
+			this.mode.set("join");
+			this.code = joinCode.toUpperCase();
+		}
 	}
 
 	canSubmit(): boolean {

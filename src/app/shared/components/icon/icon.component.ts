@@ -1,6 +1,7 @@
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import {
 	LucideArrowLeft,
+	LucideBrush,
 	LucideCaseSensitive,
 	LucideCheck,
 	LucideCircleQuestionMark,
@@ -57,6 +58,7 @@ export type IconName =
 	| 'radio'
 	| 'search'
 	| 'eye'
+	| 'brush'
 	| 'gear'
 	| 'check'
 	| 'send'
@@ -78,6 +80,7 @@ export type IconName =
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	imports: [
 		LucideArrowLeft,
+		LucideBrush,
 		LucideCaseSensitive,
 		LucideCheck,
 		LucideCircleQuestionMark,
@@ -182,6 +185,9 @@ export type IconName =
 			}
 			@case ('eye') {
 				<svg lucideEye [size]="size()" [strokeWidth]="1.6" />
+			}
+			@case ('brush') {
+				<svg lucideBrush [size]="size()" [strokeWidth]="1.6" />
 			}
 			@case ('gear') {
 				<svg lucideSettings [size]="size()" [strokeWidth]="1.6" />
