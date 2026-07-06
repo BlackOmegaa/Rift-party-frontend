@@ -1,14 +1,6 @@
-# Config de build Netlify : prime sur les reglages saisis dans l'UI.
-# La commande installe elle-meme les dependances (npm ci --include=dev force
-# les devDependencies, dont @angular/cli, quels que soient NODE_ENV/NPM_FLAGS) :
-# l'etape d'install automatique de Netlify s'est montree non fiable sur ce site
-# ("ng: not found" = node_modules absent au moment du build).
+# Deploiement "pre-built" : le build Angular est fait EN LOCAL (`npm run build`)
+# et le resultat (dist/) est committe dans le repo. Netlify ne build rien :
+# il publie directement le dossier ci-dessous. Ce fichier prime sur l'UI.
 [build]
-  command = "npm ci --include=dev && npm run build"
+  command = "echo 'Build local deja committe, rien a builder.'"
   publish = "dist/rift-party-frontend/browser"
-
-# NODE_ENV=production ferait sauter les devDependencies (dont @angular/cli,
-# d'ou "ng: not found") lors du npm install des runners Netlify. Le build
-# Angular reste bien en configuration production (angular.json defaultConfiguration).
-[build.environment]
-  NODE_ENV = "development"

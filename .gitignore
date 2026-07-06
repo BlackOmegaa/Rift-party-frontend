@@ -1,4 +1,6 @@
 node_modules/
-dist/
 .angular/
 *.log
+# dist/ est volontairement versionne : Netlify publie le build local tel quel
+# (aucun build cote Netlify, voir netlify.toml). Toujours lancer `npm run build`
+# avant de committer un changement front.
