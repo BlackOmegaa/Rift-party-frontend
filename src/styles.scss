@@ -1,0 +1,351 @@
+/* Rift Party - theme plus proche du client League : bleu profond, or, cadres, runes */
+:root {
+	--bg-void: #01070d;
+	--bg-base: #06121e;
+	--bg-surface: #0a1428;
+	--bg-panel: #0f1f33;
+	--bg-elevated: #13243a;
+	--bg-elevated-hover: #1b3554;
+
+	--border-subtle: rgba(200, 170, 110, 0.18);
+	--border-strong: rgba(200, 170, 110, 0.45);
+
+	--gold: #c8aa6e;
+	--gold-bright: #f0e6d2;
+	--gold-dim: #785a28;
+	--teal: #0ac8b9;
+	--teal-dim: #0397ab;
+	--teal-glow: rgba(10, 200, 185, 0.28);
+
+	--text-primary: #f0e6d2;
+	--text-secondary: #a3b0c2;
+	--text-muted: #6e7890;
+
+	--danger: #c13c4d;
+	--success: #3fd67a;
+	--warning: #e0a94a;
+
+	--radius-sm: 6px;
+	--radius-md: 10px;
+	--radius-lg: 18px;
+	--shadow-card: 0 12px 34px rgba(0, 0, 0, 0.45);
+	--transition-fast: 150ms cubic-bezier(0.4, 0, 0.2, 1);
+	--transition-med: 280ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+* {
+	box-sizing: border-box;
+}
+html,
+body {
+	height: 100%;
+}
+body {
+	margin: 0;
+	font-family: "Inter", system-ui, sans-serif;
+	background:
+		radial-gradient(
+			ellipse 900px 500px at 15% -10%,
+			rgba(200, 170, 110, 0.1),
+			transparent
+		),
+		radial-gradient(
+			ellipse 900px 500px at 100% 0%,
+			rgba(10, 200, 185, 0.06),
+			transparent
+		),
+		linear-gradient(180deg, #01070d, #06121e 42%, #01070d);
+	color: var(--text-primary);
+	min-height: 100%;
+	-webkit-font-smoothing: antialiased;
+}
+body:before {
+	content: "";
+	position: fixed;
+	inset: 0;
+	pointer-events: none;
+	opacity: 0.18;
+	background-image:
+		linear-gradient(rgba(240, 230, 210, 0.04) 1px, transparent 1px),
+		linear-gradient(90deg, rgba(240, 230, 210, 0.035) 1px, transparent 1px);
+	background-size: 54px 54px;
+	mask-image: radial-gradient(circle at 50% 10%, black, transparent 72%);
+}
+h1,
+h2,
+h3,
+h4 {
+	font-family: "Inter", system-ui, sans-serif;
+	font-weight: 900;
+	letter-spacing: 0.005em;
+	margin: 0;
+}
+p {
+	margin: 0;
+	color: var(--text-secondary);
+}
+button {
+	font-family: inherit;
+}
+.btn {
+	appearance: none;
+	border: 1px solid var(--border-subtle);
+	background: linear-gradient(180deg, var(--bg-elevated), var(--bg-surface));
+	color: var(--text-primary);
+	padding: 0.72rem 1.45rem;
+	border-radius: 2px;
+	font-weight: 800;
+	font-size: 0.95rem;
+	cursor: pointer;
+	transition:
+		border-color var(--transition-fast),
+		transform var(--transition-fast),
+		box-shadow var(--transition-fast);
+	clip-path: polygon(
+		10px 0,
+		100% 0,
+		100% calc(100% - 10px),
+		calc(100% - 10px) 100%,
+		0 100%,
+		0 10px
+	);
+}
+.btn:hover:not(:disabled) {
+	border-color: var(--border-strong);
+	transform: translateY(-1px);
+}
+.btn:disabled {
+	opacity: 0.45;
+	cursor: not-allowed;
+}
+.btn-primary {
+	background: linear-gradient(135deg, var(--gold-dim), var(--gold));
+	border-color: rgba(240, 230, 210, 0.2);
+	color: #120d04;
+}
+.btn-primary:hover:not(:disabled) {
+	box-shadow: 0 0 24px rgba(200, 170, 110, 0.22);
+}
+.btn-gold {
+	background: linear-gradient(135deg, var(--gold-dim), var(--gold));
+	border: none;
+	color: #241a06;
+}
+.btn-ghost {
+	background: transparent;
+}
+.input {
+	width: 100%;
+	background: #010a13;
+	border: 1px solid var(--border-subtle);
+	border-radius: 2px;
+	color: var(--text-primary);
+	padding: 0.75rem 1rem;
+	font-size: 1rem;
+	transition: border-color var(--transition-fast);
+	clip-path: polygon(
+		8px 0,
+		100% 0,
+		100% calc(100% - 8px),
+		calc(100% - 8px) 100%,
+		0 100%,
+		0 8px
+	);
+}
+.input:focus {
+	outline: none;
+	border-color: var(--gold);
+}
+.input::placeholder {
+	color: var(--text-muted);
+}
+.card {
+	position: relative;
+	background: linear-gradient(160deg, var(--bg-elevated), var(--bg-surface));
+	border: 1px solid var(--border-subtle);
+	border-radius: var(--radius-lg);
+	box-shadow: var(--shadow-card);
+}
+.card:after {
+	content: "";
+	position: absolute;
+	inset: 8px;
+	border: 1px solid rgba(200, 170, 110, 0.07);
+	border-radius: calc(var(--radius-lg) - 6px);
+	pointer-events: none;
+}
+.badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35rem;
+	padding: 0.2rem 0.6rem;
+	border-radius: 999px;
+	font-size: 0.75rem;
+	font-weight: 700;
+	background: var(--bg-base);
+	border: 1px solid var(--border-subtle);
+	color: var(--text-secondary);
+}
+.badge-gold {
+	border-color: var(--gold-dim);
+	color: var(--gold-bright);
+}
+::-webkit-scrollbar {
+	width: 8px;
+	height: 8px;
+}
+::-webkit-scrollbar-track {
+	background: transparent;
+}
+::-webkit-scrollbar-thumb {
+	background: var(--bg-elevated-hover);
+	border-radius: 8px;
+}
+@keyframes fade-in-up {
+	from {
+		opacity: 0;
+		transform: translateY(8px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+img {
+	max-width: 100%;
+}
+
+/* === Rift Party V12 shared polished controls === */
+.btn,
+.rift-btn {
+	--btn-color: #c8aa6e;
+	--btn-color-strong: #f0e6d2;
+	min-height: 42px;
+	padding: 0 0.95rem;
+	border-radius: 14px;
+	border: 1px solid color-mix(in srgb, var(--btn-color), transparent 45%);
+	background:
+		radial-gradient(
+			circle at top left,
+			color-mix(in srgb, var(--btn-color), transparent 88%),
+			transparent 45%
+		),
+		linear-gradient(
+			180deg,
+			rgba(255, 255, 255, 0.045),
+			rgba(255, 255, 255, 0.015)
+		),
+		rgba(10, 18, 30, 0.88);
+	color: var(--btn-color-strong);
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.55rem;
+	font-weight: 950;
+	font-size: 0.82rem;
+	letter-spacing: 0.02em;
+	cursor: pointer;
+	position: relative;
+	overflow: hidden;
+	clip-path: none;
+	box-shadow:
+		inset 0 1px rgba(255, 255, 255, 0.06),
+		0 8px 22px rgba(0, 0, 0, 0.28);
+	transition:
+		transform 0.18s,
+		border-color 0.18s,
+		box-shadow 0.18s,
+		opacity 0.18s;
+}
+.btn > *,
+.rift-btn > * {
+	position: relative;
+	z-index: 2;
+}
+.btn::before,
+.rift-btn::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	background: linear-gradient(
+		115deg,
+		transparent 15%,
+		rgba(255, 255, 255, 0.1) 50%,
+		transparent 85%
+	);
+	transform: translateX(-130%);
+	transition: 0.45s;
+}
+.btn:hover:not(:disabled)::before,
+.rift-btn:hover:not(:disabled)::before {
+	transform: translateX(130%);
+}
+.btn:hover:not(:disabled),
+.rift-btn:hover:not(:disabled) {
+	transform: translateY(-2px);
+	border-color: var(--btn-color);
+	box-shadow:
+		inset 0 1px rgba(255, 255, 255, 0.08),
+		0 12px 28px rgba(0, 0, 0, 0.38),
+		0 0 18px color-mix(in srgb, var(--btn-color), transparent 78%);
+}
+.btn:active:not(:disabled),
+.rift-btn:active:not(:disabled) {
+	transform: scale(0.985);
+}
+.btn:disabled,
+.rift-btn:disabled {
+	opacity: 0.45;
+	cursor: not-allowed;
+	filter: grayscale(0.35);
+}
+.btn-primary,
+.rift-btn-confirm {
+	--btn-color: #3fd67a;
+	--btn-color-strong: #dffff0;
+}
+.btn-gold,
+.rift-btn-next {
+	--btn-color: #c8aa6e;
+	--btn-color-strong: #fff6dc;
+}
+.btn-hint,
+.rift-btn-hint {
+	--btn-color: #0ac8b9;
+	--btn-color-strong: #dff6ff;
+}
+.btn-ghost,
+.rift-btn-exit,
+.rift-btn-ghost {
+	--btn-color: #8fa3b8;
+	--btn-color-strong: #eef4fb;
+}
+.btn-icon {
+	width: 24px;
+	height: 24px;
+	min-width: 24px;
+	border-radius: 8px;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	line-height: 1;
+	background: rgba(255, 255, 255, 0.05);
+	border: 1px solid rgba(255, 255, 255, 0.08);
+	font-size: 0.82rem;
+	font-weight: 900;
+}
+.input,
+input:not([type="checkbox"]):not([type="range"]) {
+	border-radius: 16px;
+	clip-path: none;
+	background: rgba(8, 10, 15, 0.72);
+	border: 1px solid rgba(200, 170, 110, 0.18);
+	color: var(--text-primary);
+}
+.input:focus,
+input:not([type="checkbox"]):not([type="range"]):focus {
+	outline: none;
+	border-color: rgba(10, 200, 185, 0.7);
+	box-shadow:
+		0 0 0 4px rgba(10, 200, 185, 0.08),
+		0 0 24px rgba(10, 200, 185, 0.1);
+}

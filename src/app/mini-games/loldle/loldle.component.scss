@@ -1,0 +1,121 @@
+.party-game { display: flex; flex-direction: column; gap: 1.5rem; min-height: calc(100vh - 3.2rem); }
+.eyebrow { color: var(--teal); text-transform: uppercase; letter-spacing: 0.16em; font-size: 0.72rem; font-weight: 900; }
+.game-hero { display: flex; justify-content: space-between; gap: 1rem; align-items: center; }
+.game-hero h2 { font-size: clamp(1.6rem, 3.8vw, 2.8rem); color: var(--gold-bright); line-height: 0.95; text-transform: uppercase; margin-top: 0.35rem; }
+.game-hero p { margin-top: 0.55rem; max-width: 640px; color: var(--text-secondary); }
+
+.timer-orb { width: 84px; height: 84px; border-radius: 50%; display: grid; place-items: center; align-content: center; border: 1px solid var(--teal); background: rgba(10,200,185,.08); box-shadow: 0 0 30px var(--teal-glow); flex: 0 0 auto; transition: border-color .2s, box-shadow .2s; }
+.timer-orb strong { font-size: 1.7rem; color: var(--gold-bright); }
+.timer-orb span { font-size: .65rem; color: var(--text-muted); text-transform: uppercase; }
+.timer-orb.danger { border-color: var(--danger); box-shadow: 0 0 30px rgba(193,60,77,.28); animation: timer-pulse 1s ease-in-out infinite; }
+
+.guess-stage {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 250px;
+  grid-template-areas: "center right";
+  gap: 1.2rem;
+  align-items: start;
+  animation: stage-in .4s cubic-bezier(.2,1,.4,1) both;
+}
+.center-column { grid-area: center; display: flex; flex-direction: column; gap: 1.4rem; min-width: 0; }
+.hero-side { display: flex; flex-direction: column; align-items: center; gap: .55rem; flex: 0 0 auto; }
+.hero-side .rift-btn-ghost { white-space: nowrap; }
+
+/* ===== Panneau joueurs : un seul cote (droite), en bulles bien visibles qui
+ * apparaissent au fil des essais plutot qu'un log brut qui defilait en bas. */
+.side-panel {
+  grid-area: right;
+  display: flex;
+  flex-direction: column;
+  gap: .6rem;
+  padding: 1rem .9rem;
+  border-radius: 16px;
+  border: 1px solid var(--border-subtle);
+  background: rgba(15,18,26,.65);
+  animation: stage-in .4s cubic-bezier(.2,1,.4,1) both;
+}
+.side-panel-title { display: flex; align-items: center; gap: .4rem; font-weight: 900; color: var(--teal); font-size: .78rem; text-transform: uppercase; letter-spacing: .05em; }
+.side-panel-empty { color: var(--text-secondary); font-size: .8rem; font-style: italic; }
+.player-status {
+  border: 1px solid var(--border-strong, rgba(255,255,255,.16));
+  border-radius: 14px;
+  padding: .65rem .8rem;
+  background: var(--bg-elevated);
+  box-shadow: 0 4px 14px rgba(0,0,0,.35);
+  display: flex;
+  flex-direction: column;
+  gap: .2rem;
+  animation: bubble-in .3s cubic-bezier(.2,1,.4,1) both;
+}
+.player-status strong { color: var(--gold-bright); font-size: .88rem; }
+.player-status span { color: var(--text-primary); font-size: .8rem; font-weight: 600; }
+.player-status.solved { border-color: var(--success); background: rgba(63,214,122,.14); }
+.player-status.solved span { color: var(--success); font-weight: 800; }
+.player-status.failed { border-color: var(--danger); background: rgba(232,73,95,.12); }
+.player-status.failed span { color: #ff9aa8; font-weight: 800; }
+
+@media (max-width: 1100px) {
+  .guess-stage { grid-template-columns: 1fr; grid-template-areas: "center" "right"; }
+  .side-panel { flex-direction: row; flex-wrap: wrap; align-items: center; }
+  .side-panel-title { flex: 1 1 100%; }
+  .player-status { flex: 1 1 160px; }
+}
+
+/* ===== Grid ===== */
+.grid-card { padding: 1.3rem; display: flex; flex-direction: column; gap: 1.1rem; align-items: center; }
+.grid { display: flex; flex-direction: column; gap: .5rem; }
+.grid-row { display: flex; gap: .45rem; }
+.cell {
+  width: 46px; height: 46px;
+  display: grid; place-items: center;
+  border-radius: 10px;
+  border: 2px solid var(--border-subtle);
+  background: var(--bg-elevated);
+  font-weight: 900;
+  font-size: 1.3rem;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  animation: cell-pop .25s ease both;
+}
+.cell.empty { border-style: dashed; background: transparent; }
+.cell.correct { background: var(--success); border-color: var(--success); color: #06210f; }
+.cell.present { background: var(--warning); border-color: var(--warning); color: #2a1c02; }
+.cell.absent { background: var(--bg-void); border-color: var(--border-subtle); color: var(--text-muted); }
+
+.guess-row { display: flex; gap: .6rem; width: 100%; max-width: 480px; align-items: flex-start; }
+.guess-input { flex: 1; }
+
+.wait-pill { align-self: center; border: 1px solid rgba(200,170,110,.32); border-radius: 999px; padding: .65rem 1.1rem; color: var(--gold-bright); font-weight: 900; background: rgba(200,170,110,.08); }
+.wait-pill.success { border-color: rgba(63,214,122,.42); background: rgba(63,214,122,.1); color: var(--success); }
+
+/* ===== Results ===== */
+.results-stage { position: relative; overflow: hidden; padding: 2.4rem 1.6rem; display: flex; flex-direction: column; align-items: center; gap: 1.2rem; text-align: center; }
+.reveal-winner h2 { font-size: clamp(1.8rem, 4.5vw, 3rem); color: var(--gold-bright); text-transform: uppercase; margin-top: .5rem; }
+.secret-portrait { width: 130px; height: 130px; border-radius: 50%; object-fit: cover; object-position: top; border: 2px solid var(--gold); box-shadow: 0 0 30px rgba(200,170,110,.35); animation: card-pop .4s ease both; }
+.secret-name { font-size: 1.6rem; color: var(--gold-bright); text-transform: uppercase; }
+.summary { color: var(--text-secondary); font-style: italic; }
+.role-grid { display: flex; flex-direction: column; gap: .55rem; width: 100%; max-width: 460px; }
+.role-row { display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border-subtle); border-radius: 14px; padding: .6rem .9rem; background: rgba(1,10,19,.5); text-align: left; animation: row-in .4s ease both; }
+.role-row div { display: flex; flex-direction: column; }
+.role-row strong { color: var(--gold-bright); }
+.role-row span { color: var(--text-muted); font-size: .78rem; }
+.role-row.dead span { color: var(--danger); }
+.reveal-scores { display: flex; flex-direction: column; align-items: center; gap: 1rem; width: 100%; margin-top: .5rem; }
+.score-grid { display: flex; flex-direction: column; gap: .55rem; width: 100%; max-width: 460px; }
+.score-row { display: flex; justify-content: space-between; align-items: center; border: 1px solid var(--border-subtle); border-radius: 14px; padding: .68rem 1rem; background: rgba(1,10,19,.5); animation: row-in .4s ease both; }
+.score-row strong { color: var(--gold-bright); }
+.score-row em { font-style: normal; font-weight: 900; color: var(--success); }
+.score-row em.zero { color: var(--text-muted); }
+
+@keyframes stage-in { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+@keyframes card-pop { from { opacity: 0; transform: translateY(12px) scale(.96); } to { opacity: 1; transform: none; } }
+@keyframes cell-pop { from { opacity: 0; transform: scale(.7); } to { opacity: 1; transform: none; } }
+@keyframes bubble-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@keyframes timer-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }
+@keyframes row-in { from { opacity: 0; transform: translateX(-14px); } to { opacity: 1; transform: none; } }
+
+@media (max-width: 860px) {
+  .game-hero { flex-direction: column; align-items: flex-start; }
+  .cell { width: 38px; height: 38px; font-size: 1.05rem; }
+  .guess-row { flex-direction: column; }
+}

@@ -1,0 +1,15 @@
+<button
+  type="button"
+  class="champion-card"
+  [class.selected]="selected()"
+  [class.disabled]="disabled() && !selected()"
+  [disabled]="disabled() && !selected()"
+  (click)="toggle.emit(champion())"
+>
+  <div class="portrait">{{ initials() }}</div>
+  <div class="info">
+    <span class="name">{{ champion().name }}</span>
+    <span class="roles">{{ champion().roles.join(' / ') }}</span>
+  </div>
+  <span class="cost">{{ champion().cost }}</span>
+</button>

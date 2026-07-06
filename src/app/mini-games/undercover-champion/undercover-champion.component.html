@@ -1,0 +1,397 @@
+	<div class="party-game undercover">
+		@if (uc.phase() === "idle") {
+			<section class="waiting card">
+				<div class="pulse-ring"><app-icon name="loader" [size]="28" /></div>
+				<span class="eyebrow">Undercover Champion</span>
+				<h2>Préparation de la manche...</h2>
+			</section>
+		} @else if (uc.phase() === "reveal") {
+			<section class="reveal-stage">
+				<header class="game-hero">
+					<div>
+						<span class="eyebrow">Undercover Champion</span>
+						<h2>Ton mot secret</h2>
+						<p>
+							Mémorise-le. Personne d'autre ne doit savoir si tu es
+							l'Undercover.
+						</p>
+					</div>
+				</header>
+				<div class="word-card card">
+					<span class="word-label">Ton mot</span>
+					<strong class="word-text">{{ uc.myWord() ?? "..." }}</strong>
+				</div>
+				@if (!uc.revealReady()) {
+					<button
+						class="rift-btn rift-btn-confirm"
+						(click)="acknowledgeReveal()"
+					>
+						<span>J'ai mémorisé mon mot</span>
+					</button>
+				} @else {
+					<div class="wait-pill">
+						{{ uc.revealProgress()?.ready ?? 1 }}/{{
+							uc.revealProgress()?.total ?? room.players().length
+						}}
+						joueurs prêts
+					</div>
+				}
+			</section>
+		} @else if (uc.phase() === "turns") {
+			<section class="turns-stage">
+				<header class="game-hero">
+					<div>
+						<span class="eyebrow"
+							>Tour {{ currentRound() }}/2 · Undercover Champion</span
+						>
+						<h2>
+							{{
+								isMyTurn()
+									? "C'est ton tour"
+									: activePlayerPseudo() + " réfléchit..."
+							}}
+						</h2>
+						<p>
+							Propose un mot lié à ton mot secret, sans le révéler
+							directement.
+						</p>
+					</div>
+				</header>
+
+				<div class="turn-panel card">
+					<div class="timer-row">
+						<div class="timer-orb" [class.danger]="remainingSeconds() <= 10">
+							<span>Temps</span>
+							<strong>{{ remainingSeconds() }}</strong>
+						</div>
+						<div class="timer-bar">
+							<div
+								class="timer-fill"
+								[style.width.%]="remainingRatio() * 100"
+							></div>
+						</div>
+					</div>
+
+					@if (isMyTurn()) {
+						<div class="answer-row">
+							<input
+								type="text"
+								[(ngModel)]="wordInput"
+								placeholder="Ton mot..."
+								maxlength="40"
+								(keyup.enter)="submitWord()"
+							/>
+							<button
+								class="rift-btn rift-btn-confirm"
+								(click)="submitWord()"
+								[disabled]="!wordInput.trim()"
+							>
+								<span>Valider</span>
+							</button>
+						</div>
+					} @else {
+						<p class="turn-hint">
+							En attente de {{ activePlayerPseudo() }}...
+						</p>
+					}
+				</div>
+
+				<div class="word-feed">
+					<div class="feed-round">
+						<span class="eyebrow">Tour 1</span>
+						<div class="feed-list">
+							@for (entry of wordsRound1(); track entry.playerId) {
+								<div
+									class="word-msg"
+									[class.me]="entry.playerId === room.myId()"
+								>
+									<span
+										class="avatar"
+										[style.background]="avatarColor(entry.playerId)"
+										>{{ initials(entry.pseudo) }}</span
+									>
+									<div class="bubble">
+										<b>{{ entry.pseudo }}</b>
+										<p>
+											{{ entry.timedOut ? "⏱ Silence..." : entry.word }}
+										</p>
+									</div>
+								</div>
+							}
+						</div>
+					</div>
+					@if (wordsRound2().length) {
+						<div class="feed-round">
+							<span class="eyebrow">Tour 2</span>
+							<div class="feed-list">
+								@for (entry of wordsRound2(); track entry.playerId) {
+									<div
+										class="word-msg"
+										[class.me]="entry.playerId === room.myId()"
+									>
+										<span
+											class="avatar"
+											[style.background]="avatarColor(entry.playerId)"
+											>{{ initials(entry.pseudo) }}</span
+										>
+										<div class="bubble">
+											<b>{{ entry.pseudo }}</b>
+											<p>
+												{{ entry.timedOut ? "⏱ Silence..." : entry.word }}
+											</p>
+										</div>
+									</div>
+								}
+							</div>
+						</div>
+					}
+				</div>
+			</section>
+		} @else if (uc.phase() === "vote") {
+			<section class="vote-stage">
+				<header class="game-hero">
+					<div>
+						<span class="eyebrow">Undercover Champion</span>
+						<h2>Qui est l'Undercover ?</h2>
+						<p>Un seul vote, impossible à modifier ensuite.</p>
+					</div>
+				</header>
+
+				<div class="word-feed recap card">
+					<div class="feed-round">
+						<span class="eyebrow">Tour 1</span>
+						<div class="feed-list">
+							@for (entry of wordsRound1(); track entry.playerId) {
+								<div
+									class="word-msg"
+									[class.me]="entry.playerId === room.myId()"
+								>
+									<span
+										class="avatar"
+										[style.background]="avatarColor(entry.playerId)"
+										>{{ initials(entry.pseudo) }}</span
+									>
+									<div class="bubble">
+										<b>{{ entry.pseudo }}</b>
+										<p>
+											{{ entry.timedOut ? "⏱ Silence..." : entry.word }}
+										</p>
+									</div>
+								</div>
+							}
+						</div>
+					</div>
+					@if (wordsRound2().length) {
+						<div class="feed-round">
+							<span class="eyebrow">Tour 2</span>
+							<div class="feed-list">
+								@for (entry of wordsRound2(); track entry.playerId) {
+									<div
+										class="word-msg"
+										[class.me]="entry.playerId === room.myId()"
+									>
+										<span
+											class="avatar"
+											[style.background]="avatarColor(entry.playerId)"
+											>{{ initials(entry.pseudo) }}</span
+										>
+										<div class="bubble">
+											<b>{{ entry.pseudo }}</b>
+											<p>
+												{{ entry.timedOut ? "⏱ Silence..." : entry.word }}
+											</p>
+										</div>
+									</div>
+								}
+							</div>
+						</div>
+					}
+				</div>
+
+				<div class="vote-grid">
+					@for (player of uc.turnOrder(); track player.id) {
+						@if (player.id === room.myId()) {
+							<div class="vote-card self">
+								<span
+									class="avatar"
+									[style.background]="avatarColor(player.id)"
+									>{{ initials(player.pseudo) }}</span
+								>
+								<span class="vote-name">Toi</span>
+								@if (votersFor(player.id).length) {
+									<div class="incoming-votes">
+										@for (voter of votersFor(player.id); track voter.id) {
+											<span
+												class="mini-avatar"
+												[style.background]="avatarColor(voter.id)"
+												[title]="voter.pseudo"
+												>{{ initials(voter.pseudo) }}</span
+											>
+										}
+									</div>
+								}
+							</div>
+						} @else {
+							<button
+								class="vote-card"
+								[class.selected]="uc.myVote() === player.id"
+								[disabled]="!!uc.myVote()"
+								(click)="vote(player.id)"
+							>
+								<span
+									class="avatar"
+									[style.background]="avatarColor(player.id)"
+									>{{ initials(player.pseudo) }}</span
+								>
+								<span class="vote-name">{{ player.pseudo }}</span>
+								@if (votersFor(player.id).length) {
+									<div class="incoming-votes">
+										@for (voter of votersFor(player.id); track voter.id) {
+											<span
+												class="mini-avatar"
+												[style.background]="avatarColor(voter.id)"
+												[title]="voter.pseudo"
+												>{{ initials(voter.pseudo) }}</span
+											>
+										}
+									</div>
+								}
+							</button>
+						}
+					}
+				</div>
+				<div class="wait-pill">
+					{{ uc.voteProgress()?.ready ?? 0 }}/{{
+						uc.voteProgress()?.total ?? room.players().length
+					}}
+					votes
+				</div>
+			</section>
+		} @else if (uc.phase() === "results") {
+			@if (uc.results(); as results) {
+				<section class="results-stage card">
+					@switch (resultStage()) {
+						@case (0) {
+							<div class="reveal-mystery">
+								<span class="eyebrow">Undercover Champion</span>
+								<h2>L'UNDERCOVER ÉTAIT...</h2>
+								<div class="mystery-mask">?</div>
+							</div>
+						}
+						@case (1) {
+							<div class="reveal-identity">
+								<span class="eyebrow">Undercover Champion</span>
+								<h2>{{ results.undercoverPseudo }}</h2>
+								<div class="found-pill" [class.caught]="results.found">
+									{{
+										results.found
+											? "Démasqué par le lobby"
+											: "S'en sort sans être démasqué"
+									}}
+								</div>
+							</div>
+						}
+						@case (2) {
+							<div class="reveal-words">
+								<span class="eyebrow">Les deux mots</span>
+								<div class="words-duo">
+									<article>
+										<span>Mot normal</span>
+										<strong>{{ results.normalWord }}</strong>
+									</article>
+									<article class="undercover">
+										<span>Mot Undercover</span>
+										<strong>{{ results.undercoverWord }}</strong>
+									</article>
+								</div>
+							</div>
+						}
+						@case (3) {
+							<div class="reveal-history">
+								<span class="eyebrow">Les deux tours</span>
+								<div class="history-grid">
+									@for (row of wordsByPlayer(); track row.playerId) {
+										<article
+											class="history-row"
+											[class.undercover]="
+												row.playerId === results.undercoverId
+											"
+										>
+											<div class="history-who">
+												<span
+													class="avatar"
+													[style.background]="avatarColor(row.playerId)"
+													>{{ initials(row.pseudo) }}</span
+												>
+												<strong>{{ row.pseudo }}</strong>
+											</div>
+											<span>{{
+												row.turn1?.timedOut
+													? "(silence)"
+													: (row.turn1?.word ?? "—")
+											}}</span>
+											<span>{{
+												row.turn2?.timedOut
+													? "(silence)"
+													: (row.turn2?.word ?? "—")
+											}}</span>
+										</article>
+									}
+								</div>
+							</div>
+						}
+						@case (4) {
+							<div class="reveal-scores">
+								<span class="eyebrow">Scores de la manche</span>
+								<div class="score-grid">
+									@for (row of scoreRows(); track row.id) {
+										<article
+											class="score-row"
+											[class.undercover]="row.id === results.undercoverId"
+										>
+											<div class="history-who">
+												<span
+													class="avatar"
+													[style.background]="avatarColor(row.id)"
+													>{{ initials(row.pseudo) }}</span
+												>
+												<strong>{{ row.pseudo }}</strong>
+											</div>
+											<em [class.zero]="row.points <= 0"
+												>+{{ row.points }}</em
+											>
+										</article>
+									}
+								</div>
+								@if (mix.active()) {
+									<div class="wait-pill">
+										{{
+											mix.progress()?.ready ?? (submittedToMix() ? 1 : 0)
+										}}/{{ mix.progress()?.total ?? room.players().length }}
+										joueurs prêts · le Mix reprend la main
+									</div>
+								} @else if (room.isHost()) {
+									<button
+										class="rift-btn rift-btn-exit"
+										(click)="room.endGame('Undercover Champion termine.')"
+									>
+										<span>Retour lobby</span>
+									</button>
+								} @else {
+									<p>En attente de l'host pour continuer.</p>
+								}
+							</div>
+						}
+					}
+					@if (resultStage() < 4) {
+						<button
+							class="rift-btn rift-btn-next"
+							(click)="nextResultStage()"
+						>
+							<span>{{ resultStageLabel() }}</span>
+						</button>
+					}
+				</section>
+			}
+		}
+	</div>

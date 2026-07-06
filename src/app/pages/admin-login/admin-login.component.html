@@ -1,0 +1,39 @@
+<div class="hero">
+	<div class="hero-glow"></div>
+
+	<div class="brand">
+		<h1>RIFT <span>PARTY</span></h1>
+		<p>Espace admin</p>
+	</div>
+
+	<div class="card panel">
+		<div class="field">
+			<label>Email</label>
+			<input
+				class="input"
+				type="email"
+				[(ngModel)]="email"
+				placeholder="admin@example.com"
+				(keyup.enter)="submit()"
+			/>
+		</div>
+		<div class="field">
+			<label>Mot de passe</label>
+			<input
+				class="input"
+				type="password"
+				[(ngModel)]="password"
+				placeholder="********"
+				(keyup.enter)="submit()"
+			/>
+		</div>
+
+		@if (error(); as err) {
+			<p class="error">{{ err }}</p>
+		}
+
+		<button class="btn btn-primary submit" [disabled]="!canSubmit()" (click)="submit()">
+			{{ loading() ? "Connexion..." : "Se connecter" }}
+		</button>
+	</div>
+</div>

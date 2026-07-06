@@ -1,0 +1,797 @@
+<div class="draft-arena premium-arena">
+	<div class="arena-aurora"></div>
+	<div class="arena-noise"></div>
+	@if (isTournament()) {
+		@if (showFinalRecap(); as championId) {
+			<section class="final-stage">
+				<div class="final-bracket-backdrop">
+					<ng-container [ngTemplateOutlet]="bracketColumns" />
+				</div>
+				<div class="final-popup">
+					<div class="stage-title">
+						<span class="eyebrow">Tournoi termine</span>
+						<h2>{{ pseudoOf(championId) }} remporte le tournoi</h2>
+					</div>
+					<div class="champion-spotlight">
+						<span class="crown"><app-icon name="crown" [size]="40" /></span>
+						<strong>{{ pseudoOf(championId) }}</strong>
+						<small>Champion du lobby</small>
+					</div>
+					<div class="tournament-placements">
+						@for (row of placements(); track row.playerId) {
+							<article
+								class="placement-row"
+								[class.champion]="row.playerId === championId"
+							>
+								<strong>{{ pseudoOf(row.playerId) }}</strong>
+								<span>{{ row.tag }}</span>
+								<em>+{{ row.points }} pts</em>
+							</article>
+						}
+					</div>
+					<footer class="final-popup-footer">
+						@if (mix.active()) {
+							<div class="wait-pill">
+								{{ mix.progress()?.ready ?? (submittedToMix() ? 1 : 0) }}/{{
+									mix.progress()?.total ?? room.players().length
+								}}
+								joueurs prêts · le Mix attend tout le lobby
+							</div>
+						} @else if (room.isHost()) {
+							<button
+								class="btn btn-primary"
+								(click)="room.endGame('Draft Battle termine.')"
+							>
+								Retour lobby
+							</button>
+						}
+					</footer>
+				</div>
+			</section>
+		} @else if (!matchupRevealDone()) {
+			<section class="bracket-auto-stage">
+				<div class="bracket-modal-backdrop">
+					<div class="bracket-modal auto-bracket-dialog">
+						<div class="transition-flash"></div>
+						@if (!bracketRevealDone()) {
+							<header class="bracket-modal-header centered">
+								<div>
+									<span class="eyebrow">Draft Battle · Tournoi</span>
+									<h2>Bracket live</h2>
+								</div>
+							</header>
+							<ng-container [ngTemplateOutlet]="bracketColumns" />
+							<footer class="bracket-modal-footer">
+								<button
+									class="btn btn-primary bracket-next-btn"
+									(click)="revealBracket()"
+								>
+									Suivant
+								</button>
+							</footer>
+						} @else {
+							<div class="vs-reveal-inline">
+								<span class="eyebrow">Round {{ displayedMatchup()?.round }}</span>
+								<div class="vs-stage">
+									<div class="countdown-stage">
+										<b class="countdown-step">3</b>
+										<b class="countdown-step">2</b>
+										<b class="countdown-step">1</b>
+										<b class="countdown-step fight">FIGHT !</b>
+									</div>
+									<div class="vs-side you">
+										<h2>Toi</h2>
+									</div>
+									<div class="vs-core">
+										<span>VS</span>
+									</div>
+									<div class="vs-side opponent">
+										<h2>{{ pseudoOf(displayedMatchup()!.opponentId) }}</h2>
+									</div>
+								</div>
+								@if (currentEvent(); as ev) {
+									<div class="event-reveal" [class]="'event-' + ev">
+										<span class="event-reveal-tag">Événement spécial</span>
+										<strong>{{ eventLabel(ev) }}</strong>
+										<span class="event-reveal-desc">{{ eventDescription(ev) }}</span>
+									</div>
+								}
+								@if (matchTransitioning()) {
+									<div class="drafter-transition-label">
+										<app-icon name="loader" [size]="18" />
+										<span>Entrée dans la draft…</span>
+									</div>
+								} @else if (drafterReady()) {
+									<button class="btn btn-primary" (click)="confirmDrafter()">
+										Drafter !
+									</button>
+								} @else {
+									<div class="drafter-transition-label pending">
+										<app-icon name="loader" [size]="18" />
+										<span>Préparation du duel…</span>
+									</div>
+								}
+							</div>
+						}
+					</div>
+				</div>
+			</section>
+		} @else if (!submitted()) {
+			<ng-container [ngTemplateOutlet]="pickPhase" />
+		} @else {
+			<section class="round-hub">
+				@if (roundFullyResolved()) {
+					<div class="round-transition-banner hype-banner">
+						<span>Round termine</span>
+						<strong>Le bracket se met a jour…</strong>
+					</div>
+				}
+				<div class="hub-layout">
+					<div class="hub-main card">
+						@if (isViewingMyMatch() && hasSeenMyResult()) {
+							<div
+								class="match-outcome"
+								[class.victory]="myResolvedMatch()?.winnerId === room.myId()"
+								[class.defeat]="myResolvedMatch()?.winnerId !== room.myId()"
+							>
+								@if (myResolvedMatch()?.winnerId === room.myId()) {
+									<div class="outcome-confetti" aria-hidden="true">
+										@for (i of [0, 1, 2, 3, 4, 5, 6, 7]; track i) {
+											<span></span>
+										}
+									</div>
+								}
+								<div class="outcome-badge">
+									<app-icon
+										[name]="myResolvedMatch()?.winnerId === room.myId() ? 'crown' : 'skull'"
+										[size]="34"
+									/>
+								</div>
+								<h2>
+									{{
+										myResolvedMatch()?.winnerId === room.myId()
+											? "Victoire !"
+											: "Defaite"
+									}}
+								</h2>
+								<p class="outcome-line">{{ myResolvedMatch()?.scenario?.closingLine }}</p>
+								<div class="outcome-recap">
+									<span class="outcome-recap-label">Ta composition</span>
+									<div class="outcome-team-row">
+										@for (role of roles; track role) {
+											<div class="outcome-champ" [class.empty]="!pickFor(role)">
+												@if (pickFor(role); as c) {
+													<img [src]="icon(c.id)" [alt]="c.name" />
+													<span>{{ c.name }}</span>
+												} @else {
+													<span>{{ roleLabel(role) }}</span>
+												}
+											</div>
+										}
+									</div>
+									@if (mySelectedStrategyTags().length) {
+										<div class="outcome-perks">
+											@for (tag of mySelectedStrategyTags(); track tag.label) {
+												<span class="outcome-perk-badge">
+													<app-icon [name]="tag.icon" [size]="14" />{{ tag.label }}
+												</span>
+											}
+										</div>
+									}
+								</div>
+								@if (amIEliminated() && otherMatchToSpectate(); as nextMatch) {
+									<p class="hint">
+										Tu es elimine. En attente de la fin du round pour tout
+										le monde…
+									</p>
+									<button
+										class="btn btn-primary"
+										(click)="spectateAnotherMatch()"
+									>
+										Regarder {{ pseudoOf(nextMatch.playerAId) }} vs
+										{{ pseudoOf(nextMatch.playerBId) }}
+									</button>
+								} @else if (!roundFullyResolved()) {
+									<p class="hint">
+										En attente de la fin du round pour tout le monde…
+									</p>
+								}
+							</div>
+						} @else if (currentPhase()) {
+							<ng-container [ngTemplateOutlet]="phaseViewer" />
+							<div class="cinematic-actions">
+								<button class="btn btn-primary" (click)="nextCinematic()">
+									{{ nextButtonLabel() }}
+								</button>
+							</div>
+						} @else {
+							<div class="waiting-placeholder">
+								<div class="pulse-ring"><app-icon name="loader" [size]="28" /></div>
+								<p>
+									@if (viewedMatchMeta(); as m) {
+										En attente : {{ pseudoOf(m.playerAId) }} vs
+										{{ pseudoOf(m.playerBId) }}
+									} @else {
+										En attente…
+									}
+								</p>
+								@if (viewedMatchMeta(); as m) {
+									<div class="live-progress-v2">
+										<div class="live-progress-side">
+											<span class="live-progress-name">{{ pseudoOf(m.playerAId) }}</span>
+											<div class="live-slot-grid">
+												@for (role of roles; track role) {
+													<div
+														class="live-slot"
+														[class.filled]="!!viewedMatchProgress()?.a?.picks?.[role]"
+													>
+														@if (viewedMatchProgress()?.a?.picks?.[role]; as champId) {
+															<div
+																class="live-slot-portrait"
+																[style.background-image]="
+																	'linear-gradient(180deg,rgba(0,0,0,.05),rgba(0,0,0,.75)), url(' +
+																	splash(champId) +
+																	')'
+																"
+															></div>
+															<span class="live-slot-name">{{ championName(champId) }}</span>
+														} @else {
+															<span class="live-slot-role">{{ roleLabel(role) }}</span>
+														}
+													</div>
+												}
+											</div>
+											@if (strategyTagsFor(viewedMatchProgress()?.a?.strategySelections); as tags) {
+												@if (tags.length) {
+													<div class="live-perk-row">
+														@for (tag of tags; track tag.label) {
+															<span class="live-perk-badge">
+																<app-icon [name]="tag.icon" [size]="13" />{{ tag.label }}
+															</span>
+														}
+													</div>
+												}
+											}
+										</div>
+										<div class="live-progress-side">
+											<span class="live-progress-name">{{ pseudoOf(m.playerBId) }}</span>
+											<div class="live-slot-grid">
+												@for (role of roles; track role) {
+													<div
+														class="live-slot"
+														[class.filled]="!!viewedMatchProgress()?.b?.picks?.[role]"
+													>
+														@if (viewedMatchProgress()?.b?.picks?.[role]; as champId) {
+															<div
+																class="live-slot-portrait"
+																[style.background-image]="
+																	'linear-gradient(180deg,rgba(0,0,0,.05),rgba(0,0,0,.75)), url(' +
+																	splash(champId) +
+																	')'
+																"
+															></div>
+															<span class="live-slot-name">{{ championName(champId) }}</span>
+														} @else {
+															<span class="live-slot-role">{{ roleLabel(role) }}</span>
+														}
+													</div>
+												}
+											</div>
+											@if (strategyTagsFor(viewedMatchProgress()?.b?.strategySelections); as tags) {
+												@if (tags.length) {
+													<div class="live-perk-row">
+														@for (tag of tags; track tag.label) {
+															<span class="live-perk-badge">
+																<app-icon [name]="tag.icon" [size]="13" />{{ tag.label }}
+															</span>
+														}
+													</div>
+												}
+											}
+										</div>
+									</div>
+								}
+							</div>
+						}
+					</div>
+					<aside class="hub-spectate card">
+						<h3>Matchs de ce round</h3>
+						@for (match of currentRoundMatches(); track match.matchIndex) {
+							<button
+								class="spectate-row"
+								[class.active]="
+									(viewingMatchKey() ?? myMatchKey()) ===
+									match.round + '-' + match.matchIndex
+								"
+								[class.mine]="isMyMatch(match)"
+								(click)="selectViewing(match)"
+							>
+								<span
+									>{{ pseudoOf(match.playerAId) }} vs
+									{{ pseudoOf(match.playerBId) }}</span
+								>
+								<small>{{ matchStatusLabel(match) }}</small>
+							</button>
+						}
+					</aside>
+				</div>
+			</section>
+		}
+	} @else {
+		@if (draft.results(); as results) {
+			@if (!showFinalResults() && duelPlayerA() && duelPlayerB()) {
+				<section class="cinematic-overlay">
+					<div class="cinematic-dialog card">
+						<ng-container [ngTemplateOutlet]="phaseViewer" />
+						<div class="cinematic-actions">
+							<button class="btn btn-primary" (click)="nextCinematic()">
+								{{ nextButtonLabel() }}
+							</button>
+						</div>
+					</div>
+				</section>
+			} @else if (isSingleRevealed()) {
+				<section class="results-stage">
+					<div class="stage-title">
+						<span class="eyebrow">Combat resolu</span>
+						<h2>Resultats de la draft</h2>
+					</div>
+					@for (result of sortedResults(results); track result.playerId) {
+						<app-draft-result [result]="result" [players]="room.players()" />
+					}
+					@if (mix.active()) {
+						<div class="wait-pill">
+							{{ mix.progress()?.ready ?? (submittedToMix() ? 1 : 0) }}/{{
+								mix.progress()?.total ?? room.players().length
+							}}
+							joueurs prêts · le Mix attend tout le lobby
+						</div>
+					} @else if (room.isHost()) {
+						<button
+							class="btn btn-primary"
+							(click)="room.endGame('Draft Battle terminee.')"
+						>
+							Retour lobby
+						</button>
+					}
+				</section>
+			} @else {
+				<section class="waiting card">
+					<div class="pulse-ring"><app-icon name="loader" [size]="28" /></div>
+					<div class="waiting-dots"><i></i><i></i><i></i></div>
+					<span class="eyebrow">Combat termine</span>
+					<h2>En attente que tout le monde ait fini de regarder...</h2>
+				</section>
+			}
+		} @else if (submitted()) {
+			<section class="waiting card">
+				<div class="pulse-ring"><app-icon name="loader" [size]="28" /></div>
+				<span class="eyebrow">Draft envoyee</span>
+				<h2>En attente des autres joueurs</h2>
+				@if (mySelectedStrategyTags().length) {
+					<div class="strategy-tags">
+						@for (tag of mySelectedStrategyTags(); track tag.label) {
+							<span class="strategy-tag"><app-icon [name]="tag.icon" [size]="14" />{{ tag.label }}</span>
+						}
+					</div>
+				}
+				<div class="ready-progress">
+					<div class="ready-bar">
+						<span [style.width.%]="(draft.readyPlayerIds().size / room.players().length) * 100"></span>
+					</div>
+					<p>{{ draft.readyPlayerIds().size }}/{{ room.players().length }} joueurs prets</p>
+				</div>
+				<div class="ready-avatars">
+					@for (p of room.players(); track p.id) {
+						<span class="ready-avatar" [class.done]="draft.readyPlayerIds().has(p.id)" [title]="p.pseudo">
+							{{ initialsOfPlayer(p.id) }}
+						</span>
+					}
+				</div>
+			</section>
+		} @else {
+			<ng-container [ngTemplateOutlet]="pickPhase" />
+		}
+	}
+</div>
+
+<ng-template #bracketColumns>
+	<ng-container [ngTemplateOutlet]="svgBracket" />
+</ng-template>
+
+<ng-template #svgBracket>
+	<div class="svg-bracket-shell">
+		<svg
+			#bracketSvg
+			class="svg-bracket"
+			[attr.viewBox]="svgViewBox()"
+			preserveAspectRatio="xMidYMid meet"
+		>
+			<defs>
+				<filter id="bracketGlow" x="-50%" y="-50%" width="200%" height="200%">
+					<feGaussianBlur stdDeviation="4" result="blur" />
+					<feMerge>
+						<feMergeNode in="blur" />
+						<feMergeNode in="SourceGraphic" />
+					</feMerge>
+				</filter>
+				<linearGradient id="winnerGradient" x1="0" y1="0" x2="1" y2="0">
+					<stop offset="0%" stop-color="#0ac8b9" />
+					<stop offset="100%" stop-color="#f0e6d2" />
+				</linearGradient>
+				<pattern
+					id="bracketGridPattern"
+					width="42"
+					height="42"
+					patternUnits="userSpaceOnUse"
+				>
+					<path
+						d="M 42 0 L 0 0 0 42"
+						class="svg-grid-line"
+					/>
+				</pattern>
+				<radialGradient id="bracketGridFade" cx="50%" cy="35%" r="75%">
+					<stop offset="0%" stop-color="#0b3a5c" stop-opacity="0.55" />
+					<stop offset="100%" stop-color="#050b14" stop-opacity="0" />
+				</radialGradient>
+			</defs>
+
+			<rect
+				class="svg-grid-bg"
+				x="0"
+				y="0"
+				[attr.width]="svgWidth()"
+				[attr.height]="svgHeight()"
+			/>
+			<rect
+				x="0"
+				y="0"
+				[attr.width]="svgWidth()"
+				[attr.height]="svgHeight()"
+				fill="url(#bracketGridFade)"
+			/>
+
+			<g class="svg-bg-grid">
+				@for (
+					round of draft.tournamentProgress()!.rounds;
+					track round.round;
+					let ri = $index
+				) {
+					<text class="svg-round-label" [attr.x]="svgRoundX(ri) - 38" y="54">
+						{{ roundLabelForState(round) }}
+					</text>
+				}
+			</g>
+
+			<g class="svg-paths">
+				@for (
+					round of draft.tournamentProgress()!.rounds;
+					track round.round;
+					let ri = $index
+				) {
+					@for (
+						match of round.matches;
+						track match.matchIndex;
+						let mi = $index
+					) {
+						@if (svgWinnerPath(match, ri, mi); as pathD) {
+							<path class="svg-path active" [attr.d]="pathD" />
+						}
+						@if (svgPendingPath(ri, mi); as pendingD) {
+							<path class="svg-path pending" [attr.d]="pendingD" />
+						}
+					}
+				}
+			</g>
+
+			<g class="svg-slots">
+				@for (
+					round of draft.tournamentProgress()!.rounds;
+					track round.round;
+					let ri = $index
+				) {
+					@for (
+						match of round.matches;
+						track match.matchIndex;
+						let mi = $index
+					) {
+						<text
+							class="svg-match-vs"
+							[class.resolved]="match.status === 'resolved'"
+							[attr.x]="svgRoundX(ri) + 92"
+							[attr.y]="svgMatchCenterY(ri, mi) + 5"
+						>
+							VS
+						</text>
+						@for (slot of [0, 1]; track slot) {
+							<g
+								class="svg-player"
+								[class.winner]="isSvgSlotWinner(match, slot)"
+								[class.eliminated]="isSvgSlotEliminated(match, slot)"
+								[class.mine]="svgSlotPlayerId(match, slot) === room.myId()"
+								[attr.transform]="svgSlotTransform(ri, mi, slot)"
+							>
+								<g class="svg-player-inner">
+									<rect
+										class="svg-player-card"
+										x="-28"
+										y="-24"
+										width="226"
+										height="48"
+										rx="18"
+									/>
+									<circle class="svg-token-ring" cx="0" cy="0" r="25" />
+									<circle class="svg-token" cx="0" cy="0" r="20" />
+									<text class="svg-token-text" x="0" y="5">
+										{{ initialsOfPlayer(svgSlotPlayerId(match, slot)) }}
+									</text>
+									<text class="svg-name" x="38" y="-3">
+										{{ pseudoOf(svgSlotPlayerId(match, slot)) }}
+									</text>
+									<text class="svg-status" x="38" y="15">
+										{{ svgSlotStatus(match, slot) }}
+									</text>
+								</g>
+							</g>
+						}
+					}
+				}
+			</g>
+		</svg>
+	</div>
+</ng-template>
+
+<ng-template #phaseViewer>
+	@if (currentPhase(); as phase) {
+		<div class="cinematic-topbar">
+			<span class="eyebrow">{{ matchLabel() }}</span>
+			@if (!isTournament()) {
+				<div class="win-meter">
+					<span>{{ pseudoOf(favoredPlayer()!.playerId) }}</span>
+					<div class="meter-track">
+						<div class="meter-fill" [style.width.%]="winChance()"></div>
+					</div>
+					<strong>{{ winChance() }}% win</strong>
+				</div>
+			}
+		</div>
+
+		<div class="lane-header">
+			<strong>{{ phaseKindLabel(phase.kind) }}</strong>
+			<span
+				>{{ phase.label }} · Phase {{ cinematicStep() + 1 }}/{{
+					currentScenario()?.phases?.length
+				}}</span
+			>
+		</div>
+
+		<div class="duel-stage" [class.solo]="!phase.opponentChampionId">
+			<div class="duel-fighter winner">
+				<div
+					class="fighter-splash"
+					[style.background-image]="'url(' + splash(phase.championId) + ')'"
+				></div>
+				<img [src]="icon(phase.championId)" alt="" />
+				<h3>{{ championName(phase.championId) }}</h3>
+				<small>{{ pseudoOf(phaseWinnerPlayerId() ?? "") }}</small>
+			</div>
+
+			@if (phase.opponentChampionId; as opponentId) {
+				<div class="vs-core">
+					<span>VS</span>
+				</div>
+
+				<div class="duel-fighter loser">
+					<div
+						class="fighter-splash"
+						[style.background-image]="'url(' + splash(opponentId) + ')'"
+					></div>
+					<img [src]="icon(opponentId)" alt="" />
+					<h3>{{ championName(opponentId) }}</h3>
+					<small>{{ pseudoOf(phaseLoserPlayerId() ?? "") }}</small>
+				</div>
+			}
+		</div>
+
+		<div class="fight-log">
+			<span class="log-dot"></span>
+			<div class="fight-log-text">
+				<p>{{ phase.text }}</p>
+				@if (cinematicStep() === (currentScenario()?.phases?.length ?? 1) - 1) {
+					<p class="closing-line">{{ currentScenario()!.closingLine }}</p>
+				}
+			</div>
+		</div>
+
+		<div class="cinematic-progress">
+			@for (
+				p of currentScenario()?.phases ?? [];
+				track p.minute + p.label;
+				let i = $index
+			) {
+				<span
+					[class.done]="i <= cinematicStep()"
+					[class.active]="i === cinematicStep()"
+					>{{ p.minute }}'</span
+				>
+			}
+		</div>
+	}
+</ng-template>
+
+<ng-template #pickPhase>
+	@if (currentEvent(); as activeEvent) {
+		<div class="special-event-banner">
+			<app-icon name="sparkle" [size]="18" />
+			<div>
+				<strong>Evenement special · {{ eventLabel(activeEvent) }}</strong>
+				<span>{{ eventDescription(activeEvent) }}</span>
+			</div>
+		</div>
+	}
+	<section class="draft-hud">
+		<div>
+			<span class="eyebrow">Draft Battle</span>
+			@if (!isStrategyStep()) {
+				<h2>Choisis ton {{ roleLabel(currentRole()) }}</h2>
+			} @else {
+				@if (currentStrategyCategory(); as category) {
+					<h2>{{ category.label }}</h2>
+					<p class="hud-prompt">{{ category.prompt }}</p>
+				}
+			}
+			<div class="step-progress">
+				@for (i of stepIndices(); track i) {
+					<span
+						class="step-dot"
+						[class.done]="i < currentIndex()"
+						[class.active]="i === currentIndex()"
+					></span>
+				}
+			</div>
+		</div>
+		<div class="hud-side">
+			@if (!isStrategyStep()) {
+				<button
+					class="mini-btn reroll-btn"
+					[disabled]="rerollsLeft() <= 0"
+					(click)="reroll()"
+				>
+					Reroll ({{ rerollsLeft() }}/{{ maxRerolls }})
+				</button>
+			}
+			<div class="budget-orb" [class.danger]="remaining() < 18">
+				<span>Budget</span>
+				<strong>{{ remaining() }}</strong>
+				<small>/ {{ currentBudget() }}</small>
+			</div>
+		</div>
+	</section>
+
+	<section class="cards-stage" [class.strategy-mode]="isStrategyStep()">
+		@if (!isStrategyStep()) {
+			@for (champion of offers(); track champion.id; let i = $index) {
+				<button
+					class="pick-card"
+					[class.locked]="!canPick(champion)"
+					[class.sbire]="isSbire(champion)"
+					[attr.data-champ-id]="champion.id"
+					[attr.data-rarity]="champion.rarity"
+					[style.animation-delay.ms]="i * 80"
+					[style.--rarity-color]="rarityMeta(champion.rarity).color"
+					(click)="pick(champion)"
+					(mousemove)="onPickCardMove($event)"
+					(mouseleave)="onPickCardLeave($event)"
+				>
+					<div class="card-glow"></div>
+					<div class="card-shine"></div>
+					<span class="rarity-pill">{{ rarityMeta(champion.rarity).label }}</span>
+					<div class="portrait-ring">
+						<div
+							class="portrait"
+							[style.background-image]="
+								'linear-gradient(180deg,rgba(0,0,0,.02),rgba(0,0,0,.65)), url(' +
+								splash(champion.id) +
+								')'
+							"
+						>
+							<img [src]="icon(champion.id)" [alt]="champion.name" />
+						</div>
+					</div>
+					<span class="role-pill">{{ roleLabel(currentRole()) }}</span>
+					<h3>{{ champion.name }}</h3>
+					<div class="cost cost-badge">
+						@if (isSbire(champion)) {
+							<span>Gratuit</span>
+						} @else {
+							<span>{{ champion.cost }}</span
+							><small>PTS</small>
+						}
+					</div>
+					<div class="tags">
+						@for (tag of champion.tags.slice(0, 4); track tag) {
+							<span>{{ tag }}</span>
+						}
+					</div>
+					<div class="card-footer">
+						@if (isSbire(champion)) {
+							<span>Depannage gratuit</span>
+						} @else if (canPick(champion)) {
+							<span>Selectionner</span>
+						} @else {
+							<span>Budget trop bas</span>
+						}
+					</div>
+				</button>
+			}
+		} @else {
+			@if (currentStrategyCategory(); as category) {
+				<div class="strategy-options">
+					@for (option of category.options; track option.id) {
+						<button
+							class="strategy-card"
+							[class.selected]="strategySelections()[category.id] === option.id"
+							[attr.data-option-id]="option.id"
+							(click)="selectStrategy(category.id, option.id)"
+						>
+							<div class="strategy-icon"><app-icon [name]="strategyIcon(option.id)" [size]="26" /></div>
+							<strong>{{ option.label }}</strong>
+							<span>{{ option.description }}</span>
+							<em>{{ strategyFlavor(option.label) }}</em>
+						</button>
+					}
+				</div>
+			}
+		}
+	</section>
+
+	<section class="bench card">
+		<div class="bench-header">
+			<span class="eyebrow">Ta compo</span>
+			@if (!allStrategySelected()) {
+				<span class="bench-hint">Choisis ta strategie d'equipe ci-dessus</span>
+			}
+		</div>
+		<div class="bench-grid">
+			@for (role of roles; track role) {
+				<div class="bench-slot" [class.filled]="!!pickFor(role)">
+					<span>{{ role }}</span>
+					@if (pickFor(role); as pickedChampion) {
+						<img
+							[src]="icon(pickedChampion.id)"
+							[alt]="pickedChampion.name"
+						/><strong>{{ pickedChampion.name }}</strong>
+					} @else {
+						<strong>Vide</strong>
+					}
+				</div>
+			}
+		</div>
+		<div class="team-power">
+			<span>Team power</span>
+			<div class="power-track">
+				<div class="power-fill" [style.width.%]="teamPower()"></div>
+			</div>
+			<strong>{{ teamPower() }}%</strong>
+		</div>
+		<div class="synergy-preview synergy-active">
+			@for (line of synergyPreview(); track line; let i = $index) {
+				<span [style.animation-delay.ms]="i * 90">ACTIVE · {{ line }}</span>
+			}
+		</div>
+		@if (mySelectedStrategyTags().length) {
+			<div class="strategy-tags">
+				@for (tag of mySelectedStrategyTags(); track tag.label) {
+					<span class="strategy-tag"><app-icon [name]="tag.icon" [size]="14" />{{ tag.label }}</span>
+				}
+			</div>
+		}
+		<button
+			class="btn btn-primary submit"
+			[disabled]="!canSubmit()"
+			(click)="submit()"
+		>
+			Verrouiller la draft
+		</button>
+	</section>
+</ng-template>

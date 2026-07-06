@@ -1,0 +1,329 @@
+<div class="rank-game">
+	@if (finished()) {
+		<section class="end-screen card">
+			<span class="eyebrow">Tier List terminée</span>
+			<h2>Tribunal fermé</h2>
+			<strong>{{ scoreLabel() }}</strong>
+			<p>
+				Le lobby a rendu son verdict. Certaines takes ne s’en remettront
+				pas.
+			</p>
+			@if (mix.active()) {
+				<div class="wait-pill">Résultats envoyés au Party Mix</div>
+			} @else {
+				<div class="end-actions">
+					<button class="rift-btn rift-btn-next" (click)="restart()">
+						<span class="btn-icon">↻</span><span>Rejouer</span>
+					</button>
+					@if (room.isHost()) {
+						<button
+							class="rift-btn rift-btn-exit"
+							(click)="room.endGame('TikTok Ranking terminé.')"
+						>
+							<span class="btn-icon"><app-icon name="back" [size]="16" /></span><span>Retour lobby</span>
+						</button>
+					}
+				</div>
+			}
+		</section>
+	} @else {
+		@if (results(); as result) {
+			<section class="results-dialog card">
+				@if (revealIntro()) {
+					<div class="reveal-intro">
+						<span class="eyebrow">Affichage des résultats</span>
+						<h2>Le tribunal ouvre le dossier</h2>
+						<p>{{ result.ready }}/{{ result.total }} tier lists reçues</p>
+					</div>
+				} @else {
+					@if (tribunal(); as judgement) {
+						<div
+							class="tribunal-overlay"
+							[class.guilty]="tribunal()?.convicted?.length"
+							[class.not-guilty]="
+								!tribunal()?.convicted?.length &&
+								tribunal()?.title !== 'Droit de parole révoqué'
+							"
+							[class.whole-tier]="
+								tribunal()?.title === 'Droit de parole révoqué'
+							"
+							[class.counter]="tribunal()?.counterFraud?.length"
+						>
+							<span class="eyebrow">Tribunal du Rift</span>
+							<h2>{{ judgement.title }}</h2>
+							@if (mainConviction(judgement); as guilty) {
+								<div class="verdict-focus">
+									<img
+										class="verdict-champion"
+										[src]="icon(guilty.champion)"
+										[alt]="guilty.champion"
+										(error)="fallback($event)"
+									/>
+
+									<div class="verdict-info">
+										<h3>{{ guilty.champion }}</h3>
+										<div class="verdict-rank">#{{ guilty.slot }}</div>
+										<div class="verdict-line"></div>
+
+										<p>
+											<b
+												>{{ guilty.votes }}/{{
+													judgementJuryCount(judgement)
+												}}</b
+											>
+											jurés condamnent ce placement.
+										</p>
+									</div>
+								</div>
+
+								<p class="tribunal-message">
+									La majorité a voté. Le juge te déclare
+									<span>coupable</span> d'une take frauduleuse.
+								</p>
+							} @else {
+								<p>{{ judgement.message }}</p>
+							}
+							@if (judgement.penaltyLines.length) {
+								<div class="penalty-lines">
+									@for (line of judgement.penaltyLines; track line) {
+										<strong>{{ line }}</strong>
+									}
+								</div>
+							}
+						</div>
+					}
+
+					<header class="review-head">
+						<div>
+							<span class="eyebrow"
+								>{{ index() + 1 }}/{{ maxRounds() }} •
+								{{ round().question }}</span
+							>
+							<h2>Tier list de {{ currentReview()?.pseudo }}</h2>
+							<p>
+								Comparez, jugez, condamnez si vraiment la take est
+								impossible à défendre.
+							</p>
+						</div>
+						<div class="review-count">
+							<b>{{ reviewIndex() + 1 }}</b
+							><span>/ {{ result.byPlayer.length }}</span>
+						</div>
+					</header>
+					@if (hasVotedFraudOnCurrentReview()) {
+						<div class="vote-locked"><app-icon name="check" [size]="14" /> Vote enregistré</div>
+					}
+					<main class="review-layout">
+						<section class="review-tierlist">
+							@for (slot of slots; track slot) {
+								@if (champFor(currentReview(), slot); as champ) {
+									<article
+										class="review-slot"
+										[class.same]="sameAsMe(currentReview(), slot)"
+										[class.same-champ]="
+											sameChampionDifferentSlot(currentReview(), slot)
+										"
+										[class.unique]="
+											isUniquePlacement(currentReview(), slot)
+										"
+									>
+										<b>#{{ slot }}</b>
+										<img
+											[src]="icon(champ)"
+											[alt]="champ"
+											(error)="fallback($event)"
+										/>
+										<div>
+											<strong>{{ champ }}</strong>
+											<small>{{
+												placementTag(currentReview(), slot)
+											}}</small>
+										</div>
+										@if (canVoteFraud(currentReview())) {
+											<button
+												class="fraud-btn"
+												[class.active]="
+													hasMyFraudVote(currentReview()?.playerId, slot)
+												"
+												(click)="voteFraud(currentReview()?.playerId, slot)"
+												[disabled]="
+													hasVotedFraudOnCurrentReview() ||
+													hasVotedWholeTierFraud() ||
+													hasVotedCleanTierList()
+												"
+											>
+												<app-icon name="scale" [size]="14" /> Avis frauduleux
+												@if (
+													fraudCount(currentReview()?.playerId, slot) > 0
+												) {
+													<em>{{
+														fraudCount(currentReview()?.playerId, slot)
+													}}</em>
+												}
+											</button>
+										}
+									</article>
+								}
+							}
+						</section>
+
+						<aside class="review-cards">
+							@for (card of playerCards(currentReview()); track card) {
+								<article>{{ card }}</article>
+							}
+							@if (!tribunalEnabled()) {
+								<article class="muted-card">
+									Tribunal désactivé : il faut au moins 3 joueurs pour voter
+									un avis frauduleux.
+								</article>
+							}
+						</aside>
+					</main>
+
+					<footer class="review-actions">
+						<div class="jury-left">
+							@if (canVoteFraud(currentReview())) {
+								<button
+									class="fraud-clean-btn"
+									[class.active]="hasVotedCleanTierList()"
+									[disabled]="
+										hasVotedFraudOnCurrentReview() ||
+										hasVotedWholeTierFraud() ||
+										hasVotedCleanTierList()
+									"
+									(click)="voteCleanTierList()"
+								>
+									<app-icon name="check" [size]="14" /> Tier list cohérente
+								</button>
+
+								<button
+									class="fraud-whole-btn"
+									[class.active]="hasVotedWholeTierFraud()"
+									[disabled]="
+										hasVotedFraudOnCurrentReview() ||
+										hasVotedWholeTierFraud() ||
+										hasVotedCleanTierList()
+									"
+									(click)="voteWholeTierFraud()"
+								>
+									<app-icon name="scale" [size]="14" /> Tier list entièrement frauduleuse
+								</button>
+							}
+
+							<div class="jury-progress">
+								{{ juryReadyCount(currentReview()?.playerId) }}/{{
+									juryTotal()
+								}}
+								jurés ont statué
+							</div>
+						</div>
+
+						<div class="wait-pill">
+							{{
+								juryReady()
+									? "Le tribunal tranche..."
+									: "En attente du jury..."
+							}}
+						</div>
+					</footer>
+				}
+			</section>
+		} @else {
+			<header class="game-head">
+				<span class="eyebrow"
+					>TikTok Ranking • {{ index() + 1 }}/{{ maxRounds() }}</span
+				>
+				@if (!submitted()) {
+					<small class="timer-pill" [class.low]="remainingSec() <= 5">{{ remainingSec() }}s</small>
+				}
+				<h2>{{ round().question }}</h2>
+				<p>
+					Classe les 10 champions. Quand tout le monde a validé, le lobby
+					passe au tribunal.
+				</p>
+			</header>
+
+			<section class="ranking-board card">
+				<aside class="ladder">
+					@for (slot of slots; track slot) {
+						<button
+							class="rank-slot"
+							[class.active]="selectedSlot() === slot"
+							[class.filled]="!!placement()[slot]"
+							(click)="selectSlot(slot)"
+							(dragover)="allowDrop($event)"
+							(drop)="dropOnSlot($event, slot)"
+						>
+							<span class="rank-number">#{{ slot }}</span>
+							@if (placement()[slot]; as champ) {
+								<img
+									[src]="icon(champ)"
+									[alt]="champ"
+									(error)="fallback($event)"
+								/>
+								<strong>{{ champ }}</strong>
+							} @else {
+								<strong>Drop ici</strong>
+							}
+						</button>
+					}
+				</aside>
+
+				<main class="cards-pool">
+					@for (champ of round().options; track champ) {
+						<button
+							class="champ-card"
+							[class.used]="isUsed(champ)"
+							[attr.draggable]="!submitted()"
+							(dragstart)="dragStart($event, champ)"
+							(click)="place(champ)"
+						>
+							<img
+								[src]="icon(champ)"
+								[alt]="champ"
+								(error)="fallback($event)"
+							/>
+							<span>{{ champ }}</span>
+						</button>
+					}
+				</main>
+
+				<aside class="panel">
+					<span class="eyebrow">Ta tier list</span>
+					<h3>{{ filledCount() }}/10</h3>
+					<p>
+						Drag & drop ou clique sur une carte. Le bouton valide uniquement
+						quand les 10 places sont remplies.
+					</p>
+					@if (submitted() && !results()) {
+						<div class="wait-pill">
+							{{ progress().ready }}/{{ progress().total }} joueurs prêts
+						</div>
+					}
+					<button
+						class="rift-btn rift-btn-confirm"
+						[disabled]="filledCount() < 10 || submitted()"
+						(click)="validate()"
+					>
+						<span class="btn-icon"><app-icon name="check" [size]="16" /></span><span>Envoyer</span>
+					</button>
+					@if (round().premium) {
+						<small class="premium-note"
+							>Catégorie premium dans la vraie version.</small
+						>
+					}
+				</aside>
+			</section>
+		}
+		<footer class="actions">
+			@if (!mix.active() && room.isHost()) {
+				<button
+					class="rift-btn rift-btn-exit"
+					(click)="room.endGame('TikTok Ranking terminé.')"
+				>
+					<span class="btn-icon"><app-icon name="back" [size]="16" /></span><span>Retour lobby</span>
+				</button>
+			}
+		</footer>
+	}
+</div>

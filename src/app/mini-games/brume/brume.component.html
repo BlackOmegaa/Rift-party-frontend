@@ -1,0 +1,468 @@
+<div class="party-game brume">
+  @if (dawnAnnounce(); as dawn) {
+    <div class="announce-overlay" (click)="dawnAnnounce.set(null)">
+      <div class="announce-card" [class.danger]="dawn.deaths.length > 0">
+        <div class="announce-icon"><app-icon [name]="dawn.deaths.length ? 'blood-drop' : 'moon'" [size]="48" /></div>
+        <h2>{{ dawnTitle(dawn) }}</h2>
+        @if (dawn.bloodTracePseudo) {
+          <p>Une odeur de sang trompeuse flotte près de {{ dawn.bloodTracePseudo }} — un leurre, presque jamais la vraie victime.</p>
+        }
+        <span class="announce-tap">Touche pour continuer</span>
+      </div>
+    </div>
+  }
+  @if (voteAnnounce(); as vr) {
+    <div class="announce-overlay" (click)="voteAnnounce.set(null)">
+      <div class="announce-card" [class.danger]="!!vr.eliminatedId">
+        <div class="announce-icon"><app-icon [name]="vr.eliminatedId ? 'scale' : 'handshake'" [size]="48" /></div>
+        <h2>{{ vr.eliminatedPseudo ? vr.eliminatedPseudo + " a été banni par l'Assemblée" : "Égalité — personne n'est éliminé" }}</h2>
+        <span class="announce-tap">Touche pour continuer</span>
+      </div>
+    </div>
+  }
+
+  @if (brume.myRole() && brume.phase() !== 'reveal') {
+    <button class="role-reminder-btn" (click)="toggleRoleReminder()" title="Revoir mon role">
+      <app-icon name="mask" [size]="18" />
+    </button>
+    @if (roleReminderOpen()) {
+      <div class="role-reminder-backdrop" (click)="toggleRoleReminder()">
+        <div class="role-reminder-card" (click)="$event.stopPropagation()">
+          <button class="close" (click)="toggleRoleReminder()"><app-icon name="close" [size]="18" /></button>
+          <div class="role-card card" [class]="'team-' + (brume.myTeam() ?? 'circle')">
+            @if (brume.myChampion(); as champion) {
+              @if (isPoro(champion)) {
+                <div class="role-portrait poro-portrait"><app-icon name="paw" [size]="40" /></div>
+              } @else {
+                <img class="role-portrait" [src]="portraitUrl(champion)" [alt]="champion" />
+              }
+            }
+            <div class="role-body">
+              <span class="team-pill">{{ teamLabel() }}</span>
+              <strong class="role-name">{{ brume.myChampion() ?? '...' }}</strong>
+              <p class="role-kit">{{ brume.myKit() ?? '...' }}</p>
+              @if (brume.myTeammates().length) {
+                <div class="teammates-block">
+                  <span class="teammates-label">Tes complices</span>
+                  <div class="teammates-list">
+                    @for (mate of brume.myTeammates(); track mate.id) {
+                      <span class="teammate-chip">{{ mate.pseudo }} <em>({{ roleLabelFor(mate.role) }})</em></span>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        </div>
+      </div>
+    }
+  }
+
+  @if (openRoleInfo(); as infoRole) {
+    <div class="role-reminder-backdrop" (click)="closeRoleDetail()">
+      <div class="role-reminder-card" (click)="$event.stopPropagation()">
+        <button class="close" (click)="closeRoleDetail()"><app-icon name="close" [size]="18" /></button>
+        @for (r of roleLegend; track r.role) {
+          @if (r.role === infoRole) {
+            <div class="role-card card" [class]="'team-' + r.team">
+              @if (isPoro(r.champion)) {
+                <div class="role-portrait poro-portrait"><app-icon name="paw" [size]="40" /></div>
+              } @else {
+                <img class="role-portrait" [src]="portraitUrl(r.champion)" [alt]="r.champion" />
+              }
+              <div class="role-body">
+                <span class="team-pill">{{ teamLabelFor(r.team) }}</span>
+                <strong class="role-name">{{ r.champion }}</strong>
+                <p class="role-kit">{{ r.kit }}</p>
+              </div>
+            </div>
+          }
+        }
+      </div>
+    </div>
+  }
+
+  @if (brume.phase() === 'reveal') {
+    <section class="reveal-stage">
+      <header class="game-hero">
+        <div>
+          <span class="eyebrow">La Brume</span>
+          <h2>Ton rôle secret</h2>
+          <p>Mémorise ta mécanique. Personne d'autre ne doit connaître ton camp.</p>
+        </div>
+      </header>
+      <div class="role-card card" [class]="'team-' + (brume.myTeam() ?? 'circle')">
+        @if (brume.myChampion(); as champion) {
+          @if (isPoro(champion)) {
+            <div class="role-portrait poro-portrait"><app-icon name="paw" [size]="40" /></div>
+          } @else {
+            <img class="role-portrait" [src]="portraitUrl(champion)" [alt]="champion" />
+          }
+        }
+        <div class="role-body">
+          <span class="team-pill">{{ teamLabel() }}</span>
+          <strong class="role-name">{{ brume.myChampion() ?? '...' }}</strong>
+          <p class="role-kit">{{ brume.myKit() ?? '...' }}</p>
+          @if (brume.myTeammates().length) {
+            <div class="teammates-block">
+              <span class="teammates-label">Tes complices</span>
+              <div class="teammates-list">
+                @for (mate of brume.myTeammates(); track mate.id) {
+                  <span class="teammate-chip">{{ mate.pseudo }} <em>({{ roleLabelFor(mate.role) }})</em></span>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+      @if (!brume.revealReady()) {
+        <button class="rift-btn rift-btn-confirm" (click)="brume.acknowledgeReveal()">
+          <span>J'ai mémorisé mon rôle</span>
+        </button>
+      } @else {
+        <div class="wait-pill">
+          {{ brume.revealProgress()?.ready ?? 1 }}/{{ brume.revealProgress()?.total ?? room.players().length }}
+          joueurs prêts
+        </div>
+      }
+    </section>
+  } @else if (brume.phase() === 'night') {
+    <section class="night-stage">
+      <div class="main-content">
+      <header class="game-hero">
+        <div>
+          <span class="eyebrow">Nuit {{ brume.dayNumber() }} · La Brume</span>
+          <h2>{{ amIAlive() ? "L'obscurité s'installe" : 'Tu observes depuis la Brume' }}</h2>
+          <p>{{ nightHint() }}</p>
+        </div>
+        <div class="timer-orb" [class.danger]="remainingSeconds() <= 10">
+          <span>Temps</span>
+          <strong>{{ remainingSeconds() }}</strong>
+        </div>
+      </header>
+
+      @if (amIAlive()) {
+        <div class="action-panel card">
+          @switch (brume.myRole()) {
+            @case ('warwick') {
+              <p class="action-hint">Choisis ton action, puis ta cible.</p>
+              <div class="choice-row">
+                <button class="choice-btn danger" [class.selected]="pendingAction() === 'consommer'" (click)="pendingAction.set('consommer')">Morsure (éliminer)</button>
+                <button class="choice-btn warn" [class.selected]="pendingAction() === 'effroi'" (click)="pendingAction.set('effroi')">Effroi (faire taire)</button>
+              </div>
+              @if (pendingAction()) {
+                <div class="target-grid">
+                  @for (p of othersAlive(); track p.id) {
+                    <button class="target-card" [class.selected]="selectedTarget() === p.id" (click)="selectedTarget.set(p.id)">{{ p.pseudo }}</button>
+                  }
+                </div>
+                <button class="rift-btn rift-btn-confirm" [disabled]="!selectedTarget()" (click)="submitTargetedAction(pendingAction()!)">
+                  <span>{{ brume.myNightActionSubmitted() ? 'Modifier' : 'Valider' }}</span>
+                </button>
+              }
+            }
+            @case ('fiddlesticks') {
+              @if (brume.myFiddlesticksPending()) {
+                <p class="action-hint">Tu canalises Crowstorm sur ta proie déjà repérée. Rien d'autre à faire cette nuit.</p>
+              } @else {
+                <p class="action-hint">Repère une cible en silence : elle mourra la nuit suivante si elle n'est pas protégée.</p>
+                <div class="target-grid">
+                  @for (p of othersAlive(); track p.id) {
+                    <button class="target-card" [class.selected]="selectedTarget() === p.id" (click)="selectedTarget.set(p.id)">{{ p.pseudo }}</button>
+                  }
+                </div>
+                <button class="rift-btn rift-btn-confirm" [disabled]="!selectedTarget()" (click)="submitTargetedAction('mark_fiddlesticks')">
+                  <span>{{ brume.myNightActionSubmitted() ? 'Modifier' : 'Repérer' }}</span>
+                </button>
+              }
+            }
+            @case ('thresh') {
+              <p class="action-hint">Protège un joueur avec ta Lanterne : il survivra à toute élimination cette nuit.</p>
+              <div class="target-grid">
+                @for (p of aliveIncludingSelf(); track p.id) {
+                  <button class="target-card" [class.selected]="selectedTarget() === p.id" (click)="selectedTarget.set(p.id)">{{ p.pseudo }}</button>
+                }
+              </div>
+              <button class="rift-btn rift-btn-confirm" [disabled]="!selectedTarget()" (click)="submitTargetedAction('protect')">
+                <span>{{ brume.myNightActionSubmitted() ? 'Modifier' : 'Protéger' }}</span>
+              </button>
+            }
+            @case ('ashe') {
+              <p class="action-hint">Scoute un joueur avec Hawkshot : indice fiable à 100%.</p>
+              <div class="target-grid">
+                @for (p of othersAlive(); track p.id) {
+                  <button class="target-card" [class.selected]="selectedTarget() === p.id" (click)="selectedTarget.set(p.id)">{{ p.pseudo }}</button>
+                }
+              </div>
+              <button class="rift-btn rift-btn-confirm" [disabled]="!selectedTarget()" (click)="submitTargetedAction('scout')">
+                <span>{{ brume.myNightActionSubmitted() ? 'Modifier' : 'Scouter' }}</span>
+              </button>
+              @if (brume.myAsheClue(); as clue) {
+                <div class="clue-pill" [class.ombre]="clue.result === 'ombre'">
+                  {{ clue.targetPseudo }} → {{ clue.result === 'ombre' ? 'Ombre (prédateur probable)' : 'Clarté (camp sain probable)' }}
+                </div>
+              }
+            }
+            @case ('poro') {
+              <p class="action-hint">Blottissement : nomme le joueur que le Cercle doit surveiller cette nuit. À l'aube, tu sauras si un danger rôdait vraiment près de lui (mais pas qui l'a visé).</p>
+              <div class="target-grid">
+                @for (p of othersAlive(); track p.id) {
+                  <button class="target-card" [class.selected]="selectedTarget() === p.id" (click)="selectedTarget.set(p.id)">{{ p.pseudo }}</button>
+                }
+              </div>
+              <button class="rift-btn rift-btn-confirm" [disabled]="!selectedTarget()" (click)="submitTargetedAction('huddle')">
+                <span>{{ brume.myNightActionSubmitted() ? 'Modifier' : 'Nominer' }}</span>
+              </button>
+            }
+            @case ('kindred') {
+              @if (!brume.myKindredMarqueId()) {
+                <p class="action-hint">Marque ta cible en secret. Deux nuits de chasse ininterrompue suffiront à gagner seul.</p>
+                <div class="target-grid">
+                  @for (p of othersAlive(); track p.id) {
+                    <button class="target-card" [class.selected]="selectedTarget() === p.id" (click)="selectedTarget.set(p.id)">{{ p.pseudo }}</button>
+                  }
+                </div>
+                <button class="rift-btn rift-btn-confirm" [disabled]="!selectedTarget()" (click)="submitTargetedAction('mark_kindred')">
+                  <span>{{ brume.myNightActionSubmitted() ? 'Modifier' : 'Marquer' }}</span>
+                </button>
+              } @else {
+                <p class="action-hint">Ta Marque : <b>{{ marquePseudo() }}</b> · traque {{ brume.myKindredHuntStreak() }}/2 nuits.</p>
+                <div class="choice-row">
+                  <button class="choice-btn confirm" (click)="submitAction('hunt')">
+                    {{ brume.myNightActionSubmitted() ? 'Confirmé' : 'Continuer la traque' }}
+                  </button>
+                </div>
+                <p class="action-hint small">Ou choisis une nouvelle Marque (la traque repart à zéro) :</p>
+                <div class="target-grid">
+                  @for (p of othersAlive(); track p.id) {
+                    <button class="target-card" [class.selected]="selectedTarget() === p.id" (click)="selectedTarget.set(p.id)">{{ p.pseudo }}</button>
+                  }
+                </div>
+                @if (selectedTarget()) {
+                  <button class="rift-btn rift-btn-exit" (click)="submitTargetedAction('mark_kindred')">
+                    <span>Remarquer</span>
+                  </button>
+                }
+              }
+            }
+          }
+        </div>
+      } @else {
+        <div class="action-panel card spectator">
+          <p>Tu observes la Brume en silence jusqu'à la fin de la manche.</p>
+        </div>
+      }
+
+      @if (brume.myTeam() === 'predators') {
+        <div class="chat-panel card pack">
+          <span class="chat-title"><app-icon name="blood-drop" [size]="16" /> Fil de la Nuée</span>
+          @if (brume.myTeammates().length) {
+            <div class="teammates-block inline">
+              <span class="teammates-label">Tes complices</span>
+              <div class="teammates-list">
+                @for (mate of brume.myTeammates(); track mate.id) {
+                  <span class="teammate-chip">{{ mate.pseudo }} <em>({{ roleLabelFor(mate.role) }})</em></span>
+                }
+              </div>
+            </div>
+          }
+          <div class="chat-feed" #packFeed>
+            @for (msg of brume.packChat(); track msg.id) {
+              @if (msg.kind === 'text') {
+                <div class="chat-bubble-row" [class.me]="msg.playerId === room.myId()">
+                  <div class="chat-bubble">
+                    <b>{{ msg.pseudo }}</b>
+                    <span>{{ msg.text }}</span>
+                  </div>
+                </div>
+              } @else {
+                <div class="chat-system">{{ msg.text }}</div>
+              }
+            }
+          </div>
+          <div class="chat-input-row">
+            <input type="text" [(ngModel)]="packInput" placeholder="Écrire au clan…" maxlength="200" (keyup.enter)="sendPack()" />
+            <button class="rift-btn rift-btn-confirm small" (click)="sendPack()"><app-icon name="send" [size]="14" /></button>
+          </div>
+          <div class="reaction-row">
+            @for (r of reactions; track r) {
+              <button class="reaction-btn" (click)="sendReaction('pack', r)">{{ r }}</button>
+            }
+          </div>
+        </div>
+      }
+      </div>
+      <aside class="roles-legend">
+        <span class="roles-legend-title"><app-icon name="mask" [size]="14" /> Rôles du mode</span>
+        @for (r of roleLegend; track r.role) {
+          <button class="role-legend-card" [class]="'team-' + r.team" (click)="openRoleDetail(r.role)">
+            <strong>{{ r.label }}</strong>
+            <span>{{ teamLabelFor(r.team) }}</span>
+          </button>
+        }
+      </aside>
+    </section>
+  } @else if (brume.phase() === 'day' || brume.phase() === 'vote') {
+    <section class="day-stage">
+      <div class="main-content">
+      <header class="game-hero">
+        <div>
+          <span class="eyebrow">Jour {{ brume.dayNumber() }} · La Brume</span>
+          <h2>{{ brume.phase() === 'day' ? 'Discutez à voix haute' : "L'Assemblée vote" }}</h2>
+          <p>{{ brume.phase() === 'day' ? "L'app ne gère pas le débat : parlez-en en vrai ou en vocal." : 'Un seul vote, en direct pour tout le monde.' }}</p>
+        </div>
+        <div class="timer-orb" [class.danger]="remainingSeconds() <= 10">
+          <span>Temps</span>
+          <strong>{{ remainingSeconds() }}</strong>
+        </div>
+      </header>
+
+      @if (brume.lastDawn(); as dawn) {
+        <div class="dawn-card card">
+          <span class="eyebrow">Aube</span>
+          @if (dawn.deaths.length) {
+            @for (d of dawn.deaths; track d.playerId) {
+              <p class="dawn-line danger">{{ d.pseudo }} a disparu dans la Brume.</p>
+            }
+          } @else {
+            <p class="dawn-line">Personne n'a été touché cette nuit.</p>
+          }
+          @if (dawn.bloodTracePseudo) {
+            <p class="dawn-line hint">Une odeur de sang trompeuse flotte près de {{ dawn.bloodTracePseudo }} — un leurre, presque jamais la vraie victime.</p>
+          }
+          @if (dawn.silencedPseudos.length) {
+            <p class="dawn-line hint">{{ dawn.silencedPseudos.join(', ') }} : frappé(s) d'Effroi, ne peu(ven)t pas voter aujourd'hui.</p>
+          }
+          @if (dawn.poroWatch; as watch) {
+            <p class="dawn-line hint">Les Poros ont surveillé {{ watch.targetPseudo }} : {{ watch.dangerDetected ? 'un danger rôdait bien là.' : 'rien à signaler.' }}</p>
+          }
+        </div>
+      }
+
+      @if (brume.voteResult(); as vr) {
+        <div class="dawn-card card" [class.danger-border]="!!vr.eliminatedId">
+          <p class="dawn-line danger">{{ vr.eliminatedPseudo ? vr.eliminatedPseudo + " a été banni par l'Assemblée." : "Égalité : personne n'est éliminé." }}</p>
+        </div>
+      }
+
+      @if (brume.phase() === 'vote') {
+        <div class="vote-grid">
+          @for (p of othersAlive(); track p.id) {
+            <button class="vote-card" [class.selected]="brume.myVote() === p.id" [disabled]="!amIAlive() || amISilenced()" (click)="brume.submitVote(p.id)">
+              <span class="vote-name">{{ p.pseudo }}</span>
+              @if (votersFor(p.id).length) {
+                <div class="incoming-votes">
+                  @for (voter of votersFor(p.id); track voter) {
+                    <span class="mini-tag">{{ voter }}</span>
+                  }
+                </div>
+              }
+            </button>
+          }
+        </div>
+        <div class="wait-pill">{{ brume.voteProgress()?.ready ?? 0 }}/{{ brume.voteProgress()?.total ?? 0 }} votes</div>
+      }
+
+      <div class="chat-panel card assembly">
+        <span class="chat-title"><app-icon name="candle" [size]="16" /> Assemblée</span>
+        <div class="chat-feed" #dayFeed>
+          @for (msg of brume.dayChat(); track msg.id) {
+            @if (msg.kind === 'text') {
+              <div class="chat-bubble-row" [class.me]="msg.playerId === room.myId()">
+                <div class="chat-bubble">
+                  <b>{{ msg.pseudo }}</b>
+                  <span>{{ msg.text }}</span>
+                </div>
+              </div>
+            } @else {
+              <div class="chat-system">{{ msg.text }}</div>
+            }
+          }
+        </div>
+        <div class="chat-input-row">
+          <input type="text" [(ngModel)]="assemblyInput" placeholder="Écrire à l'assemblée…" maxlength="200" (keyup.enter)="sendAssembly()" />
+          <button class="rift-btn rift-btn-confirm small" (click)="sendAssembly()"><app-icon name="send" [size]="14" /></button>
+        </div>
+        <div class="reaction-row">
+          @for (r of reactions; track r) {
+            <button class="reaction-btn" (click)="sendReaction('assembly', r)">{{ r }}</button>
+          }
+        </div>
+      </div>
+      </div>
+      <aside class="roles-legend">
+        <span class="roles-legend-title"><app-icon name="mask" [size]="14" /> Rôles du mode</span>
+        @for (r of roleLegend; track r.role) {
+          <button class="role-legend-card" [class]="'team-' + r.team" (click)="openRoleDetail(r.role)">
+            <strong>{{ r.label }}</strong>
+            <span>{{ teamLabelFor(r.team) }}</span>
+          </button>
+        }
+      </aside>
+    </section>
+  } @else if (brume.phase() === 'results') {
+    @if (brume.results(); as results) {
+      <section class="results-stage card">
+        @if (resultStage() === 0) {
+          <div class="confetti">
+            @for (i of confettiPieces; track i) {
+              <span class="confetti-piece" [style.left.%]="(i * 37) % 96" [style.animation-delay.ms]="(i * 137) % 1800" [style.background]="confettiColor(i)"></span>
+            }
+          </div>
+        }
+        @switch (resultStage()) {
+          @case (0) {
+            <div class="reveal-winner">
+              <span class="eyebrow">La Brume</span>
+              <h2>{{ winnerTitle(results.winner) }}</h2>
+              <p>{{ results.summary }}</p>
+            </div>
+            <div class="role-grid">
+              @for (row of roleRows(); track row.id; let i = $index) {
+                <article class="role-row" [class.dead]="!row.alive" [style.animation-delay.ms]="i * 70">
+                  @if (isPoro(row.champion)) {
+                    <div class="role-thumb poro-thumb"><app-icon name="paw" [size]="20" /></div>
+                  } @else {
+                    <img [src]="portraitUrl(row.champion)" [alt]="row.champion" />
+                  }
+                  <div>
+                    <strong>{{ row.pseudo }}</strong>
+                    <span>{{ row.champion }} · {{ row.teamLabel }}</span>
+                  </div>
+                  @if (!row.alive) {
+                    <em>éliminé</em>
+                  }
+                </article>
+              }
+            </div>
+          }
+          @case (1) {
+            <div class="reveal-scores">
+              <span class="eyebrow">Scores de la manche</span>
+              <div class="score-grid">
+                @for (row of scoreRows(); track row.id; let i = $index) {
+                  <article class="score-row" [style.animation-delay.ms]="i * 70">
+                    <strong>{{ row.pseudo }}</strong>
+                    <em [class.zero]="row.points <= 0">+{{ row.points }}</em>
+                  </article>
+                }
+              </div>
+              @if (mix.active()) {
+                <div class="wait-pill">
+                  {{ mix.progress()?.ready ?? (submittedToMix() ? 1 : 0) }}/{{ mix.progress()?.total ?? room.players().length }} joueurs prêts · le Mix reprend la main
+                </div>
+              } @else if (room.isHost()) {
+                <button class="rift-btn rift-btn-exit" (click)="room.endGame('La Brume terminée.')"><span>Retour lobby</span></button>
+              } @else {
+                <p>En attente de l'host pour continuer.</p>
+              }
+            </div>
+          }
+        }
+        @if (resultStage() < 1) {
+          <button class="rift-btn rift-btn-next" (click)="nextResultStage()"><span>Voir les scores</span></button>
+        }
+      </section>
+    }
+  }
+</div>

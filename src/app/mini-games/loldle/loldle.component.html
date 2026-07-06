@@ -1,0 +1,118 @@
+<div class="party-game loldle">
+  @if (loldle.phase() === 'guessing') {
+    <section class="guess-stage">
+      <div class="center-column">
+        <header class="game-hero">
+          <div>
+            <span class="eyebrow">Loldle</span>
+            <h2>Devine le champion mystère</h2>
+            <p>{{ loldle.wordLength() }} lettres · {{ loldle.maxGuesses() }} essais max. Chaque champion valide doit faire la bonne longueur.</p>
+          </div>
+          <div class="hero-side">
+            <div class="timer-orb" [class.danger]="remainingSeconds() <= 15">
+              <span>Temps</span>
+              <strong>{{ remainingSeconds() }}</strong>
+            </div>
+            @if (!mix.active() && room.isHost()) {
+              <button class="rift-btn rift-btn-ghost" (click)="room.endGame('Loldle terminé.')">
+                <span class="btn-icon"><app-icon name="back" [size]="14" /></span><span>Retour lobby</span>
+              </button>
+            }
+          </div>
+        </header>
+
+        <div class="grid-card card">
+          <div class="grid">
+            @for (row of loldle.myRows(); track $index) {
+              <div class="grid-row">
+                @for (cell of cellsFor(row); track $index) {
+                  <span class="cell" [class]="cell.state">{{ cell.letter }}</span>
+                }
+              </div>
+            }
+            @for (i of blankRows(); track i) {
+              <div class="grid-row">
+                @for (c of blankCells(); track c) {
+                  <span class="cell empty"></span>
+                }
+              </div>
+            }
+          </div>
+
+          @if (!loldle.myDone()) {
+            <div class="guess-row">
+              <app-champion-select
+                class="guess-input"
+                [options]="filteredChampionOptions()"
+                [value]="guessInput"
+                placeholder="Nom du champion..."
+                (valueChange)="guessInput = $event"
+              />
+              <button class="rift-btn rift-btn-confirm" [disabled]="!guessInput.trim()" (click)="submitGuess()">
+                <span>Valider</span>
+              </button>
+            </div>
+          } @else {
+            <div class="wait-pill" [class.success]="loldle.mySolved()">
+              {{ loldle.mySolved() ? 'Trouvé ! En attente des autres...' : "Plus d'essais. En attente des autres..." }}
+            </div>
+          }
+        </div>
+      </div>
+
+      <aside class="side-panel right">
+        <span class="side-panel-title"><app-icon name="radio" [size]="14" /> Adversaires</span>
+        @for (p of otherPlayersStatus(); track p.playerId) {
+          <div class="player-status" [class.solved]="p.solved" [class.failed]="p.failed">
+            <strong>{{ p.pseudo }}</strong>
+            <span>{{ p.message }}</span>
+          </div>
+        } @empty {
+          <p class="side-panel-empty">Personne d'autre pour l'instant.</p>
+        }
+      </aside>
+    </section>
+  } @else if (loldle.phase() === 'results') {
+    @if (loldle.results(); as results) {
+      <section class="results-stage card">
+        <div class="reveal-winner">
+          <span class="eyebrow">Loldle</span>
+          <h2>Le champion était...</h2>
+        </div>
+        <img class="secret-portrait" [src]="portraitUrl(results.secretName)" [alt]="results.secretName" />
+        <strong class="secret-name">{{ results.secretName }}</strong>
+        <p class="summary">{{ results.summary }}</p>
+        <div class="role-grid">
+          @for (row of results.rows; track row.playerId; let i = $index) {
+            <article class="role-row" [class.dead]="!row.solved" [style.animation-delay.ms]="i * 70">
+              <div>
+                <strong>{{ row.pseudo }}</strong>
+                <span>{{ row.solved ? row.attempts + ' essai' + (row.attempts > 1 ? 's' : '') : 'non trouvé' }}</span>
+              </div>
+            </article>
+          }
+        </div>
+        <div class="reveal-scores">
+          <span class="eyebrow">Scores de la manche</span>
+          <div class="score-grid">
+            @for (row of scoreRows(); track row.playerId; let i = $index) {
+              <article class="score-row" [style.animation-delay.ms]="i * 70">
+                <strong>{{ row.pseudo }}</strong>
+                <em [class.zero]="row.points <= 0">+{{ row.points }}</em>
+              </article>
+            }
+          </div>
+          @if (mix.active()) {
+            <div class="wait-pill">
+              {{ mix.progress()?.ready ?? (submittedToMix() ? 1 : 0) }}/{{ mix.progress()?.total ?? room.players().length }} joueurs prêts · le Mix reprend la main
+            </div>
+          } @else if (room.isHost()) {
+            <button class="rift-btn rift-btn-exit" (click)="room.endGame('Loldle terminé.')"><span>Retour lobby</span></button>
+          } @else {
+            <p>En attente de l'host pour continuer.</p>
+          }
+        </div>
+      </section>
+    }
+  }
+</div>

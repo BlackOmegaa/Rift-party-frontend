@@ -1,0 +1,124 @@
+<div class="survivor-game">
+	@if (finished()) {
+		<section class="end-screen card">
+			<span class="eyebrow">Last Survivor termine</span>
+			<h2>{{ lastSurvivor.results()?.category }}</h2>
+			<div class="winner-card">
+				<img class="winner-img" [src]="square(lastSurvivor.results()?.winner?.champion ?? '')" alt="" />
+				<span class="winner-pill"><app-icon name="crown" [size]="15" /> Survivant</span>
+				<strong>{{ lastSurvivor.results()?.winner?.label }}</strong>
+			</div>
+			<span class="sub-stat">{{ lastSurvivor.results()?.summary }}</span>
+			<div class="leaderboard">
+				@for (row of scoreRows(); track row.playerId; let i = $index) {
+					<div class="lb-row" [class.me]="row.playerId === room.myId()" [class.leader]="i === 0">
+						<b>{{ i + 1 }}</b>
+						<span>{{ row.pseudo }}</span>
+						<strong>{{ row.points }} pts</strong>
+					</div>
+				}
+			</div>
+			@if (mix.active()) {
+				<div class="wait-pill">
+					{{ mix.progress()?.ready ?? 1 }}/{{
+						mix.progress()?.total ?? room.players().length
+					}}
+					joueurs prêts · le Mix reprend la main
+				</div>
+			} @else if (room.isHost()) {
+				<div class="end-actions">
+					<button
+						class="rift-btn rift-btn-ghost"
+						(click)="room.endGame('Last Survivor termine.')"
+					>
+						<span class="btn-icon"><app-icon name="back" [size]="16" /></span>
+						<span>Retour lobby</span>
+					</button>
+				</div>
+			} @else {
+				<p class="wait-pill">En attente de l'host...</p>
+			}
+		</section>
+	} @else if (lastSurvivor.phase() === 'voting') {
+		<header class="game-hero">
+			<div>
+				<span class="eyebrow">Last Survivor • Élimination {{ lastSurvivor.roundNumber() }}/{{ lastSurvivor.totalRounds() }}</span>
+				<h2>{{ lastSurvivor.category() }}</h2>
+				<p>Vote pour ÉLIMINER un candidat. Le plus visé disparaît, le dernier survivant gagne.</p>
+			</div>
+			<small class="timer-pill" [class.low]="remainingSec() <= 5">{{ remainingSec() }}s</small>
+		</header>
+		<section class="vote-stage card" [class.voted]="lastSurvivor.myVote() !== null">
+			<div class="candidates">
+				@for (cand of lastSurvivor.candidates(); track cand.label) {
+					<button
+						class="candidate"
+						[class.picked]="lastSurvivor.myVote() === cand.label"
+						[disabled]="lastSurvivor.myVote() !== null"
+						(click)="vote(cand.label)"
+					>
+						<img class="cand-img" loading="lazy" draggable="false" [src]="square(cand.champion)" alt="" />
+						<span>{{ cand.label }}</span>
+					</button>
+				}
+			</div>
+			@if (lastSurvivor.myVote() !== null) {
+				<div class="wait-pill">
+					Vote enregistré · {{ lastSurvivor.votedCount() }}/{{ lastSurvivor.expectedCount() }} joueurs ont voté
+				</div>
+			} @else {
+				<p class="hint-line">Clique sur le candidat à éliminer. Choix définitif.</p>
+			}
+		</section>
+	} @else {
+		<header class="game-hero">
+			<div>
+				<span class="eyebrow">Élimination {{ lastSurvivor.lastRound()?.roundNumber }}/{{ lastSurvivor.lastRound()?.totalRounds }}</span>
+				<h2>{{ lastSurvivor.lastRound()?.eliminated?.label }} est éliminé</h2>
+				<p>
+					{{ lastSurvivor.lastRound()?.tieBreak ? 'Égalité au sommet : tirage au sort du condamné.' : 'Le lobby a tranché sans hésiter.' }}
+				</p>
+			</div>
+			<div class="score-orb">
+				<span>Cette manche</span><strong>+{{ myRoundPoints() }}</strong>
+			</div>
+		</header>
+		<section class="reveal-stage card">
+			<div class="tally-list">
+				@for (row of revealRows(); track row.label; let i = $index) {
+					<div class="tally-row" [class.eliminated]="row.eliminated" [style.animation-delay.ms]="i * 180">
+						<img class="tally-img" [src]="square(row.champion)" alt="" />
+						<div class="who">
+							<strong>{{ row.label }}</strong>
+							<small>{{ row.voters.length ? 'Visé par ' + votersLine(row.voters) : 'Épargné par tout le monde' }}</small>
+						</div>
+						<div class="count">
+							<strong>{{ row.votes }}</strong>
+							<span>voix</span>
+						</div>
+						@if (row.eliminated) {
+							<span class="eliminated-pill"><app-icon name="skull" [size]="14" /> Éliminé</span>
+						}
+					</div>
+				}
+			</div>
+			@if (room.isHost()) {
+				<button class="rift-btn rift-btn-next next-inline" (click)="next()">
+					<span>{{ isFinalElimination() ? "Couronner le survivant" : "Élimination suivante" }}</span>
+				</button>
+			} @else {
+				<p class="hint-line">En attente que l'host lance la suite...</p>
+			}
+		</section>
+	}
+	<footer class="actions">
+		@if (!finished() && !mix.active() && room.isHost()) {
+			<button
+				class="rift-btn rift-btn-exit"
+				(click)="room.endGame('Last Survivor termine.')"
+			>
+				<span>Retour lobby</span>
+			</button>
+		}
+	</footer>
+</div>

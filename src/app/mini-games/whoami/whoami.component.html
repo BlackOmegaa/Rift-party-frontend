@@ -1,0 +1,140 @@
+<div class="whoami-game">
+	@if (finished()) {
+		<section class="end-screen card">
+			<span class="eyebrow">Qui suis-je ? terminé</span>
+			<h2>Identités révélées</h2>
+			<span class="sub-stat">{{ whoami.results()?.summary }}</span>
+			<div class="leaderboard">
+				@for (row of scoreRows(); track row.playerId; let i = $index) {
+					<div class="lb-row reveal-row" [class.me]="row.playerId === room.myId()" [class.leader]="i === 0 && row.found">
+						<img class="lb-img" [src]="square(row.champion)" alt="" />
+						<div class="lb-who">
+							<span>{{ row.pseudo }}</span>
+							<small>{{ row.found ? 'A trouvé ' + row.champion + ' en ' + row.questionsUsed + ' question' + (row.questionsUsed > 1 ? 's' : '') : 'N\'a pas trouvé (' + row.champion + ')' }}</small>
+						</div>
+						<strong>{{ row.points }} pts</strong>
+					</div>
+				}
+			</div>
+			@if (mix.active()) {
+				<div class="wait-pill">Le Mix reprend la main...</div>
+			} @else if (room.isHost()) {
+				<div class="end-actions">
+					<button class="rift-btn rift-btn-ghost" (click)="room.endGame('Qui suis-je ? termine.')">
+						<span class="btn-icon"><app-icon name="back" [size]="16" /></span>
+						<span>Retour lobby</span>
+					</button>
+				</div>
+			} @else {
+				<p class="wait-pill">En attente de l'host...</p>
+			}
+		</section>
+	} @else {
+		@if (whoami.turn(); as turn) {
+		<header class="game-hero">
+			<div>
+				<span class="eyebrow">Qui suis-je ? • Tour de {{ turn.activePseudo }}</span>
+				<h2>{{ isMyTurn() ? "À toi : pose ta question à voix haute" : turn.activePseudo + " interroge le lobby" }}</h2>
+				<p>
+					{{ isMyTurn()
+						? "Question fermée uniquement (réponse Oui/Non). " + turn.questionsUsed + "/12 questions utilisées."
+						: "Réponds honnêtement : son champion est affiché sur sa carte." }}
+				</p>
+			</div>
+			<small class="timer-pill" [class.low]="remainingSec() <= 5">{{ remainingSec() }}s</small>
+		</header>
+
+		<section class="players-strip">
+			@if (me(); as my) {
+				<div class="id-card mine" [class.active-turn]="turn.activePlayerId === my.playerId">
+					<div class="portrait hidden-portrait">
+						@if (my.champion) {
+							<img [src]="square(my.champion)" alt="" />
+						} @else {
+							<span>?</span>
+						}
+					</div>
+					<strong>{{ my.pseudo }} (toi)</strong>
+					<small>{{ my.found ? my.champion + ' — trouvé !' : my.failed ? 'Éliminé' : 'Ton champion est secret' }}</small>
+				</div>
+			}
+			@for (other of others(); track other.playerId) {
+				<div class="id-card" [class.active-turn]="turn.activePlayerId === other.playerId" [class.done]="other.found || other.failed">
+					<div class="portrait">
+						<img [src]="square(other.champion ?? '')" alt="" />
+					</div>
+					<strong>{{ other.pseudo }}</strong>
+					<small>{{ other.found ? 'A trouvé !' : other.failed ? 'Éliminé' : other.champion }}</small>
+				</div>
+			}
+		</section>
+
+		<section class="turn-stage card">
+			@if (turn.phase === 'answering') {
+				@if (isMyTurn()) {
+					<p class="stage-line">Pose ta question à voix haute, le lobby vote sa réponse...</p>
+					<div class="wait-pill">{{ whoami.answeredCount() }}/{{ whoami.expectedCount() }} réponses reçues</div>
+				} @else if (shouldAnswer()) {
+					<p class="stage-line">Réponds à la question de {{ turn.activePseudo }} :</p>
+					<div class="answer-row">
+						<button class="rift-btn rift-btn-confirm big" (click)="answer(true)"><span>OUI</span></button>
+						<button class="rift-btn rift-btn-exit big" (click)="answer(false)"><span>NON</span></button>
+					</div>
+				} @else {
+					<p class="stage-line">Réponse envoyée.</p>
+					<div class="wait-pill">{{ whoami.answeredCount() }}/{{ whoami.expectedCount() }} réponses reçues</div>
+				}
+			} @else {
+				@if (turn.lastQuestion; as lq) {
+					<div class="verdict" [class.oui]="lq.verdict === 'oui'" [class.non]="lq.verdict === 'non'">
+						<strong>{{ verdictLabel(lq.verdict) }}</strong>
+						<span>{{ lq.yes }} oui · {{ lq.no }} non</span>
+					</div>
+				}
+				@if (isMyTurn()) {
+					@if (guessing()) {
+						<div class="guess-row">
+							<app-champion-select [options]="championOptions" [(value)]="guessInput" placeholder="Qui es-tu ?" />
+							<button class="rift-btn rift-btn-confirm" (click)="submitGuess()" [disabled]="!guessInput.trim()"><span>Valider</span></button>
+							<button class="rift-btn rift-btn-ghost" (click)="guessing.set(false)"><span>Annuler</span></button>
+						</div>
+					} @else {
+						<div class="decision-row">
+							@if (turn.canContinue) {
+								<button class="rift-btn rift-btn-next" (click)="nextQuestion()"><span>Nouvelle question</span></button>
+							}
+							<button class="rift-btn rift-btn-confirm" (click)="openGuess()">
+								<span>{{ turn.mustGuess ? "Je devine (obligatoire)" : "Je devine" }}</span>
+							</button>
+							@if (!turn.mustGuess) {
+								<button class="rift-btn rift-btn-ghost" (click)="pass()"><span>Passer mon tour</span></button>
+							}
+						</div>
+						@if (turn.mustGuess) {
+							<p class="stage-line danger">12 questions épuisées : mauvaise réponse = éliminé.</p>
+						}
+					}
+				} @else {
+					<p class="stage-line">{{ turn.activePseudo }} réfléchit à la suite...</p>
+				}
+			}
+			@if (whoami.lastGuess(); as guess) {
+				<div class="guess-banner" [class.win]="guess.correct">
+					{{ guess.correct
+						? guess.pseudo + " a trouvé : " + guess.actualChampion + " ! +" + guess.points + " pts"
+						: guess.pseudo + " pensait être " + guess.guess + "... raté" + (guess.eliminated ? " et éliminé !" : ".") }}
+				</div>
+			}
+		</section>
+		} @else {
+			<p class="stage-line">Distribution des identités secrètes...</p>
+		}
+	}
+	<footer class="actions">
+		@if (!finished() && !mix.active() && room.isHost()) {
+			<button class="rift-btn rift-btn-exit" (click)="room.endGame('Qui suis-je ? termine.')">
+				<span>Retour lobby</span>
+			</button>
+		}
+	</footer>
+</div>

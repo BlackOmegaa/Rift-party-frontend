@@ -1,0 +1,12 @@
+<div class="board card">
+  <h3>Classement</h3>
+  <ol>
+    @for (player of players(); track player.id; let i = $index) {
+      <li [class.first]="i === 0">
+        <span class="rank">#{{ i + 1 }}</span>
+        <span class="pseudo">{{ player.pseudo }}</span>
+        <span class="score">{{ player.score }}</span>
+      </li>
+    }
+  </ol>
+</div>

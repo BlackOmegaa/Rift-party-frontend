@@ -1,0 +1,55 @@
+.champ-select { position: relative; width: 100%; }
+.champ-input {
+  width: 100%;
+  border: 1px solid var(--border-subtle);
+  border-radius: 16px;
+  background: rgba(8, 10, 15, .72);
+  color: var(--text-primary);
+  padding: .95rem 1rem;
+  font: inherit;
+  outline: none;
+  transition: border-color .18s, box-shadow .18s, background .18s;
+}
+.champ-select.open .champ-input,
+.champ-input:focus {
+  border-color: rgba(10, 200, 185, .7);
+  box-shadow: 0 0 0 4px rgba(10, 200, 185, .08), 0 0 24px rgba(10, 200, 185, .10);
+  background: rgba(8, 10, 15, .92);
+}
+.champ-select.disabled { opacity: .55; }
+.champ-menu {
+  position: absolute;
+  z-index: 30;
+  left: 0;
+  right: 0;
+  top: calc(100% + .45rem);
+  padding: .45rem;
+  border: 1px solid rgba(200, 170, 110, .28);
+  border-radius: 18px;
+  background: linear-gradient(160deg, rgba(26,31,44,.98), rgba(8,10,15,.98));
+  box-shadow: 0 22px 55px rgba(0,0,0,.55), 0 0 35px rgba(10,200,185,.08);
+  max-height: 330px;
+  overflow: hidden;
+  animation: menu-in .14s ease-out both;
+}
+.champ-option {
+  width: 100%;
+  display: grid;
+  grid-template-columns: 42px 1fr;
+  align-items: center;
+  gap: .75rem;
+  padding: .52rem .58rem;
+  border: 0;
+  border-radius: 13px;
+  background: transparent;
+  color: var(--text-primary);
+  cursor: pointer;
+  text-align: left;
+  font-weight: 900;
+  transition: background .15s, transform .15s;
+}
+.champ-option:hover { background: rgba(10,200,185,.10); transform: translateX(3px); }
+.champ-option img { width: 42px; height: 42px; border-radius: 11px; object-fit: cover; border: 1px solid rgba(200,170,110,.35); }
+.champ-option span { color: var(--gold-bright); }
+.empty { padding: .9rem; color: var(--text-muted); text-align: center; }
+@keyframes menu-in { from { opacity: 0; transform: translateY(-6px) scale(.98); } to { opacity: 1; transform: none; } }

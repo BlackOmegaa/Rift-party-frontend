@@ -1,0 +1,25 @@
+<div class="champ-select" [class.open]="open()" [class.disabled]="disabled()">
+  <input
+    class="champ-input"
+    [value]="value()"
+    [placeholder]="placeholder()"
+    [disabled]="disabled()"
+    (focus)="open.set(true)"
+    (input)="onInput($event)"
+    (keydown.arrowDown)="open.set(true)"
+  />
+
+  @if (open() && !disabled()) {
+    <div class="champ-menu">
+      @for (champ of filtered(); track champ.id) {
+        <button type="button" class="champ-option" (mousedown)="select(champ)">
+          <img [src]="icon(champ.id)" [alt]="champ.name" />
+          <span>{{ champ.name }}</span>
+        </button>
+      }
+      @if (filtered().length === 0) {
+        <div class="empty">Aucun champion trouve</div>
+      }
+    </div>
+  }
+</div>

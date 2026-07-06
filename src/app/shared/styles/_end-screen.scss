@@ -1,0 +1,141 @@
+/**
+ * Ecran de fin partage par les mini-jeux a rounds independants (guess-champion,
+ * fusion-champions, turret-tank). Chaque composant garde son propre `.end-screen`
+ * (fond degrade a l'accent du jeu) et importe ce partiel via `@use` pour le reste :
+ * hero de score, classement et rangee d'actions.
+ */
+
+.end-screen {
+	padding: 2.2rem 2rem 1.9rem;
+	width: min(560px, 100%);
+	margin: 1.2rem auto 0;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.65rem;
+	text-align: center;
+	border-radius: 28px;
+}
+
+.end-screen h2 {
+	max-width: 100%;
+	font-size: clamp(1.4rem, 3vw, 1.9rem);
+	line-height: 1.05;
+	color: var(--gold-bright);
+	text-transform: uppercase;
+}
+
+.end-screen .score-hero {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.1rem;
+	margin: 0.3rem 0 0.2rem;
+}
+
+.end-screen .score-hero strong {
+	font-size: clamp(2.6rem, 6vw, 3.6rem);
+	line-height: 1;
+	color: var(--gold-bright);
+	text-shadow: 0 0 30px rgba(200, 170, 110, 0.28);
+}
+
+.end-screen .score-hero > span {
+	font-size: 0.72rem;
+	font-weight: 900;
+	letter-spacing: 0.14em;
+	text-transform: uppercase;
+	color: var(--text-muted);
+}
+
+.end-screen .sub-stat {
+	display: inline-block;
+	color: var(--gold);
+	font-size: 0.76rem;
+	font-weight: 900;
+	letter-spacing: 0.03em;
+	background: rgba(200, 170, 110, 0.1);
+	border: 1px solid rgba(200, 170, 110, 0.3);
+	border-radius: 999px;
+	padding: 0.35rem 0.85rem;
+}
+
+.end-screen .leaderboard {
+	display: flex;
+	flex-direction: column;
+	gap: 0.45rem;
+	width: 100%;
+	max-width: 400px;
+	margin: 0.6rem 0 0.2rem;
+}
+
+.end-screen .lb-row {
+	display: grid;
+	grid-template-columns: 30px 1fr auto;
+	align-items: center;
+	gap: 0.7rem;
+	padding: 0.55rem 0.85rem;
+	border-radius: 14px;
+	background: rgba(255, 255, 255, 0.04);
+	border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.end-screen .lb-row b {
+	width: 26px;
+	height: 26px;
+	border-radius: 8px;
+	display: grid;
+	place-items: center;
+	font-size: 0.75rem;
+	color: var(--text-muted);
+	background: rgba(255, 255, 255, 0.05);
+}
+
+.end-screen .lb-row span {
+	text-align: left;
+	color: var(--text-primary);
+	font-weight: 800;
+	font-size: 0.88rem;
+}
+
+.end-screen .lb-row strong {
+	color: var(--text-secondary);
+	font-size: 0.85rem;
+}
+
+.end-screen .lb-row.me {
+	border-color: rgba(200, 170, 110, 0.5);
+	background: rgba(200, 170, 110, 0.08);
+}
+
+.end-screen .lb-row.leader {
+	border-color: rgba(200, 170, 110, 0.6);
+	background: linear-gradient(90deg, rgba(200, 170, 110, 0.14), rgba(255, 255, 255, 0.03));
+}
+
+.end-screen .lb-row.leader b {
+	color: #120d05;
+	background: linear-gradient(135deg, var(--gold-dim), var(--gold));
+}
+
+.end-screen .lb-row.leader strong {
+	color: var(--gold-bright);
+}
+
+.end-screen .end-actions {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 0.6rem;
+	margin-top: 0.35rem;
+}
+
+.end-screen .wait-pill {
+	border: 1px solid rgba(200, 170, 110, 0.32);
+	border-radius: 999px;
+	padding: 0.7rem 1.1rem;
+	color: var(--gold-bright);
+	font-weight: 1000;
+	background: rgba(200, 170, 110, 0.08);
+	font-size: 0.85rem;
+}

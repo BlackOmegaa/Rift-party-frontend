@@ -1,0 +1,12 @@
+.board { padding: 1.2rem 1.4rem; }
+h3 { font-size: 1rem; color: var(--gold-bright); margin-bottom: 0.8rem; }
+ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 0.4rem; }
+li {
+  display: flex; align-items: center; gap: 0.7rem;
+  padding: 0.5rem 0.6rem;
+  border-radius: var(--radius-sm);
+}
+li.first { background: rgba(200, 170, 110, 0.1); }
+.rank { color: var(--text-muted); font-size: 0.8rem; width: 2rem; }
+.pseudo { flex: 1; font-weight: 600; }
+.score { color: var(--teal); font-variant-numeric: tabular-nums; font-weight: 600; }

@@ -1,0 +1,16 @@
+import { Component, inject } from '@angular/core';
+import { RouterOutlet } from '@angular/router';
+import { DraftService } from './core/services/draft.service';
+import { MixRuntimeService } from './core/services/mix-runtime.service';
+
+@Component({
+  selector: 'app-root',
+  standalone: true,
+  imports: [RouterOutlet],
+  templateUrl: './app.component.html',
+  styleUrl: './app.component.scss',
+})
+export class AppComponent {
+  private readonly draftService = inject(DraftService);
+  private readonly mixRuntime = inject(MixRuntimeService);
+}

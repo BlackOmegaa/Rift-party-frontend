@@ -1,0 +1,124 @@
+<div class="voteparty-game">
+	@if (finished()) {
+		<section class="end-screen card">
+			<span class="eyebrow">Vote Party termine</span>
+			<h2>Verdict du lobby</h2>
+			<div class="score-hero">
+				<strong data-count-up>{{ voteParty.results()?.scores?.[room.myId() ?? ''] ?? 0 }}</strong>
+				<span>points</span>
+			</div>
+			<span class="sub-stat">{{ voteParty.results()?.summary }}</span>
+			<div class="leaderboard">
+				@for (row of scoreRows(); track row.playerId; let i = $index) {
+					<div class="lb-row" [class.me]="row.playerId === room.myId()" [class.leader]="i === 0">
+						<b>{{ i + 1 }}</b>
+						<span>{{ row.pseudo }}</span>
+						<strong>{{ row.points }} pts</strong>
+					</div>
+				}
+			</div>
+			@if (mix.active()) {
+				<div class="wait-pill">
+					{{ mix.progress()?.ready ?? 1 }}/{{
+						mix.progress()?.total ?? room.players().length
+					}}
+					joueurs prêts · le Mix reprend la main
+				</div>
+			} @else if (room.isHost()) {
+				<div class="end-actions">
+					<button
+						class="rift-btn rift-btn-ghost"
+						(click)="room.endGame('Vote Party termine.')"
+					>
+						<span class="btn-icon"><app-icon name="back" [size]="16" /></span>
+						<span>Retour lobby</span>
+					</button>
+				</div>
+			} @else {
+				<p class="wait-pill">En attente de l'host...</p>
+			}
+		</section>
+	} @else if (voteParty.phase() === 'voting') {
+		<header class="game-hero">
+			<div>
+				<span class="eyebrow">Vote Party • {{ voteParty.roundNumber() }}/{{ voteParty.totalRounds() }}</span>
+				<h2>{{ voteParty.question() }}</h2>
+				<p>Vote secret : personne ne voit ton choix avant la révélation.</p>
+			</div>
+			<small class="timer-pill" [class.low]="remainingSec() <= 5">{{ remainingSec() }}s</small>
+		</header>
+		<section class="vote-stage card" [class.voted]="voteParty.myVote() !== null">
+			<div class="targets">
+				@for (player of targets(); track player.id) {
+					<button
+						class="target"
+						[class.picked]="voteParty.myVote() === player.id"
+						[disabled]="voteParty.myVote() !== null"
+						(click)="vote(player.id)"
+					>
+						<span class="avatar">{{ player.pseudo.slice(0, 2).toUpperCase() }}</span>
+						<span class="pseudo">{{ player.pseudo }}</span>
+					</button>
+				}
+			</div>
+			@if (voteParty.myVote() !== null) {
+				<div class="wait-pill">
+					Vote enregistré · {{ voteParty.votedCount() }}/{{ voteParty.expectedCount() }} joueurs ont voté
+				</div>
+			} @else {
+				<p class="hint-line">Clique sur un joueur pour voter. Choix définitif.</p>
+			}
+		</section>
+	} @else {
+		<header class="game-hero">
+			<div>
+				<span class="eyebrow">Révélation • {{ voteParty.lastRound()?.roundNumber }}/{{ voteParty.lastRound()?.totalRounds }}</span>
+				<h2>{{ voteParty.lastRound()?.question }}</h2>
+				<p>Les votes sont tombés. Le tribunal du lobby a parlé.</p>
+			</div>
+			<div class="score-orb">
+				<span>Cette manche</span><strong>+{{ myRoundPoints() }}</strong>
+			</div>
+		</header>
+		<section class="reveal-stage card">
+			@if (revealRows().length === 0) {
+				<p class="hint-line">Personne n'a voté. Lobby étonnamment diplomate.</p>
+			}
+			<div class="tally-list">
+				@for (row of revealRows(); track row.playerId; let i = $index) {
+					<div class="tally-row" [class.elected]="row.elected" [style.animation-delay.ms]="i * 220">
+						<span class="rank">{{ i + 1 }}</span>
+						<div class="who">
+							<strong>{{ row.pseudo }}</strong>
+							<small>{{ row.voters.length ? 'Voté par ' + votersLine(row.voters) : '' }}</small>
+						</div>
+						<div class="count">
+							<strong>{{ row.votes }}</strong>
+							<span>voix</span>
+						</div>
+						@if (row.elected) {
+							<span class="elected-pill"><app-icon name="crown" [size]="14" /> Élu</span>
+						}
+					</div>
+				}
+			</div>
+			@if (room.isHost()) {
+				<button class="rift-btn rift-btn-next next-inline" (click)="next()">
+					<span>{{ isLastRound() ? "Voir le classement final" : "Question suivante" }}</span>
+				</button>
+			} @else {
+				<p class="hint-line">En attente que l'host lance la suite...</p>
+			}
+		</section>
+	}
+	<footer class="actions">
+		@if (!finished() && !mix.active() && room.isHost()) {
+			<button
+				class="rift-btn rift-btn-exit"
+				(click)="room.endGame('Vote Party termine.')"
+			>
+				<span>Retour lobby</span>
+			</button>
+		}
+	</footer>
+</div>

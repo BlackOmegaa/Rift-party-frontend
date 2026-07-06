@@ -1,0 +1,62 @@
+<div class="hero">
+	<div class="hero-glow"></div>
+
+	<div class="brand">
+		<h1>RIFT <span>PARTY</span></h1>
+		<p>Mini-jeux multijoueurs entre amis, dans le navigateur.</p>
+	</div>
+
+	<div class="card panel">
+		<div class="tabs">
+			<button
+				class="tab"
+				[class.active]="mode() === 'create'"
+				(click)="mode.set('create')"
+			>
+				Creer un lobby
+			</button>
+			<button
+				class="tab"
+				[class.active]="mode() === 'join'"
+				(click)="mode.set('join')"
+			>
+				Rejoindre
+			</button>
+		</div>
+
+		<div class="field">
+			<label>Pseudo</label>
+			<input
+				class="input"
+				[(ngModel)]="pseudo"
+				maxlength="24"
+				placeholder="Ton pseudo"
+			/>
+		</div>
+
+		@if (mode() === "join") {
+			<div class="field">
+				<label>Code du lobby</label>
+				<input
+					class="input code"
+					[(ngModel)]="code"
+					maxlength="8"
+					placeholder="F4K2P"
+					(input)="code = code.toUpperCase()"
+				/>
+			</div>
+		}
+
+		@if (roomService.error(); as error) {
+			<p class="error">{{ error }}</p>
+		}
+
+		<button
+			class="btn btn-primary submit"
+			[disabled]="!canSubmit()"
+			(click)="submit()"
+		>
+			{{ mode() === "create" ? "Creer le lobby" : "Rejoindre le lobby" }}
+		</button>
+	</div>
+</div>

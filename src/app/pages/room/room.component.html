@@ -1,0 +1,316 @@
+@if (room.room(); as currentRoom) {
+  @if (roundIntro(); as intro) {
+    <div class="round-intro" [class.phase-interlude]="intro.phase === 'interlude'" [class.small]="intro.isSmall" [style.--accent]="intro.accent">
+      @if (intro.phase === 'interlude') {
+        <div class="intro-slate">
+          <span class="eyebrow">Party Mix · Manche {{ currentRoom.activeMix?.cursor }}/{{ currentRoom.activeMix?.total }}</span>
+          <h1>Interlude</h1>
+          <span class="divider"></span>
+          <p>Petit jeu express, accrochez-vous</p>
+        </div>
+      } @else {
+        <div class="intro-slate">
+          <span class="eyebrow">{{ intro.isSmall ? 'Interlude · Petit jeu' : 'Manche' }} {{ currentRoom.activeMix?.cursor }}/{{ currentRoom.activeMix?.total }}</span>
+          <h1>{{ intro.label }}</h1>
+          <span class="divider"></span>
+          <p>{{ intro.description }}</p>
+        </div>
+      }
+    </div>
+  }
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="room-code card">
+        <span class="label">Code du lobby</span>
+        <button class="code" [class.copied]="copiedCode()" (click)="copyCode(currentRoom.code)">{{ copiedCode() ? 'COPIÉ !' : currentRoom.code }}</button>
+        <small>{{ copiedCode() ? 'Code copié dans le presse-papiers' : '' }}</small>
+      </div>
+      <div class="players card">
+        <span class="label">Joueurs ({{ currentRoom.players.length }})</span>
+        <div class="list">
+          @for (player of room.sortedByScore(); track player.id) {
+            <app-player-badge [player]="player" [isMe]="player.id === room.myId()" />
+          }
+        </div>
+      </div>
+      @if (!currentRoom.activeMix) {
+        <button class="leave-room" (click)="leave()">
+          <app-icon name="leave" [size]="16" />
+          <strong>Quitter le lobby</strong>
+        </button>
+      } @else {
+        <div class="mix-locked card">Party Mix en cours · sortie verrouillée</div>
+      }
+    </aside>
+
+    <main class="main">
+      @if (currentRoom.status === 'in-game' && currentRoom.currentGameId) {
+        @if (currentRoom.activeMix?.status === 'running' && !roundIntro()) {
+          <section class="mix-running card">
+            <div>
+              <span class="eyebrow">Party Mix</span>
+              <strong>Manche {{ currentRoom.activeMix?.cursor }}/{{ currentRoom.activeMix?.total }}</strong>
+              <small>{{ labelFor(currentRoom.currentGameId) }}</small>
+            </div>
+            <div class="mix-bars">
+              @for (gameId of currentRoom.activeMix?.playlist ?? []; track $index; let i = $index) {
+                <span [class.done]="i < ((currentRoom.activeMix?.cursor ?? 1) - 1)" [class.active]="i === ((currentRoom.activeMix?.cursor ?? 1) - 1)" [style.--accent]="accentFor(gameId)" [title]="labelFor(gameId)"></span>
+              }
+            </div>
+          </section>
+        }
+        @if (room.joinedMidGame()) {
+          <section class="mid-game-wait card">
+            <span class="eyebrow">Manche en cours · mode spectateur</span>
+            <h2>{{ labelFor(currentRoom.currentGameId) }} a deja commence</h2>
+            @if (currentRoom.activeMix; as activeMix) {
+              <p>Manche {{ activeMix.cursor }}/{{ activeMix.total }} · tu rejoins automatiquement a la prochaine.</p>
+            } @else {
+              <p>Tu rejoins automatiquement a la prochaine manche.</p>
+            }
+            @if (spectateSupported(currentRoom.currentGameId) && spectateRows(); as rows) {
+              <div class="podium-shift smart-ranking spectate-ranking">
+                @for (row of rows; track row.playerId; let i = $index) {
+                  <article class="rank-card" [class.leader]="i === 0" [style.animation-delay.ms]="i * 95">
+                    <b>#{{ i + 1 }}</b>
+                    <div>
+                      <strong>{{ row.pseudo }}</strong>
+                      <small>en cours</small>
+                    </div>
+                    <span>{{ row.points }} pts</span>
+                  </article>
+                }
+              </div>
+            } @else {
+              <p class="spectate-fallback">Ce mode ne peut pas encore etre suivi en direct, tu rejoins a la prochaine manche.</p>
+            }
+          </section>
+        } @else if (!roundIntro()) {
+          <ng-container [ngComponentOutlet]="componentFor(currentRoom.currentGameId)" />
+        }
+      } @else if (currentRoom.activeMix?.status === 'between-rounds') {
+        <section class="mix-resume card intermission">
+          <div class="resume-copy">
+            <span class="eyebrow">Bilan de manche</span>
+            <h2>{{ intermissionTitle(currentRoom) }}</h2>
+            <p>{{ mixTaunt(currentRoom) }}</p>
+            <small>
+              Prochaine manche :
+              <strong>{{ labelFor(currentRoom.activeMix?.playlist?.[currentRoom.activeMix?.cursor ?? 0]) }}</strong>
+            </small>
+          </div>
+
+          @if (lastRound(currentRoom)?.details?.type === 'tiktok-ranking') {
+            <div class="tiktok-recap">
+              <div class="recap-head">
+                <span class="eyebrow">TikTok Poll</span>
+                <strong>{{ lastRound(currentRoom)?.details?.question }}</strong>
+              </div>
+              <div class="community-vs-room">
+                <article>
+                  <span>Top lobby</span>
+                  <strong>{{ tiktokTop(currentRoom, 1) }}</strong>
+                  <small>{{ tiktokTop(currentRoom, 2) }} puis {{ tiktokTop(currentRoom, 3) }}</small>
+                </article>
+                <article>
+                  <span>Top communauté</span>
+                  <strong>{{ tiktokCommunityTop(currentRoom) }}</strong>
+                  <small>Stats globales simulées pour le MVP</small>
+                </article>
+              </div>
+              <div class="take-cards">
+                @for (card of tiktokCards(currentRoom); track card; let i = $index) {
+                  <article [style.animation-delay.ms]="i * 90">{{ card }}</article>
+                }
+              </div>
+            </div>
+          }
+
+          <div class="podium-shift smart-ranking">
+            @for (player of room.sortedByScore(); track player.id; let i = $index) {
+              <article
+                class="rank-card"
+                [class.leader]="i === 0"
+                [class.climb]="rankMovement(currentRoom, player.id) > 0"
+                [class.fall]="rankMovement(currentRoom, player.id) < 0"
+                [style.animation-delay.ms]="i * 95"
+              >
+                <b>#{{ i + 1 }}</b>
+                <div>
+                  <strong>{{ player.pseudo }}</strong>
+                  <small>{{ movementLabel(currentRoom, player.id) }}</small>
+                </div>
+                <span>{{ player.score }} pts</span>
+                @if (lastDelta(currentRoom, player.id) > 0) {
+                  <em>+{{ lastDelta(currentRoom, player.id) }}</em>
+                } @else {
+                  <em class="zero">+0</em>
+                }
+              </article>
+            }
+          </div>
+
+          <div class="mix-bars big">
+            @for (gameId of currentRoom.activeMix?.playlist ?? []; track $index; let i = $index) {
+              <span [class.done]="i < (currentRoom.activeMix?.cursor ?? 0)" [class.active]="i === (currentRoom.activeMix?.cursor ?? 0)" [style.--accent]="accentFor(gameId)" [title]="labelFor(gameId)"></span>
+            }
+          </div>
+          @if (room.isHost()) {
+            <div class="resume-actions">
+              <button class="btn btn-primary" (click)="room.nextMixSegment()">Continuer</button>
+              <button class="btn btn-ghost" (click)="room.finishMix()">Stop Mix</button>
+            </div>
+          } @else {
+            <p>En attente de l'host pour continuer.</p>
+          }
+        </section>
+      } @else if (currentRoom.activeMix?.status === 'finished' || currentRoom.status === 'finished') {
+        <section class="rift-report card">
+          <span class="eyebrow">Rift Report</span>
+          <h1>Victoire {{ winnerName() }}</h1>
+          <p>Recap de la Party Mix : vrais scores, vraies manches, vrai tribunal Discord.</p>
+          <div class="final-ranking">
+            @for (player of room.sortedByScore(); track player.id; let i = $index) {
+              <article [class.champion]="i === 0" [style.animation-delay.ms]="i * 80">
+                <b>{{ i + 1 }}</b>
+                <div>
+                  <strong>{{ player.pseudo }}</strong>
+                  <small>{{ finalPlayerTag(currentRoom, player.id, i) }}</small>
+                </div>
+                <span>{{ player.score }} pts</span>
+              </article>
+            }
+          </div>
+          <div class="awards">
+            <article><span>MVP</span><strong>{{ winnerName() }}</strong><small>{{ room.sortedByScore()[0]?.score ?? 0 }} pts</small></article>
+            <article><span>Worst Take</span><strong>{{ cursedPlayer() }}</strong><small>{{ worstTake(currentRoom) }}</small></article>
+            <article><span>Community Brain</span><strong>{{ communityBrain() }}</strong><small>Le plus régulier du lobby.</small></article>
+          </div>
+          <div class="recap-list">
+            @for (round of currentRoom.roundHistory; track round.roundNumber) {
+              <div class="recap-row" [style.--accent]="accentFor(round.gameId)">
+                <b>#{{ round.roundNumber }}</b>
+                <span>{{ labelFor(round.gameId) }}</span>
+                <p>{{ round.summary }}</p>
+              </div>
+            }
+          </div>
+          @if (room.isHost()) {
+            <button class="btn btn-primary" (click)="room.finishMix()">Retour au lobby</button>
+          } @else {
+            <p>En attente de l'host pour retourner au lobby.</p>
+          }
+        </section>
+      } @else {
+        <section class="lobby-hero card">
+          <div class="hero-copy">
+            <span class="eyebrow">Rift Party</span>
+            <h1>Le party game parfait entre amis</h1>
+            <p>Affrontez vos amis sur une succession de mini-jeux variés. </p>
+          </div>
+          <div class="hero-rune"><app-icon name="sparkle" [size]="92" /></div>
+        </section>
+
+        @if (room.isHost()) {
+          @if (partyMix(); as mix) {
+            <section class="featured-mode">
+              <article class="party-wrap">
+                <button class="party-card" [disabled]="currentRoom.players.length < mix.minPlayers" (click)="startMix()">
+                  <div class="ornament">◆</div>
+                  <span class="eyebrow">Mode principal (gratuit)</span>
+                  <h2>Party Mix</h2>
+                  <p>{{ settings().rounds }} manches équilibrées. Découvrez tous les mini-jeux avec une sélection de défis. Débloquez Premium pour accéder à l'intégralité du contenu.</p>
+                  <div class="meta-line"><span>{{ mix.minPlayers }}-{{ mix.maxPlayers }} joueurs</span><span>{{ gameSettings.roundTimeSec() }}s/manche</span></div>
+                  <strong>{{ currentRoom.players.length < mix.minPlayers ? 'Pas assez de joueurs' : 'Lancer la party' }}</strong>
+                </button>
+                <button class="gear card-gear big" (click)="openSettings('party-mix')" title="Paramètres Party Mix"><app-icon name="gear" [size]="20" /></button>
+              </article>
+            </section>
+          }
+
+          <section class="section-title">
+            <span class="eyebrow">Mini-jeux séparés</span>
+            <h2>Premium</h2>
+            <p>Créez des parties sur mesure avec vos mini-jeux favoris et des paramètres personnalisés.</p>
+          </section>
+
+          <section class="game-grid">
+            @for (game of secondaryGames(); track game.id; let i = $index) {
+              <article class="game-wrap" [style.animation-delay.ms]="i * 65">
+                <button class="game-card" [attr.data-game]="game.id" [class.locked]="!premiumUnlocked() || currentRoom.players.length < game.minPlayers" [disabled]="!premiumUnlocked() || currentRoom.players.length < game.minPlayers" (click)="launchGame(game.id)">
+                  <div class="game-bg"><app-icon [name]="iconFor(game.id)" [size]="22" /></div>
+                  <span class="pill">Premium</span>
+                  <h2>{{ game.label }}</h2>
+                  <p>{{ game.description }}</p>
+                  <div class="meta-line"><span>{{ game.minPlayers }}-{{ game.maxPlayers }} joueurs</span><span>{{ gameSettings.roundTimeSec() }}s</span></div>
+                  <strong>{{ premiumUnlocked() ? 'Lancer' : 'Débloquer avec Premium' }}</strong>
+                </button>
+                <button class="gear card-gear" (click)="openSettings(game.id)" title="Paramètres"><app-icon name="gear" [size]="16" /></button>
+              </article>
+            }
+          </section>
+          <label class="premium-toggle card"><input type="checkbox" [checked]="premiumUnlocked()" (change)="togglePremium($event)" /> Mode dev : simuler Premium</label>
+          @if (isDevMode()) {
+            <div class="premium-toggle card dev-bots-row">
+              <span>Mode dev : remplir avec des bots ({{ currentRoom.players.length }} joueur{{ currentRoom.players.length > 1 ? 's' : '' }})</span>
+              <button class="btn btn-ghost" (click)="fillWithBots(8)">+ jusqu'à 8</button>
+              <button class="btn btn-ghost" (click)="fillWithBots(12)">+ jusqu'à 12</button>
+              @if (devBots.count() > 0) {
+                <button class="btn btn-ghost" (click)="removeBots()">Retirer les bots</button>
+              }
+            </div>
+            <div class="premium-toggle card dev-bots-row">
+              <span>Mode dev : forcer un event Draft Battle (tirage normal ~10% de chances)</span>
+              <button class="btn btn-ghost" [class.active]="forcedDraftEvent() === 'none'" (click)="setForcedDraftEvent('none')">Normal (aléatoire)</button>
+              <button class="btn btn-ghost" [class.active]="forcedDraftEvent() === 'budget-illimite'" (click)="setForcedDraftEvent('budget-illimite')">Budget illimité</button>
+              <button class="btn btn-ghost" [class.active]="forcedDraftEvent() === 'legendaire-only'" (click)="setForcedDraftEvent('legendaire-only')">Légendaire only</button>
+              <button class="btn btn-ghost" [class.active]="forcedDraftEvent() === 'mythique-only'" (click)="setForcedDraftEvent('mythique-only')">Mythique only</button>
+            </div>
+          }
+        } @else {
+          <div class="lobby-panel card"><h2>En attente de l'host</h2><p>L'host choisit le prochain mode.</p></div>
+        }
+      }
+    </main>
+  </div>
+
+  @if (settingsGameId(); as gameId) {
+    <div class="settings-backdrop" (click)="closeSettings()">
+      <section class="settings-modal card" (click)="$event.stopPropagation()">
+        <button class="close" (click)="closeSettings()"><app-icon name="close" [size]="18" /></button>
+        <span class="eyebrow">Paramètres</span>
+        <h2>{{ labelFor(gameId) }}</h2>
+        <label>Temps par manche <strong>{{ gameSettings.roundTimeSec() }}s</strong><input type="range" min="15" max="90" step="5" [value]="gameSettings.roundTimeSec()" (input)="updateRoundTime($event)" /></label>
+        @if (gameId !== 'party-mix' && gameId !== 'draft-battle' && gameId !== 'undercover-champion' && gameId !== 'brume' && gameId !== 'loldle' && gameId !== 'last-survivor' && gameId !== 'qui-suis-je') {
+          <label>Nombre de manches <strong>{{ gameSettings.roundsFor(gameId) }}</strong><input type="range" min="1" max="20" step="1" [value]="gameSettings.roundsFor(gameId)" (input)="updateGameRounds(gameId, $event)" /></label>
+        }
+        @if (gameId === 'loldle') {
+          <div class="checks">
+            <strong>Longueur du mot</strong>
+            <label>
+              <input type="radio" name="loldle-len" [checked]="gameSettings.loldleWordLength() === null" (change)="updateLoldleWordLength(null)" />
+              Toutes tailles
+            </label>
+            @for (len of [4, 5, 6]; track len) {
+              <label>
+                <input type="radio" name="loldle-len" [checked]="gameSettings.loldleWordLength() === len" (change)="updateLoldleWordLength(len)" />
+                {{ len }} lettres
+              </label>
+            }
+          </div>
+        }
+        @if (gameId === 'party-mix') {
+          <label>Nombre de manches Mix <strong>{{ settings().rounds }}</strong><input type="range" min="5" max="10" step="1" [value]="settings().rounds" (input)="updateRounds($event)" /></label>
+          <div class="checks">
+            <strong>Mini-jeux inclus</strong>
+            @for (game of secondaryGames(); track game.id) {
+              <label><input type="checkbox" [checked]="settings().included[game.id] !== false" (change)="toggleIncluded(game.id, $event)" /> {{ game.label }}</label>
+            }
+          </div>
+        }
+      </section>
+    </div>
+  }
+} @else {
+  <div class="empty-state"><h2>Aucune room active</h2><button class="btn btn-primary" (click)="router.navigate(['/'])">Retour accueil</button></div>
+}

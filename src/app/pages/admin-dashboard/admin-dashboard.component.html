@@ -1,0 +1,97 @@
+<div class="dashboard">
+	<header>
+		<div>
+			<span class="eyebrow">Rift Party</span>
+			<h1>Dashboard admin</h1>
+			<p>Periode : {{ metrics()?.period?.from?.slice(0, 10) }} → {{ metrics()?.period?.to?.slice(0, 10) }}</p>
+		</div>
+		<div class="header-actions">
+			<button class="btn btn-ghost" (click)="load()">Rafraichir</button>
+			<button class="btn btn-ghost" (click)="logout()">Deconnexion</button>
+		</div>
+	</header>
+
+	@if (metrics(); as m) {
+		<div class="grid">
+			<div class="card metric">
+				<span class="label">Actifs en ce moment</span>
+				<strong>{{ m.live.activePlayersNow }}</strong>
+				<span class="sub">{{ m.live.activeRoomsNow }} room(s) en cours</span>
+			</div>
+			<div class="card metric">
+				<span class="label">Utilisateurs actifs (24h)</span>
+				<strong>{{ m.live.activeUsersToday }}</strong>
+			</div>
+			<div class="card metric">
+				<span class="label">Connexions (periode)</span>
+				<strong>{{ m.connections.total }}</strong>
+				<span class="sub">{{ m.connections.unique }} navigateurs distincts</span>
+			</div>
+			<div class="card metric">
+				<span class="label">Retention J+1 / J+7</span>
+				<strong>{{ pct(m.retention.d1) }} / {{ pct(m.retention.d7) }}</strong>
+			</div>
+			<div class="card metric">
+				<span class="label">Rooms creees</span>
+				<strong>{{ m.rooms.total }}</strong>
+				<span class="sub">durée moy. {{ duration(m.rooms.avgLifetimeSec) }} · {{ m.rooms.avgSize?.toFixed(1) ?? "—" }} joueurs</span>
+			</div>
+			<div class="card metric">
+				<span class="label">Votes Tier List</span>
+				<strong>{{ m.tiktok.totalVotes }}</strong>
+			</div>
+		</div>
+
+		<div class="card table-card">
+			<h2>Par mini-jeu <span class="hint-inline">(trie par taux d'abandon décroissant)</span></h2>
+			<table>
+				<thead>
+					<tr>
+						<th>Jeu</th>
+						<th>Lancements</th>
+						<th>Terminés</th>
+						<th>Abandons</th>
+						<th>Complétion</th>
+						<th>Abandon</th>
+					</tr>
+				</thead>
+				<tbody>
+					@for (g of m.games.byId; track g.gameId) {
+						<tr [class.danger]="g.gameId === m.games.highestAbandon">
+							<td>{{ g.gameId }}</td>
+							<td>{{ g.started }}</td>
+							<td>{{ g.completed }}</td>
+							<td>{{ g.abandoned }}</td>
+							<td>{{ pct(g.completionRate) }}</td>
+							<td>{{ pct(g.abandonRate) }}</td>
+						</tr>
+					} @empty {
+						<tr><td colspan="6" class="hint">Pas encore de donnees.</td></tr>
+					}
+				</tbody>
+			</table>
+			<p class="hint-inline">
+				Le plus joué : {{ m.games.mostPlayed ?? "—" }} · Le moins joué : {{ m.games.leastPlayed ?? "—" }}
+			</p>
+		</div>
+
+		@if (m.tiktok.topQuestions.length) {
+			<div class="card table-card">
+				<h2>Questions Tier List les plus jouées</h2>
+				<table>
+					<thead><tr><th>Question</th><th>Votes</th></tr></thead>
+					<tbody>
+						@for (q of m.tiktok.topQuestions; track q.question) {
+							<tr><td>{{ q.question }}</td><td>{{ q.votes }}</td></tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		}
+	} @else if (loading()) {
+		<p class="hint">Chargement...</p>
+	}
+	@if (error()) {
+		<p class="error">{{ error() }}</p>
+	}
+</div>
