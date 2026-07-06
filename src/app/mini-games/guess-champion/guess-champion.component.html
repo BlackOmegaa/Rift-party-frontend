@@ -46,60 +46,87 @@
 			}
 		</section>
 	} @else {
-		<header class="game-hero">
-			<div>
-				<span class="eyebrow"
-					>Guess The Champ • {{ roundNumber() }}/{{ maxRounds() }}</span
-				>
-				<h2>{{ round().title }}</h2>
-				<p>De qui peut-il bien sagir ?</p>
-			</div>
-			<div class="score-side">
-				<div class="score-orb">
-					<span>Score</span><strong>{{ score() }}</strong>
+		<main
+			class="cine-stage"
+			[class.locked]="locked()"
+			[class.won]="verdict() === 'correct'"
+			[class.lost]="verdict() === 'wrong' || verdict() === 'timeout'"
+		>
+			<img
+				class="stage-splash"
+				draggable="false"
+				[src]="splash(round().answer)"
+				alt=""
+			/>
+			<div class="stage-vignette"></div>
+
+			<!-- HUD minimal : progression, timer, score -->
+			<header class="hud-top">
+				<div class="round-dots">
+					@for (dot of dots(); track $index) {
+						<span
+							[class.done]="$index < index()"
+							[class.active]="$index === index()"
+						></span>
+					}
 				</div>
-				@if (!locked()) {
-					<small class="stake-pill">en jeu : {{ pointsAtStake() }} pts</small>
-					<small class="timer-pill" [class.low]="remainingSec() <= 5">{{ remainingSec() }}s</small>
+				<div class="timer-wrap" [class.low]="remainingSec() <= 5 && !locked()">
+					<div class="timer-bar" [style.width.%]="timerPct()"></div>
+					@if (!locked()) {
+						<span class="timer-num">{{ remainingSec() }}</span>
+					}
+				</div>
+				<div class="score-chip">
+					<strong>{{ score() }}</strong>
+					<small>pts</small>
+				</div>
+				@if (!mix.active() && room.isHost()) {
+					<button
+						class="hud-exit"
+						(click)="room.endGame('Guess The Champ termine.')"
+						title="Retour lobby"
+					>
+						<app-icon name="back" [size]="15" />
+					</button>
 				}
-			</div>
-		</header>
-		<main class="guess-stage card" [class.locked]="locked()">
-			<div class="splash" [class.revealed]="locked()">
-				<img
-					class="splash-img"
-					loading="lazy"
-					draggable="false"
-					[src]="splash(round().answer)"
-					alt=""
-				/>
+			</header>
 
-				@if (!locked()) {
-					<span>?</span>
-				}
-			</div>
-			<div class="hints">
-				@for (hint of visibleHints(); track hint; let i = $index) {
-					<div class="hint">
-						<div class="hint-head">
-							<b>Indice {{ i + 1 }}</b>
-							<em class="hint-cost" [class.free]="i === 0">{{
-								i === 0 ? "Gratuit" : "-" + hintPenalty + " pts"
-							}}</em>
-						</div>
-						<span>{{ hint }}</span>
-					</div>
-				}
-			</div>
-			<div class="answer-row">
-				<app-champion-select
-					[options]="championOptions"
-					[(value)]="answer"
-					[disabled]="locked()"
-					placeholder="Choisis un champion..."
-				/>
+			<!-- L'énigme, plein centre -->
+			@if (!locked()) {
+				<div class="enigma">
+					<span class="stake">EN JEU · {{ pointsAtStake() }} PTS</span>
+					<h2>{{ round().title }}</h2>
+				</div>
 
+				<div class="hint-chips">
+					@for (hint of visibleHints(); track hint; let i = $index) {
+						<span class="chip" [class.fresh]="i === hintCount() - 1 && i > 0">{{ hint }}</span>
+					}
+				</div>
+			} @else {
+				<!-- Verdict cinématique -->
+				<div class="verdict" [class.win]="verdict() === 'correct'">
+					<span class="verdict-stamp">{{ verdict() === "correct" ? "✔" : "✗" }}</span>
+					<strong class="verdict-name">{{ round().answer }}</strong>
+					<span class="verdict-points">
+						@switch (verdict()) {
+							@case ("correct") { +{{ lastGain() }} pts }
+							@case ("timeout") { Temps écoulé · +0 pt }
+							@default { +0 pt }
+						}
+					</span>
+				</div>
+			}
+
+			<!-- Barre d'action flottante -->
+			<div class="action-bar">
 				@if (!locked()) {
+					<app-champion-select
+						[options]="championOptions"
+						[(value)]="answer"
+						[disabled]="locked()"
+						placeholder="Choisis un champion..."
+					/>
 					<button
 						class="rift-btn rift-btn-confirm"
 						(click)="tryAnswer()"
@@ -107,42 +134,22 @@
 					>
 						<span>Valider</span>
 					</button>
-				} @else {
 					<button
-						class="rift-btn rift-btn-next next-inline"
-						(click)="nextRound()"
+						class="rift-btn rift-btn-hint"
+						(click)="revealHint()"
+						[disabled]="hintCount() >= 3"
 					>
 						<span>{{
-							roundNumber() >= maxRounds() ? "Terminer" : "Suivant"
+							hintCount() >= 3 ? "Indices épuisés" : "Indice (-" + hintPenalty + ")"
 						}}</span>
 					</button>
+				} @else {
+					<button class="rift-btn rift-btn-next next-auto" (click)="nextRound()">
+						<span class="next-fill"></span>
+						<span>{{ roundNumber() >= maxRounds() ? "Terminer" : "Suivant" }}</span>
+					</button>
 				}
-
-				<button
-					class="rift-btn rift-btn-hint"
-					(click)="revealHint()"
-					[disabled]="locked() || hintCount() >= 3"
-				>
-					<span>{{
-						hintCount() >= 3
-							? "Indices épuisés"
-							: "Indice (-" + hintPenalty + " pts)"
-					}}</span>
-				</button>
 			</div>
-			@if (feedback(); as fb) {
-				<p class="feedback" [class.win]="fb.includes('GG')">{{ fb }}</p>
-			}
 		</main>
-		<footer class="actions">
-			@if (!mix.active() && room.isHost()) {
-				<button
-					class="rift-btn rift-btn-exit"
-					(click)="room.endGame('Guess The Champ termine.')"
-				>
-					<span>Retour lobby</span>
-				</button>
-			}
-		</footer>
 	}
 </div>

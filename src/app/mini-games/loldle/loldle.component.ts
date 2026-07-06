@@ -2,6 +2,7 @@ import {
   ChangeDetectionStrategy,
   Component,
   DestroyRef,
+  ElementRef,
   computed,
   effect,
   inject,
@@ -15,6 +16,9 @@ import { ChampionSelectComponent } from '../../shared/components/champion-select
 import { CHAMPION_OPTIONS, championLoadingUrl } from '../../shared/lol-assets';
 import { LoldleGuessRow, LoldleLetterState } from '../../core/models/loldle.model';
 import { IconComponent } from '../../shared/components/icon/icon.component';
+import { AudioService } from '../../core/services/audio.service';
+import { animateEndScreen } from '../../shared/end-screen-animate';
+import { burstParticles, punchIn, shake, slideUp } from '../../shared/cinematic/cinematic';
 
 /** Ne garde que les lettres, en majuscules : aligne l'affichage des cases avec le feedback du serveur. */
 function lettersOf(name: string): string[] {
@@ -33,6 +37,8 @@ export class LoldleComponent {
   protected guessInput = '';
   protected readonly submittedToMix = signal(false);
   private readonly now = signal(Date.now());
+  private readonly hostElement = inject(ElementRef<HTMLElement>);
+  private lastRowCount = 0;
 
   protected readonly championOptions = CHAMPION_OPTIONS;
 
@@ -52,10 +58,21 @@ export class LoldleComponent {
     Math.max(0, this.loldle.maxGuesses() - this.loldle.myRows().length),
   );
 
+  /** Lignes vides APRES la ligne "en cours" (celle-ci est affichee separement quand je peux encore jouer). */
+  protected readonly blankTrailingRowsCount = computed(() =>
+    Math.max(0, this.blankRowsCount() - (this.loldle.myDone() ? 0 : 1)),
+  );
+
   protected readonly scoreRows = computed(() => {
     const results = this.loldle.results();
     if (!results) return [];
     return [...results.rows].sort((a, b) => b.points - a.points);
+  });
+
+  /** Pilote l'overlay de verdict cinematique une fois que je n'ai plus d'essai / que j'ai trouve. */
+  protected readonly verdict = computed<'correct' | 'wrong' | null>(() => {
+    if (!this.loldle.myDone()) return null;
+    return this.loldle.mySolved() ? 'correct' : 'wrong';
   });
 
   /**
@@ -98,14 +115,86 @@ export class LoldleComponent {
     protected readonly room: RoomService,
     protected readonly mix: MixRuntimeService,
     protected readonly loldle: LoldleService,
+    private readonly audio: AudioService,
   ) {
     const ticker = setInterval(() => this.now.set(Date.now()), 250);
     inject(DestroyRef).onDestroy(() => clearInterval(ticker));
     // Toujours se resynchroniser au montage : les events one-shot (START,
     // GUESS_RESULT...) peuvent avoir ete emis avant que ce composant n'existe.
     this.loldle.requestState();
+    // Entree animee de la scene (grille qui punch, barre d'action qui glisse).
+    requestAnimationFrame(() => {
+      const host = this.hostElement.nativeElement;
+      punchIn(host.querySelector('.grid-zone'));
+      slideUp(host.querySelector('.action-bar'), { delay: 0.1 });
+      slideUp(host.querySelector('.side-panel'), { delay: 0.16 });
+    });
     effect(() => {
       if (this.loldle.results()) this.submitMix();
+    });
+    // Battement sourd sur les 5 dernieres secondes du timer, tant que je joue encore.
+    effect(() => {
+      const secondsLeft = this.remainingSeconds();
+      if (this.loldle.phase() === 'guessing' && !this.loldle.myDone() && secondsLeft > 0 && secondsLeft <= 5) {
+        this.audio.play('timer-urgent', { volume: 0.7 });
+      }
+    });
+    // Anime chaque nouvelle ligne revelee (flip/pop lettre par lettre + son selon le resultat).
+    effect(() => {
+      const rows = this.loldle.myRows();
+      if (rows.length <= this.lastRowCount) {
+        this.lastRowCount = rows.length;
+        return;
+      }
+      const newRowIndex = rows.length - 1;
+      this.lastRowCount = rows.length;
+      requestAnimationFrame(() => this.animateRevealedRow(newRowIndex, rows[newRowIndex]));
+    });
+    // Verdict final (trouve / pas trouve) : traitement cinematique + particules si gagne.
+    effect(() => {
+      const v = this.verdict();
+      if (!v) return;
+      const host = this.hostElement.nativeElement;
+      requestAnimationFrame(() => {
+        const stage = host.querySelector('.cine-stage') as HTMLElement | null;
+        punchIn(host.querySelector('.verdict'));
+        if (v === 'correct') {
+          this.audio.play('correct');
+          burstParticles(stage, { colors: ['#3fd67a', '#c8aa6e', '#f0e6d2'], count: 40 });
+        } else {
+          this.audio.play('wrong');
+          shake(stage);
+        }
+      });
+    });
+    // Entree de l'ecran de resultats final (grille + scores en stagger, fanfare si mix termine).
+    effect(() => {
+      if (this.loldle.phase() !== 'results') return;
+      this.audio.play('fanfare');
+      const host = this.hostElement.nativeElement;
+      requestAnimationFrame(() => {
+        animateEndScreen(host, {
+          onCountTick: () => this.audio.play('score-tick', { volume: 0.4 }),
+        });
+        burstParticles(host.querySelector('.results-stage'), { count: 36 });
+      });
+    });
+  }
+
+  /** Anime la ligne qui vient d'etre revelee : flip case par case + son par couleur de resultat. */
+  private animateRevealedRow(rowIndex: number, row: LoldleGuessRow): void {
+    const host = this.hostElement.nativeElement;
+    const rowEl = host.querySelectorAll('.grid-row')[rowIndex] as HTMLElement | undefined;
+    if (!rowEl) return;
+    const cells = Array.from(rowEl.querySelectorAll('.cell')) as HTMLElement[];
+    cells.forEach((cell, i) => {
+      const state = row.feedback[i];
+      setTimeout(() => {
+        cell.classList.add('flip');
+        if (state === 'correct') this.audio.play('correct', { volume: 0.55 });
+        else if (state === 'present') this.audio.play('hint', { volume: 0.55 });
+        else this.audio.play('ui-click', { volume: 0.35 });
+      }, i * 160);
     });
   }
 
@@ -119,7 +208,7 @@ export class LoldleComponent {
   }
 
   blankRows(): number[] {
-    return Array.from({ length: this.blankRowsCount() }, (_, i) => i);
+    return Array.from({ length: this.blankTrailingRowsCount() }, (_, i) => i);
   }
 
   portraitUrl(champion: string): string {
@@ -129,6 +218,7 @@ export class LoldleComponent {
   submitGuess(): void {
     const name = this.guessInput.trim();
     if (!name || this.loldle.myDone()) return;
+    this.audio.play('ui-click', { volume: 0.5 });
     this.loldle.submitGuess(name);
     this.guessInput = '';
   }

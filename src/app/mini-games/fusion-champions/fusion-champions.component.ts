@@ -5,6 +5,7 @@ import {
 	effect,
 	ElementRef,
 	inject,
+	OnDestroy,
 	signal,
 } from "@angular/core";
 import { FormsModule } from "@angular/forms";
@@ -19,8 +20,17 @@ import {
 import { ChampionSelectComponent } from "../../shared/components/champion-select/champion-select.component";
 import { IconComponent } from "../../shared/components/icon/icon.component";
 import { GameSettingsService } from "../../core/services/game-settings.service";
+import { AudioService } from "../../core/services/audio.service";
 import { RoundTimer } from "../../shared/round-timer";
 import { animateEndScreen } from "../../shared/end-screen-animate";
+import {
+	burstParticles,
+	floatScore,
+	pulse,
+	punchIn,
+	shake,
+	slideUp,
+} from "../../shared/cinematic/cinematic";
 
 const FUSIONS = [
 	{
@@ -183,7 +193,7 @@ const FUSIONS = [
 	templateUrl: "./fusion-champions.component.html",
 	styleUrl: "./fusion-champions.component.scss",
 })
-export class FusionChampionsComponent {
+export class FusionChampionsComponent implements OnDestroy {
 	private fusions = [...FUSIONS];
 
 	square(name: string) {
@@ -200,6 +210,7 @@ export class FusionChampionsComponent {
 	}
 
 	protected readonly championOptions = CHAMPION_OPTIONS;
+	protected readonly pointsPerFusion = 10;
 	maxRounds = computed(() =>
 		this.mix.active()
 			? this.mix.roundSize()
@@ -208,14 +219,31 @@ export class FusionChampionsComponent {
 	index = signal(0);
 	submittedToMix = signal(false);
 	score = signal(0);
-	feedback = signal("");
+	correctCount = signal(0);
 	locked = signal(false);
+	/** Resultat du round en cours, pilote l'overlay de verdict cinematique. */
+	verdict = signal<"correct" | "wrong" | "timeout" | null>(null);
+	/** Verdict individuel par moitie de fusion, pour animer chaque champion separement. */
+	firstOk = signal(false);
+	secondOk = signal(false);
+	lastGain = signal(0);
+	private autoNextTimer?: ReturnType<typeof setTimeout>;
 	protected readonly timer = new RoundTimer();
 	protected remainingSec = signal(0);
 	first = "";
 	second = "";
 	fusion = computed(() => this.fusions[this.index() % this.fusions.length]);
+	roundNumber = computed(() => this.index() + 1);
 	finished = computed(() => this.index() >= this.maxRounds());
+	protected readonly dots = computed(() =>
+		Array.from({ length: this.maxRounds() }),
+	);
+	protected timerPct(): number {
+		const total = this.settings.roundTimeSec();
+		return total > 0
+			? Math.max(0, Math.min(100, (this.remainingSec() / total) * 100))
+			: 0;
+	}
 	protected leaderboardRows = computed(() => {
 		const scores = this.mix.progress()?.scores ?? [];
 		const byId = new Map(scores.map((s) => [s.playerId, s.points]));
@@ -230,6 +258,7 @@ export class FusionChampionsComponent {
 		protected room: RoomService,
 		protected mix: MixRuntimeService,
 		protected settings: GameSettingsService,
+		private readonly audio: AudioService,
 	) {
 		this.shuffleFusions();
 		this.startRoundTimer();
@@ -237,8 +266,38 @@ export class FusionChampionsComponent {
 			if (payload.gameId === "fusion-champions") this.restart();
 		});
 		effect(() => {
-			if (this.finished()) animateEndScreen(this.hostElement.nativeElement);
+			if (!this.finished()) return;
+			this.audio.play("fanfare");
+			const host = this.hostElement.nativeElement;
+			animateEndScreen(host, {
+				onCountTick: () => this.audio.play("score-tick", { volume: 0.4 }),
+			});
+			requestAnimationFrame(() =>
+				burstParticles(host.querySelector(".end-screen"), { count: 42 }),
+			);
 		});
+		// Battement sourd sur les 5 dernieres secondes du timer.
+		effect(() => {
+			const secondsLeft = this.remainingSec();
+			if (!this.locked() && secondsLeft > 0 && secondsLeft <= 5) {
+				this.audio.play("timer-urgent", { volume: 0.7 });
+			}
+		});
+		// Entree animee de chaque round (fusion qui punch, barre d'action qui glisse).
+		effect(() => {
+			this.index();
+			if (this.finished()) return;
+			requestAnimationFrame(() => {
+				const host = this.hostElement.nativeElement;
+				punchIn(host.querySelector(".fusion-stage-art"));
+				slideUp(host.querySelector(".fusion-vibe"), { delay: 0.08 });
+				slideUp(host.querySelector(".action-bar"), { delay: 0.14 });
+			});
+		});
+	}
+	ngOnDestroy(): void {
+		this.timer.stop();
+		clearTimeout(this.autoNextTimer);
 	}
 	private startRoundTimer() {
 		this.timer.start(
@@ -249,9 +308,19 @@ export class FusionChampionsComponent {
 	}
 	private handleTimeout() {
 		if (this.locked()) return;
-		const f = this.fusion();
-		this.feedback.set(`Temps ecoule : ${f.a} + ${f.b}. ${f.vibe}`);
+		this.lastGain.set(0);
+		this.firstOk.set(false);
+		this.secondOk.set(false);
+		this.verdict.set("timeout");
 		this.locked.set(true);
+		this.audio.play("timeout");
+		this.audio.play("reveal", { volume: 0.6 });
+		this.scheduleAutoNext();
+	}
+	/** Enchaine automatiquement apres le verdict pour garder le rythme (le bouton Suivant reste dispo pour zapper). */
+	private scheduleAutoNext() {
+		clearTimeout(this.autoNextTimer);
+		this.autoNextTimer = setTimeout(() => this.nextRound(), 3200);
 	}
 	splash(name: string) {
 		return championSplashUrl(name);
@@ -259,43 +328,67 @@ export class FusionChampionsComponent {
 	validate() {
 		if (this.locked()) return;
 		this.timer.stop();
+		const host = this.hostElement.nativeElement;
+		const stage = host.querySelector(".cine-stage") as HTMLElement | null;
 		const vals = [
 			normalizeChampionName(this.first),
 			normalizeChampionName(this.second),
 		];
 		const f = this.fusion();
-		const ok =
-			vals.includes(normalizeChampionName(f.a)) &&
-			vals.includes(normalizeChampionName(f.b));
-		if (ok) this.score.update((s) => s + 1);
-		this.feedback.set(
-			ok ? `GG : ${f.a} + ${f.b}.` : `Nope : ${f.a} + ${f.b}. ${f.vibe}`,
-		);
+		const normA = normalizeChampionName(f.a);
+		const normB = normalizeChampionName(f.b);
+		const hasA = vals.includes(normA);
+		const hasB = vals.includes(normB);
+		this.firstOk.set(hasA);
+		this.secondOk.set(hasB);
+		const ok = hasA && hasB;
+		if (ok) {
+			const points = this.pointsPerFusion;
+			this.lastGain.set(points);
+			this.score.update((s) => s + 1);
+			this.correctCount.update((c) => c + 1);
+			this.verdict.set("correct");
+			this.audio.play("correct");
+			burstParticles(stage, {
+				colors: ["#b673ff", "#e2c8ff", "#f0e6d2"],
+				count: 36,
+			});
+			floatScore(stage, `+${points}`, "#b673ff");
+			pulse(host.querySelector(".score-chip"));
+		} else {
+			this.lastGain.set(0);
+			this.verdict.set("wrong");
+			this.audio.play("wrong");
+			shake(stage);
+		}
+		this.audio.play("reveal", { volume: 0.6 });
 		this.locked.set(true);
+		this.scheduleAutoNext();
 	}
-	next() {
+	nextRound() {
 		if (!this.locked()) return;
-
-		this.locked.set(false);
-		this.first = "";
-		this.second = "";
-		this.feedback.set("");
-
+		clearTimeout(this.autoNextTimer);
+		this.audio.play("swap", { volume: 0.7 });
 		this.index.update((i) => i + 1);
-
 		if (this.finished()) {
 			this.timer.stop();
 			this.submitMix();
-		} else {
-			this.startRoundTimer();
+			return;
 		}
+		this.first = "";
+		this.second = "";
+		this.verdict.set(null);
+		this.firstOk.set(false);
+		this.secondOk.set(false);
+		this.locked.set(false);
+		this.startRoundTimer();
 	}
 	submitMix() {
 		if (this.submittedToMix()) return;
 		this.submittedToMix.set(true);
 		this.room.submitMixSegment(
 			this.score() * 10,
-			`Fusion : ${this.score()}/${this.maxRounds()} duos trouvés.`,
+			`Fusion : ${this.correctCount()}/${this.maxRounds()} duos trouvés.`,
 		);
 	}
 	requestRestart() {
@@ -304,12 +397,17 @@ export class FusionChampionsComponent {
 	}
 	restart() {
 		this.shuffleFusions();
+		clearTimeout(this.autoNextTimer);
 		this.submittedToMix.set(false);
 		this.index.set(0);
 		this.score.set(0);
+		this.correctCount.set(0);
 		this.first = "";
 		this.second = "";
-		this.feedback.set("");
+		this.verdict.set(null);
+		this.firstOk.set(false);
+		this.secondOk.set(false);
+		this.lastGain.set(0);
 		this.locked.set(false);
 		this.startRoundTimer();
 	}

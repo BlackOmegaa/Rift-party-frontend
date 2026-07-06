@@ -5,6 +5,7 @@ import {
 	effect,
 	ElementRef,
 	inject,
+	OnDestroy,
 	signal,
 } from "@angular/core";
 import { FormsModule } from "@angular/forms";
@@ -18,8 +19,17 @@ import {
 import { ChampionSelectComponent } from "../../shared/components/champion-select/champion-select.component";
 import { IconComponent } from "../../shared/components/icon/icon.component";
 import { GameSettingsService } from "../../core/services/game-settings.service";
+import { AudioService } from "../../core/services/audio.service";
 import { RoundTimer } from "../../shared/round-timer";
 import { animateEndScreen } from "../../shared/end-screen-animate";
+import {
+	burstParticles,
+	floatScore,
+	pulse,
+	punchIn,
+	shake,
+	slideUp,
+} from "../../shared/cinematic/cinematic";
 
 interface GuessRound {
 	answer: string;
@@ -1025,7 +1035,7 @@ const ROUNDS: GuessRound[] = [
 	templateUrl: './guess-champion.component.html',
 	styleUrl: './guess-champion.component.scss',
 })
-export class GuessChampionComponent {
+export class GuessChampionComponent implements OnDestroy {
 	private rounds: GuessRound[] = [];
 
 	private shuffleRounds() {
@@ -1050,8 +1060,11 @@ export class GuessChampionComponent {
 	protected hintCount = signal(1);
 	protected score = signal(0);
 	protected correctCount = signal(0);
-	protected feedback = signal("");
 	protected locked = signal(false);
+	/** Resultat du round en cours, pilote l'overlay de verdict cinematique. */
+	protected verdict = signal<"correct" | "wrong" | "timeout" | null>(null);
+	protected lastGain = signal(0);
+	private autoNextTimer?: ReturnType<typeof setTimeout>;
 	protected readonly timer = new RoundTimer();
 	protected remainingSec = signal(0);
 	answer = "";
@@ -1062,6 +1075,15 @@ export class GuessChampionComponent {
 	pointsAtStake = computed(() =>
 		Math.max(0, this.basePoints - (this.hintCount() - 1) * this.hintPenalty),
 	);
+	protected readonly dots = computed(() =>
+		Array.from({ length: this.maxRounds() }),
+	);
+	protected timerPct(): number {
+		const total = this.settings.roundTimeSec();
+		return total > 0
+			? Math.max(0, Math.min(100, (this.remainingSec() / total) * 100))
+			: 0;
+	}
 	protected leaderboardRows = computed(() => {
 		const scores = this.mix.progress()?.scores ?? [];
 		const byId = new Map(scores.map((s) => [s.playerId, s.points]));
@@ -1076,6 +1098,7 @@ export class GuessChampionComponent {
 		protected readonly room: RoomService,
 		protected readonly mix: MixRuntimeService,
 		protected readonly settings: GameSettingsService,
+		private readonly audio: AudioService,
 	) {
 		this.shuffleRounds();
 		this.startRoundTimer();
@@ -1083,8 +1106,38 @@ export class GuessChampionComponent {
 			if (payload.gameId === "guess-champion") this.restart();
 		});
 		effect(() => {
-			if (this.finished()) animateEndScreen(this.hostElement.nativeElement);
+			if (!this.finished()) return;
+			this.audio.play("fanfare");
+			const host = this.hostElement.nativeElement;
+			animateEndScreen(host, {
+				onCountTick: () => this.audio.play("score-tick", { volume: 0.4 }),
+			});
+			requestAnimationFrame(() =>
+				burstParticles(host.querySelector(".end-screen"), { count: 42 }),
+			);
 		});
+		// Battement sourd sur les 5 dernieres secondes du timer.
+		effect(() => {
+			const secondsLeft = this.remainingSec();
+			if (!this.locked() && secondsLeft > 0 && secondsLeft <= 5) {
+				this.audio.play("timer-urgent", { volume: 0.7 });
+			}
+		});
+		// Entree animee de chaque round (enigme qui punch, barre d'action qui glisse).
+		effect(() => {
+			this.index();
+			if (this.finished()) return;
+			requestAnimationFrame(() => {
+				const host = this.hostElement.nativeElement;
+				punchIn(host.querySelector(".enigma"));
+				slideUp(host.querySelector(".hint-chips"), { delay: 0.08 });
+				slideUp(host.querySelector(".action-bar"), { delay: 0.14 });
+			});
+		});
+	}
+	ngOnDestroy(): void {
+		this.timer.stop();
+		clearTimeout(this.autoNextTimer);
 	}
 	private startRoundTimer() {
 		this.timer.start(
@@ -1095,35 +1148,61 @@ export class GuessChampionComponent {
 	}
 	private handleTimeout() {
 		if (this.locked()) return;
-		this.feedback.set(`Temps ecoule : c'etait ${this.round().answer}. +0 pt.`);
+		this.lastGain.set(0);
+		this.verdict.set("timeout");
 		this.locked.set(true);
+		this.audio.play("timeout");
+		this.audio.play("reveal", { volume: 0.6 });
+		this.scheduleAutoNext();
+	}
+	/** Enchaine automatiquement apres le verdict pour garder le rythme (le bouton Suivant reste dispo pour zapper). */
+	private scheduleAutoNext() {
+		clearTimeout(this.autoNextTimer);
+		this.autoNextTimer = setTimeout(() => this.nextRound(), 3200);
 	}
 	splash(name: string) {
 		return championLoadingUrl(name);
 	}
 	revealHint() {
-		if (!this.locked()) this.hintCount.update((v) => Math.min(3, v + 1));
+		if (this.locked() || this.hintCount() >= 3) return;
+		this.hintCount.update((v) => Math.min(3, v + 1));
+		this.audio.play("hint");
 	}
 	tryAnswer() {
 		if (this.locked()) return;
 		this.timer.stop();
+		const host = this.hostElement.nativeElement;
+		const stage = host.querySelector(".cine-stage") as HTMLElement | null;
 		const ok =
 			normalizeChampionName(this.answer) ===
 			normalizeChampionName(this.round().answer);
 		if (ok) {
 			const points = this.pointsAtStake();
+			this.lastGain.set(points);
 			this.score.update((s) => s + points);
 			this.correctCount.update((c) => c + 1);
-			this.feedback.set(
-				`GG : c'etait ${this.round().answer}. +${points} pts (indice ${this.hintCount()}/3).`,
-			);
+			this.verdict.set("correct");
+			this.audio.play("correct");
+			burstParticles(stage, {
+				colors: ["#3fd67a", "#c8aa6e", "#f0e6d2"],
+				count: 36,
+			});
+			floatScore(stage, `+${points}`);
+			pulse(host.querySelector(".score-chip"));
 		} else {
-			this.feedback.set(`Nope : c'etait ${this.round().answer}. +0 pt.`);
+			this.lastGain.set(0);
+			this.verdict.set("wrong");
+			this.audio.play("wrong");
+			shake(stage);
 		}
+		this.audio.play("reveal", { volume: 0.6 });
 		this.locked.set(true);
+		this.scheduleAutoNext();
 	}
 	nextRound() {
 		if (!this.locked()) return;
+		clearTimeout(this.autoNextTimer);
+		this.audio.play("swap", { volume: 0.7 });
 		this.index.update((i) => i + 1);
 		if (this.finished()) {
 			this.timer.stop();
@@ -1131,8 +1210,8 @@ export class GuessChampionComponent {
 			return;
 		}
 		this.hintCount.set(1);
-		this.feedback.set("");
 		this.answer = "";
+		this.verdict.set(null);
 		this.locked.set(false);
 		this.startRoundTimer();
 	}
@@ -1150,12 +1229,14 @@ export class GuessChampionComponent {
 	}
 	restart() {
 		this.shuffleRounds();
+		clearTimeout(this.autoNextTimer);
 		this.submittedToMix.set(false);
 		this.index.set(0);
 		this.score.set(0);
 		this.correctCount.set(0);
 		this.hintCount.set(1);
-		this.feedback.set("");
+		this.verdict.set(null);
+		this.lastGain.set(0);
 		this.answer = "";
 		this.locked.set(false);
 		this.startRoundTimer();

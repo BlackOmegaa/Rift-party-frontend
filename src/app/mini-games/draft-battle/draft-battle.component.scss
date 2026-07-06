@@ -11,13 +11,22 @@
 	font-size: 0.72rem;
 	font-weight: 800;
 }
+/* HUD de la phase de pick : volontairement discret (petit, en retrait) pour
+ * que l'attention reste sur les 3 cartes de champions ci-dessous — c'est de
+ * l'info secondaire (budget/rerolls/etape), jamais l'element principal de
+ * l'ecran. */
 .draft-hud {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
 	gap: 1rem;
+	padding: 0.5rem 0.7rem;
+	border-radius: 16px;
+	opacity: 0.92;
 }
-.draft-hud h2,
+.draft-hud h2 {
+	font-size: clamp(1.05rem, 1.8vw, 1.4rem);
+}
 .stage-title h2,
 .waiting h2 {
 	color: var(--gold-bright);
@@ -25,30 +34,38 @@
 	line-height: 1;
 	text-transform: uppercase;
 }
+.draft-hud h2 {
+	color: var(--text-primary);
+	line-height: 1;
+	text-transform: uppercase;
+	letter-spacing: 0.02em;
+}
 .draft-hud p,
 .hud-prompt {
-	margin-top: 0.3rem;
+	margin-top: 0.2rem;
 	max-width: 680px;
-	font-size: 0.85rem;
-	color: var(--text-secondary);
+	font-size: 0.76rem;
+	color: var(--text-muted);
 }
 .hud-side {
 	display: flex;
 	align-items: center;
-	gap: 0.7rem;
+	gap: 0.6rem;
 	flex: 0 0 auto;
 }
 .reroll-btn {
 	white-space: nowrap;
+	font-size: 0.7rem;
+	padding: 0.38rem 0.7rem;
 }
 .step-progress {
 	display: flex;
-	gap: 0.3rem;
-	margin-top: 0.55rem;
+	gap: 0.25rem;
+	margin-top: 0.4rem;
 }
 .step-dot {
-	width: 22px;
-	height: 4px;
+	width: 16px;
+	height: 3px;
 	border-radius: 999px;
 	background: var(--border-subtle);
 	transition:
@@ -63,38 +80,39 @@
 	box-shadow: 0 0 8px rgba(10, 200, 185, 0.6);
 }
 .budget-orb {
-	width: 84px;
-	height: 84px;
+	width: 58px;
+	height: 58px;
 	border-radius: 50%;
 	display: grid;
 	place-items: center;
 	align-content: center;
 	background: radial-gradient(
 		circle,
-		rgba(10, 200, 185, 0.24),
-		rgba(10, 200, 185, 0.06)
+		rgba(10, 200, 185, 0.2),
+		rgba(10, 200, 185, 0.05)
 	);
-	border: 1px solid rgba(10, 200, 185, 0.5);
+	border: 1px solid rgba(10, 200, 185, 0.4);
 	box-shadow:
-		0 0 38px rgba(10, 200, 185, 0.2),
-		inset 0 0 25px rgba(10, 200, 185, 0.08);
+		0 0 20px rgba(10, 200, 185, 0.14),
+		inset 0 0 16px rgba(10, 200, 185, 0.06);
 	flex: 0 0 auto;
+	transition: border-color 0.25s, box-shadow 0.25s;
 }
 .budget-orb strong {
-	font-size: 1.7rem;
+	font-size: 1.15rem;
 	line-height: 0.8;
 	color: var(--gold-bright);
 }
 .budget-orb span,
 .budget-orb small {
-	color: var(--text-secondary);
-	font-size: 0.66rem;
+	color: var(--text-muted);
+	font-size: 0.56rem;
 	text-transform: uppercase;
-	letter-spacing: 0.08em;
+	letter-spacing: 0.06em;
 }
 .budget-orb.danger {
 	border-color: var(--danger);
-	box-shadow: 0 0 32px rgba(232, 73, 95, 0.2);
+	box-shadow: 0 0 24px rgba(232, 73, 95, 0.22);
 }
 .cards-stage {
 	display: grid;
@@ -2148,33 +2166,60 @@
 	animation-delay: 0.24s;
 }
 .champion-spotlight {
+	position: relative;
 	align-self: center;
 	display: grid;
 	place-items: center;
-	gap: 0.2rem;
-	padding: 1rem 1.4rem;
-	border-radius: 22px;
-	border: 1px solid rgba(200, 170, 110, 0.45);
-	background: rgba(200, 170, 110, 0.09);
-	box-shadow: 0 0 40px rgba(200, 170, 110, 0.13);
+	gap: 0.3rem;
+	padding: 1.6rem 2.2rem;
+	border-radius: 26px;
+	border: 1px solid rgba(200, 170, 110, 0.5);
+	background: rgba(200, 170, 110, 0.1);
+	box-shadow: 0 0 60px rgba(200, 170, 110, 0.18);
+	isolation: isolate;
+	overflow: visible;
+	/* Halo fixe qui respire derriere le champion (jamais de rotation) : le vrai
+	 * "spotlight" du moment le plus important de la partie. */
+	animation: spotlight-breathe 3.2s ease-in-out infinite;
 	// Entree geree par GSAP (animateFinalRecap) plutot que par une animation CSS,
 	// pour eviter que les deux systemes se battent sur opacity/transform.
 }
+.champion-spotlight::before {
+	content: "";
+	position: absolute;
+	inset: -40%;
+	z-index: -1;
+	background: radial-gradient(circle, rgba(200, 170, 110, 0.28), transparent 68%);
+	pointer-events: none;
+}
 .champion-spotlight .crown {
-	font-size: 2.4rem;
+	display: grid;
+	place-items: center;
 	color: var(--gold-bright);
-	text-shadow: 0 0 24px rgba(200, 170, 110, 0.32);
+	filter: drop-shadow(0 0 18px rgba(200, 170, 110, 0.55));
 }
 .champion-spotlight strong {
 	color: var(--gold-bright);
-	font-size: 1.35rem;
+	font-size: clamp(2rem, 5vw, 3.2rem);
+	line-height: 1;
 	text-transform: uppercase;
+	text-shadow: 0 6px 30px rgba(0, 0, 0, 0.6), 0 0 60px rgba(200, 170, 110, 0.4);
 }
 .champion-spotlight small {
 	color: var(--text-secondary);
 	font-weight: 900;
-	letter-spacing: 0.08em;
+	letter-spacing: 0.14em;
 	text-transform: uppercase;
+	font-size: 0.78rem;
+}
+@keyframes spotlight-breathe {
+	0%,
+	100% {
+		box-shadow: 0 0 60px rgba(200, 170, 110, 0.18);
+	}
+	50% {
+		box-shadow: 0 0 90px rgba(200, 170, 110, 0.3);
+	}
 }
 /* Derive lente et continue (jamais "alternate") : lecture beaucoup plus premium qu'un aller-retour repetitif. */
 @keyframes scanline {
@@ -2338,6 +2383,12 @@
 .final-popup > .stage-title,
 .final-popup > .champion-spotlight {
 	flex-shrink: 0;
+}
+/* Titre du recap final : plus gros que le standard .stage-title h2, c'est
+ * l'ecran le plus important de toute la partie. */
+.final-popup > .stage-title h2 {
+	font-size: clamp(1.9rem, 4.6vw, 3.1rem);
+	text-shadow: 0 4px 24px rgba(0, 0, 0, 0.7);
 }
 .final-popup > .tournament-placements {
 	width: 100%;
@@ -2522,6 +2573,21 @@
 .svg-player.winner .svg-player-card {
 	stroke: var(--gold);
 	fill: rgba(200, 170, 110, 0.14);
+	filter: url(#bracketGlow);
+	/* Halo fixe qui respire doucement (jamais de rotation) : un contour
+	 * gagnant doit se remarquer sans donner l'impression de tourner. */
+	animation: winner-card-breathe 2.6s ease-in-out infinite;
+}
+@keyframes winner-card-breathe {
+	0%,
+	100% {
+		stroke-width: 1.5;
+		stroke-opacity: 0.85;
+	}
+	50% {
+		stroke-width: 2.4;
+		stroke-opacity: 1;
+	}
 }
 .svg-player.winner .svg-token {
 	fill: var(--gold-dim);

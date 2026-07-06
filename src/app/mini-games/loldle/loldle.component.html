@@ -1,67 +1,81 @@
 <div class="party-game loldle">
   @if (loldle.phase() === 'guessing') {
-    <section class="guess-stage">
-      <div class="center-column">
-        <header class="game-hero">
-          <div>
-            <span class="eyebrow">Loldle</span>
-            <h2>Devine le champion mystère</h2>
-            <p>{{ loldle.wordLength() }} lettres · {{ loldle.maxGuesses() }} essais max. Chaque champion valide doit faire la bonne longueur.</p>
-          </div>
-          <div class="hero-side">
-            <div class="timer-orb" [class.danger]="remainingSeconds() <= 15">
-              <span>Temps</span>
-              <strong>{{ remainingSeconds() }}</strong>
+    <main class="cine-stage" [class.won]="verdict() === 'correct'" [class.lost]="verdict() === 'wrong'">
+      <div class="stage-glow"></div>
+      <div class="stage-vignette"></div>
+
+      <!-- HUD minimal : titre, timer, sortie -->
+      <header class="hud-top">
+        <div class="hud-title">
+          <span class="eyebrow">Loldle</span>
+          <span class="hud-sub">{{ loldle.wordLength() }} lettres · {{ loldle.maxGuesses() }} essais</span>
+        </div>
+        <div class="timer-wrap" [class.low]="remainingSeconds() <= 15 && !loldle.myDone()">
+          <div class="timer-bar" [style.width.%]="(remainingSeconds() / (loldle.phaseDurationMs() / 1000 || 1)) * 100"></div>
+          <span class="timer-num">{{ remainingSeconds() }}</span>
+        </div>
+        @if (!mix.active() && room.isHost()) {
+          <button class="hud-exit" (click)="room.endGame('Loldle terminé.')" title="Retour lobby">
+            <app-icon name="back" [size]="15" />
+          </button>
+        }
+      </header>
+
+      <!-- La grille de lettres, geante et centree : le "gros element zoome" de ce jeu -->
+      <div class="grid-zone">
+        <div class="grid">
+          @for (row of loldle.myRows(); track $index) {
+            <div class="grid-row">
+              @for (cell of cellsFor(row); track $index) {
+                <span class="cell" [class]="cell.state">{{ cell.letter }}</span>
+              }
             </div>
-            @if (!mix.active() && room.isHost()) {
-              <button class="rift-btn rift-btn-ghost" (click)="room.endGame('Loldle terminé.')">
-                <span class="btn-icon"><app-icon name="back" [size]="14" /></span><span>Retour lobby</span>
-              </button>
-            }
-          </div>
-        </header>
-
-        <div class="grid-card card">
-          <div class="grid">
-            @for (row of loldle.myRows(); track $index) {
-              <div class="grid-row">
-                @for (cell of cellsFor(row); track $index) {
-                  <span class="cell" [class]="cell.state">{{ cell.letter }}</span>
-                }
-              </div>
-            }
-            @for (i of blankRows(); track i) {
-              <div class="grid-row">
-                @for (c of blankCells(); track c) {
-                  <span class="cell empty"></span>
-                }
-              </div>
-            }
-          </div>
-
+          }
           @if (!loldle.myDone()) {
-            <div class="guess-row">
-              <app-champion-select
-                class="guess-input"
-                [options]="filteredChampionOptions()"
-                [value]="guessInput"
-                placeholder="Nom du champion..."
-                (valueChange)="guessInput = $event"
-              />
-              <button class="rift-btn rift-btn-confirm" [disabled]="!guessInput.trim()" (click)="submitGuess()">
-                <span>Valider</span>
-              </button>
+            <div class="grid-row">
+              @for (c of blankCells(); track c) {
+                <span class="cell empty"></span>
+              }
             </div>
-          } @else {
-            <div class="wait-pill" [class.success]="loldle.mySolved()">
-              {{ loldle.mySolved() ? 'Trouvé ! En attente des autres...' : "Plus d'essais. En attente des autres..." }}
+          }
+          @for (i of blankRows(); track i) {
+            <div class="grid-row">
+              @for (c of blankCells(); track c) {
+                <span class="cell empty"></span>
+              }
             </div>
           }
         </div>
+
+        @if (verdict()) {
+          <!-- Verdict cinématique -->
+          <div class="verdict" [class.win]="verdict() === 'correct'">
+            <span class="verdict-stamp">{{ verdict() === 'correct' ? '✔' : '✗' }}</span>
+            <strong class="verdict-name">{{ verdict() === 'correct' ? 'Trouvé !' : 'Perdu' }}</strong>
+            <span class="verdict-points">En attente des autres joueurs...</span>
+          </div>
+        }
       </div>
 
+      <!-- Barre d'action flottante -->
+      @if (!loldle.myDone()) {
+        <div class="action-bar">
+          <app-champion-select
+            class="guess-input"
+            [options]="filteredChampionOptions()"
+            [value]="guessInput"
+            placeholder="Nom du champion..."
+            (valueChange)="guessInput = $event"
+          />
+          <button class="rift-btn rift-btn-confirm" [disabled]="!guessInput.trim()" (click)="submitGuess()">
+            <span>Valider</span>
+          </button>
+        </div>
+      }
+
+      <!-- Statut des autres joueurs : HUD discret sur le cote, jamais au centre -->
       <aside class="side-panel right">
-        <span class="side-panel-title"><app-icon name="radio" [size]="14" /> Adversaires</span>
+        <span class="side-panel-title"><app-icon name="radio" [size]="13" /> Adversaires</span>
         @for (p of otherPlayersStatus(); track p.playerId) {
           <div class="player-status" [class.solved]="p.solved" [class.failed]="p.failed">
             <strong>{{ p.pseudo }}</strong>
@@ -71,7 +85,7 @@
           <p class="side-panel-empty">Personne d'autre pour l'instant.</p>
         }
       </aside>
-    </section>
+    </main>
   } @else if (loldle.phase() === 'results') {
     @if (loldle.results(); as results) {
       <section class="results-stage card">

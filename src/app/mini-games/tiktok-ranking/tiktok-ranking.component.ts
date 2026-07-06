@@ -3,6 +3,9 @@ import {
 	Component,
 	computed,
 	effect,
+	ElementRef,
+	inject,
+	OnDestroy,
 	signal,
 } from "@angular/core";
 import { RoomService } from "../../core/services/room.service";
@@ -12,12 +15,30 @@ import { GameSettingsService } from "../../core/services/game-settings.service";
 import { championSquareUrl } from "../../shared/lol-assets";
 import { RoundTimer } from "../../shared/round-timer";
 import { IconComponent } from "../../shared/components/icon/icon.component";
+import { AudioService } from "../../core/services/audio.service";
+import { animateEndScreen } from "../../shared/end-screen-animate";
+import {
+	burstParticles,
+	pulse,
+	punchIn,
+	slideUp,
+} from "../../shared/cinematic/cinematic";
+import { gsap } from "gsap";
 
 interface RankingRound {
 	question: string;
 	options: string[];
 	premium?: boolean;
 }
+
+/** Bornes des tiers cinematiques (slot 1 = meilleur classement). */
+type TierId = "S" | "A" | "B" | "C";
+const TIER_BOUNDS: { id: TierId; slots: number[] }[] = [
+	{ id: "S", slots: [1, 2] },
+	{ id: "A", slots: [3, 4, 5] },
+	{ id: "B", slots: [6, 7, 8] },
+	{ id: "C", slots: [9, 10] },
+];
 
 const ROUNDS: RankingRound[] = [
 	{
@@ -1317,7 +1338,8 @@ const ROUNDS: RankingRound[] = [
 	templateUrl: "./tiktok-ranking.component.html",
 	styleUrl: "./tiktok-ranking.component.scss",
 })
-export class TiktokRankingComponent {
+export class TiktokRankingComponent implements OnDestroy {
+	private readonly hostElement = inject(ElementRef<HTMLElement>);
 	protected readonly slots = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 	protected readonly maxRounds = computed(() =>
 		this.mix.active()
@@ -1346,12 +1368,15 @@ export class TiktokRankingComponent {
 		return ROUNDS[idx];
 	});
 	locked = computed(() => this.submitted() && !this.results());
+	/** Ligne du classement de reference (consensus) actuellement revelee pendant le stagger. */
+	protected revealedRows = signal(0);
 
 	constructor(
 		protected room: RoomService,
 		protected mix: MixRuntimeService,
 		private readonly socket: SocketService,
 		protected readonly settings: GameSettingsService,
+		private readonly audio: AudioService,
 	) {
 		this.socket.on<{ question: string; ready: number; total: number }>(
 			"tiktok:progress",
@@ -1367,6 +1392,7 @@ export class TiktokRankingComponent {
 				this.reviewIndex.set(0);
 				this.fraudVotes.set({});
 				this.revealIntro.set(true);
+				this.audio.play("reveal", { volume: 0.7 });
 				window.setTimeout(() => this.revealIntro.set(false), 1100);
 			}
 		});
@@ -1416,7 +1442,83 @@ export class TiktokRankingComponent {
 				if (this.currentReview()?.playerId === reviewedId) this.hostNextReview();
 			}, 1500);
 		});
+
+		// Entree cinematique de la grille de classement (drop-zones + pool qui punchent).
+		effect(() => {
+			this.index();
+			if (this.finished() || this.results()) return;
+			requestAnimationFrame(() => {
+				const host = this.hostElement.nativeElement;
+				punchIn(host.querySelector(".question-hero"));
+				slideUp(host.querySelector(".tier-board"), { delay: 0.1 });
+				slideUp(host.querySelector(".pool-dock"), { delay: 0.16 });
+			});
+		});
+
+		// Reveal cinematique : chaque ligne du classement compare apparait en
+		// stagger marque, avec un son par ligne et un glow quand le joueur colle
+		// au consensus (cf. `.review-slot.same` dans le template).
+		effect(() => {
+			const row = this.currentReview();
+			if (!row || this.revealIntro()) return;
+			this.revealedRows.set(0);
+			const host: HTMLElement = this.hostElement.nativeElement;
+			requestAnimationFrame(() => {
+				const els: HTMLElement[] = Array.from(
+					host.querySelectorAll(".review-slot"),
+				);
+				if (!els.length) return;
+				gsap.killTweensOf(els);
+				gsap.set(els, { opacity: 0, y: 22, scale: 0.94 });
+				els.forEach((el, i) => {
+					gsap.to(el, {
+						opacity: 1,
+						y: 0,
+						scale: 1,
+						duration: 0.42,
+						delay: i * 0.14,
+						ease: "back.out(1.6)",
+						onStart: () => {
+							this.audio.play("score-tick", { volume: 0.35, rate: 1 + i * 0.03 });
+							this.revealedRows.set(i + 1);
+							if (el.classList.contains("same")) {
+								pulse(el, 1.05);
+								burstParticles(host.querySelector(".review-tierlist"), {
+									colors: ["#ff4fd8", "#ffe08a", "#ffffff"],
+									count: 14,
+									origin: {
+										x: el.offsetLeft + el.offsetWidth * 0.15,
+										y: el.offsetTop + el.offsetHeight / 2,
+									},
+									spread: 60,
+								});
+							}
+						},
+					});
+				});
+			});
+		});
+		// Battement sourd sur les 5 dernieres secondes du timer de classement.
+		effect(() => {
+			const secondsLeft = this.remainingSec();
+			if (!this.submitted() && secondsLeft > 0 && secondsLeft <= 5) {
+				this.audio.play("timer-urgent", { volume: 0.6 });
+			}
+		});
+		// Ecran de fin : fanfare + confettis, comme les autres mini-jeux cinematiques.
+		effect(() => {
+			if (!this.finished()) return;
+			this.audio.play("fanfare");
+			const host = this.hostElement.nativeElement;
+			animateEndScreen(host);
+			requestAnimationFrame(() =>
+				burstParticles(host.querySelector(".end-screen"), { count: 40, colors: ["#ff4fd8", "#ffe08a", "#ffffff"] }),
+			);
+		});
 		this.startRoundTimer();
+	}
+	ngOnDestroy(): void {
+		this.timer.stop();
 	}
 
 	private startRoundTimer() {
@@ -1428,6 +1530,7 @@ export class TiktokRankingComponent {
 	}
 	private handleTimeout() {
 		if (this.submitted()) return;
+		this.audio.play("timeout", { volume: 0.7 });
 		const unused = this.round().options.filter((champ) => !this.isUsed(champ));
 		let cursor = 0;
 		for (const slot of this.slots) {
@@ -1486,6 +1589,7 @@ export class TiktokRankingComponent {
 		if (nextSlot) this.selectedSlot.set(nextSlot);
 	}
 	private placeOnSlot(champ: string, slot: number): void {
+		this.audio.play("swap", { volume: 0.45 });
 		this.placement.update((p) => {
 			const next = { ...p };
 			for (const [usedSlot, usedChamp] of Object.entries(next))
@@ -1498,11 +1602,20 @@ export class TiktokRankingComponent {
 		if (this.filledCount() < 10 || this.submitted()) return;
 		this.timer.stop();
 		this.submitted.set(true);
+		this.audio.play("correct", { volume: 0.8 });
 		this.progress.set({ ready: 1, total: this.room.players().length });
 		this.socket.emit("tiktok:submit", {
 			question: this.round().question,
 			placement: this.placement(),
 		});
+	}
+	/** Identifiant de tier cinematique (S/A/B/C) pour un slot de classement donne. */
+	tierOf(slot: number): TierId {
+		return TIER_BOUNDS.find((t) => t.slots.includes(slot))?.id ?? "C";
+	}
+	/** Slots regroupes par tier, dans l'ordre S -> C, pour l'affichage en colonnes. */
+	tierGroups(): { id: TierId; slots: number[] }[] {
+		return TIER_BOUNDS;
 	}
 
 	currentReview(): TiktokPlayerResult | null {
@@ -1662,6 +1775,7 @@ export class TiktokRankingComponent {
 		return this.mix.active() ? "Mix en cours" : "Question terminée";
 	}
 	nextLocalRound() {
+		this.audio.play("swap", { volume: 0.6 });
 		this.index.update((i) => i + 1);
 		this.placement.set({});
 		this.selectedSlot.set(1);

@@ -127,6 +127,7 @@
 											isUniquePlacement(currentReview(), slot)
 										"
 									>
+										<span class="review-slot-tier" [attr.data-tier]="tierOf(slot)">{{ tierOf(slot) }}</span>
 										<b>#{{ slot }}</b>
 										<img
 											[src]="icon(champ)"
@@ -229,94 +230,114 @@
 				}
 			</section>
 		} @else {
-			<header class="game-head">
-				<span class="eyebrow"
-					>TikTok Ranking • {{ index() + 1 }}/{{ maxRounds() }}</span
-				>
-				@if (!submitted()) {
-					<small class="timer-pill" [class.low]="remainingSec() <= 5">{{ remainingSec() }}s</small>
-				}
-				<h2>{{ round().question }}</h2>
-				<p>
-					Classe les 10 champions. Quand tout le monde a validé, le lobby
-					passe au tribunal.
-				</p>
-			</header>
-
-			<section class="ranking-board card">
-				<aside class="ladder">
-					@for (slot of slots; track slot) {
+			<main class="tier-stage">
+				<!-- HUD minimal : progression, timer -->
+				<header class="hud-top">
+					<span class="hud-question-count">{{ index() + 1 }}/{{ maxRounds() }}</span>
+					<div class="timer-wrap" [class.low]="remainingSec() <= 5 && !submitted()">
+						<div
+							class="timer-bar"
+							[style.width.%]="
+								settings.roundTimeSec() > 0
+									? (remainingSec() / settings.roundTimeSec()) * 100
+									: 0
+							"
+						></div>
+						@if (!submitted()) {
+							<span class="timer-num">{{ remainingSec() }}</span>
+						}
+					</div>
+					@if (!mix.active() && room.isHost()) {
 						<button
-							class="rank-slot"
-							[class.active]="selectedSlot() === slot"
-							[class.filled]="!!placement()[slot]"
-							(click)="selectSlot(slot)"
-							(dragover)="allowDrop($event)"
-							(drop)="dropOnSlot($event, slot)"
+							class="hud-exit"
+							(click)="room.endGame('TikTok Ranking terminé.')"
+							title="Retour lobby"
 						>
-							<span class="rank-number">#{{ slot }}</span>
-							@if (placement()[slot]; as champ) {
+							<app-icon name="back" [size]="15" />
+						</button>
+					}
+				</header>
+
+				<div class="question-hero">
+					<span class="stake">TIER LIST</span>
+					<h2>{{ round().question }}</h2>
+				</div>
+
+				<section class="tier-board">
+					@for (group of tierGroups(); track group.id) {
+						<div class="tier-row" [attr.data-tier]="group.id">
+							<div class="tier-label" [attr.data-tier]="group.id">
+								<span>{{ group.id }}</span>
+							</div>
+							<div class="tier-slots">
+								@for (slot of group.slots; track slot) {
+									<button
+										class="tier-slot"
+										[class.filled]="!!placement()[slot]"
+										[class.active]="selectedSlot() === slot"
+										(click)="selectSlot(slot)"
+										(dragover)="allowDrop($event)"
+										(drop)="dropOnSlot($event, slot)"
+									>
+										<span class="tier-slot-rank">#{{ slot }}</span>
+										@if (placement()[slot]; as champ) {
+											<img
+												[src]="icon(champ)"
+												[alt]="champ"
+												(error)="fallback($event)"
+											/>
+											<strong>{{ champ }}</strong>
+										} @else {
+											<strong class="tier-slot-empty">Drop ici</strong>
+										}
+									</button>
+								}
+							</div>
+						</div>
+					}
+				</section>
+
+				<footer class="pool-dock">
+					<div class="pool-cards">
+						@for (champ of round().options; track champ) {
+							<button
+								class="champ-card"
+								[class.used]="isUsed(champ)"
+								[attr.draggable]="!submitted()"
+								(dragstart)="dragStart($event, champ)"
+								(click)="place(champ)"
+							>
 								<img
 									[src]="icon(champ)"
 									[alt]="champ"
 									(error)="fallback($event)"
 								/>
-								<strong>{{ champ }}</strong>
-							} @else {
-								<strong>Drop ici</strong>
-							}
-						</button>
-					}
-				</aside>
+								<span>{{ champ }}</span>
+							</button>
+						}
+					</div>
 
-				<main class="cards-pool">
-					@for (champ of round().options; track champ) {
-						<button
-							class="champ-card"
-							[class.used]="isUsed(champ)"
-							[attr.draggable]="!submitted()"
-							(dragstart)="dragStart($event, champ)"
-							(click)="place(champ)"
-						>
-							<img
-								[src]="icon(champ)"
-								[alt]="champ"
-								(error)="fallback($event)"
-							/>
-							<span>{{ champ }}</span>
-						</button>
-					}
-				</main>
-
-				<aside class="panel">
-					<span class="eyebrow">Ta tier list</span>
-					<h3>{{ filledCount() }}/10</h3>
-					<p>
-						Drag & drop ou clique sur une carte. Le bouton valide uniquement
-						quand les 10 places sont remplies.
-					</p>
-					@if (submitted() && !results()) {
-						<div class="wait-pill">
-							{{ progress().ready }}/{{ progress().total }} joueurs prêts
-						</div>
-					}
-					<button
-						class="rift-btn rift-btn-confirm"
-						[disabled]="filledCount() < 10 || submitted()"
-						(click)="validate()"
-					>
-						<span class="btn-icon"><app-icon name="check" [size]="16" /></span><span>Envoyer</span>
-					</button>
-					@if (round().premium) {
-						<small class="premium-note"
-							>Catégorie premium dans la vraie version.</small
-						>
-					}
-				</aside>
-			</section>
+					<div class="pool-action">
+						<h3>{{ filledCount() }}/10</h3>
+						@if (submitted() && !results()) {
+							<div class="wait-pill">
+								{{ progress().ready }}/{{ progress().total }} joueurs prêts
+							</div>
+						} @else {
+							<button
+								class="rift-btn rift-btn-confirm"
+								[disabled]="filledCount() < 10 || submitted()"
+								(click)="validate()"
+							>
+								<span class="btn-icon"><app-icon name="check" [size]="16" /></span><span>Envoyer</span>
+							</button>
+						}
+					</div>
+				</footer>
+			</main>
 		}
 		<footer class="actions">
-			@if (!mix.active() && room.isHost()) {
+			@if (!mix.active() && room.isHost() && !results()) {
 				<button
 					class="rift-btn rift-btn-exit"
 					(click)="room.endGame('TikTok Ranking terminé.')"

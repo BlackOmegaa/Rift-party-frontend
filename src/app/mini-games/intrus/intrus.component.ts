@@ -5,15 +5,25 @@ import {
 	effect,
 	ElementRef,
 	inject,
+	OnDestroy,
 	signal,
 } from "@angular/core";
 import { RoomService } from "../../core/services/room.service";
 import { MixRuntimeService } from "../../core/services/mix-runtime.service";
 import { GameSettingsService } from "../../core/services/game-settings.service";
-import { championSquareUrl } from "../../shared/lol-assets";
+import { championSplashUrl, championSquareUrl } from "../../shared/lol-assets";
 import { IconComponent } from "../../shared/components/icon/icon.component";
 import { RoundTimer } from "../../shared/round-timer";
 import { animateEndScreen } from "../../shared/end-screen-animate";
+import { AudioService } from "../../core/services/audio.service";
+import {
+	burstParticles,
+	floatScore,
+	pulse,
+	punchIn,
+	shake,
+	slideUp,
+} from "../../shared/cinematic/cinematic";
 
 interface IntrusItem {
 	/** Champion utilise pour l'illustration (square art), meme quand `label` montre un skin. */
@@ -204,7 +214,7 @@ function shuffle<T>(arr: T[]): T[] {
 	templateUrl: "./intrus.component.html",
 	styleUrl: "./intrus.component.scss",
 })
-export class IntrusComponent {
+export class IntrusComponent implements OnDestroy {
 	private rounds: IntrusRound[] = [];
 
 	protected readonly basePoints = 10;
@@ -219,12 +229,24 @@ export class IntrusComponent {
 	protected pickedIndex = signal<number | null>(null);
 	protected items = signal<IntrusItem[]>([]);
 	protected intrusIndex = signal(0);
+	/** Resultat du round en cours, pilote le style du stage cinematique (glow vert/rouge). */
+	protected verdict = signal<"correct" | "wrong" | "timeout" | null>(null);
+	private autoNextTimer?: ReturnType<typeof setTimeout>;
 	protected readonly timer = new RoundTimer();
 	protected remainingSec = signal(0);
 
 	round = computed(() => this.rounds[this.index() % this.rounds.length]);
 	roundNumber = computed(() => this.index() + 1);
 	finished = computed(() => this.index() >= this.maxRounds());
+	protected readonly dots = computed(() =>
+		Array.from({ length: this.maxRounds() }),
+	);
+	protected timerPct(): number {
+		const total = this.settings.roundTimeSec();
+		return total > 0
+			? Math.max(0, Math.min(100, (this.remainingSec() / total) * 100))
+			: 0;
+	}
 	protected leaderboardRows = computed(() => {
 		const scores = this.mix.progress()?.scores ?? [];
 		const byId = new Map(scores.map((s) => [s.playerId, s.points]));
@@ -239,6 +261,7 @@ export class IntrusComponent {
 		protected readonly room: RoomService,
 		protected readonly mix: MixRuntimeService,
 		protected readonly settings: GameSettingsService,
+		private readonly audio: AudioService,
 	) {
 		this.shuffleRounds();
 		this.setupRound();
@@ -247,8 +270,39 @@ export class IntrusComponent {
 			if (payload.gameId === "intrus") this.restart();
 		});
 		effect(() => {
-			if (this.finished()) animateEndScreen(this.hostElement.nativeElement);
+			if (!this.finished()) return;
+			this.audio.play("fanfare");
+			const host = this.hostElement.nativeElement;
+			animateEndScreen(host, {
+				onCountTick: () => this.audio.play("score-tick", { volume: 0.4 }),
+			});
+			requestAnimationFrame(() =>
+				burstParticles(host.querySelector(".end-screen"), { count: 42 }),
+			);
 		});
+		// Battement sourd sur les 5 dernieres secondes du timer.
+		effect(() => {
+			const secondsLeft = this.remainingSec();
+			if (!this.locked() && secondsLeft > 0 && secondsLeft <= 5) {
+				this.audio.play("timer-urgent", { volume: 0.7 });
+			}
+		});
+		// Entree animee de chaque round (grille qui punch, barre d'action qui glisse).
+		effect(() => {
+			this.index();
+			if (this.finished()) return;
+			requestAnimationFrame(() => {
+				const host = this.hostElement.nativeElement;
+				punchIn(host.querySelector(".suspects-grid"));
+				slideUp(host.querySelector(".stage-caption"), { delay: 0.06 });
+				slideUp(host.querySelector(".action-bar"), { delay: 0.12 });
+			});
+		});
+	}
+
+	ngOnDestroy(): void {
+		this.timer.stop();
+		clearTimeout(this.autoNextTimer);
 	}
 
 	private shuffleRounds(): void {
@@ -272,26 +326,62 @@ export class IntrusComponent {
 
 	private handleTimeout(): void {
 		if (this.locked()) return;
+		this.verdict.set("timeout");
 		this.locked.set(true);
+		this.audio.play("timeout");
+		this.audio.play("reveal", { volume: 0.6 });
+		this.scheduleAutoNext();
+	}
+
+	/** Enchaine automatiquement apres le verdict pour garder le rythme (le bouton Suivant reste dispo pour zapper). */
+	private scheduleAutoNext(): void {
+		clearTimeout(this.autoNextTimer);
+		this.autoNextTimer = setTimeout(() => this.next(), 3200);
 	}
 
 	square(name: string): string {
 		return championSquareUrl(name);
 	}
 
+	splash(name: string): string {
+		return championSplashUrl(name);
+	}
+
 	pick(i: number): void {
 		if (this.locked()) return;
 		this.timer.stop();
+		const host = this.hostElement.nativeElement;
+		const stage = host.querySelector(".cine-stage") as HTMLElement | null;
 		this.pickedIndex.set(i);
 		this.locked.set(true);
-		if (i === this.intrusIndex()) {
+		const ok = i === this.intrusIndex();
+		if (ok) {
 			this.score.update((s) => s + 1);
 			this.correctCount.update((c) => c + 1);
+			this.verdict.set("correct");
+			this.audio.play("correct");
+			const card = host.querySelector(
+				`.choice[data-index="${i}"]`,
+			) as HTMLElement | null;
+			burstParticles(stage, {
+				colors: ["#3fd67a", "#e0a94a", "#f0e6d2"],
+				count: 36,
+			});
+			floatScore(stage, `+${this.basePoints}`);
+			if (card) pulse(card, 1.12);
+		} else {
+			this.verdict.set("wrong");
+			this.audio.play("wrong");
+			shake(stage);
 		}
+		this.audio.play("reveal", { volume: 0.6 });
+		this.scheduleAutoNext();
 	}
 
 	next(): void {
 		if (!this.locked()) return;
+		clearTimeout(this.autoNextTimer);
+		this.audio.play("swap", { volume: 0.7 });
 		this.index.update((i) => i + 1);
 		if (this.finished()) {
 			this.timer.stop();
@@ -299,6 +389,7 @@ export class IntrusComponent {
 			return;
 		}
 		this.pickedIndex.set(null);
+		this.verdict.set(null);
 		this.locked.set(false);
 		this.setupRound();
 		this.startRoundTimer();
@@ -320,11 +411,13 @@ export class IntrusComponent {
 
 	restart(): void {
 		this.shuffleRounds();
+		clearTimeout(this.autoNextTimer);
 		this.submittedToMix.set(false);
 		this.index.set(0);
 		this.score.set(0);
 		this.correctCount.set(0);
 		this.pickedIndex.set(null);
+		this.verdict.set(null);
 		this.locked.set(false);
 		this.setupRound();
 		this.startRoundTimer();

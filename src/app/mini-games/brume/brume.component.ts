@@ -15,8 +15,10 @@ import { RoomService } from '../../core/services/room.service';
 import { MixRuntimeService } from '../../core/services/mix-runtime.service';
 import { BrumeService } from '../../core/services/brume.service';
 import { championLoadingUrl } from '../../shared/lol-assets';
-import { BrumeChatChannel, BrumeNightRecap, BrumeRole, BRUME_ROLE_LABELS, BRUME_ROLE_META, BRUME_TEAM_LABELS } from '../../core/models/brume.model';
+import { BrumeChatChannel, BrumeNightRecap, BrumePhase, BrumeRole, BRUME_ROLE_LABELS, BRUME_ROLE_META, BRUME_TEAM_LABELS } from '../../core/models/brume.model';
 import { IconComponent } from '../../shared/components/icon/icon.component';
+import { AudioService } from '../../core/services/audio.service';
+import { burstParticles, floatScore, punchIn, shake, slideUp } from '../../shared/cinematic/cinematic';
 
 const REACTIONS = ['👀', '😱', '🤫', '🔥', '😈'];
 const RESULT_STAGE_LABELS = ["Révéler les rôles", 'Voir les scores'];
@@ -49,6 +51,8 @@ export class BrumeComponent {
 
   private readonly packFeedRef = viewChild<ElementRef<HTMLDivElement>>('packFeed');
   private readonly dayFeedRef = viewChild<ElementRef<HTMLDivElement>>('dayFeed');
+  private readonly hostElement = inject(ElementRef<HTMLElement>);
+  private lastPhase: BrumePhase | null = null;
 
   protected readonly amIAlive = computed(() => {
     const id = this.room.myId();
@@ -102,6 +106,7 @@ export class BrumeComponent {
     protected readonly room: RoomService,
     protected readonly mix: MixRuntimeService,
     protected readonly brume: BrumeService,
+    private readonly audio: AudioService,
   ) {
     const ticker = setInterval(() => this.now.set(Date.now()), 250);
     inject(DestroyRef).onDestroy(() => clearInterval(ticker));
@@ -110,14 +115,49 @@ export class BrumeComponent {
     // n'existe.
     this.brume.requestState();
 
+    // Changement d'ambiance marque a chaque bascule Jour/Nuit : la scene
+    // entiere change de teinte (voir .cine-stage.phase-night/.phase-day dans
+    // le SCSS) + un whoosh/impact sonore distinct, pas juste un texte qui change.
+    effect(() => {
+      const phase = this.brume.phase();
+      if (phase === this.lastPhase) return;
+      const previous = this.lastPhase;
+      this.lastPhase = phase;
+      if (previous === null) return; // premier rendu : pas de transition a jouer
+      if (phase === 'night') {
+        this.audio.play('whoosh', { volume: 0.7 });
+      } else if (phase === 'day') {
+        this.audio.play('impact', { volume: 0.6 });
+      } else if (phase === 'vote') {
+        this.audio.play('timer-urgent', { volume: 0.5 });
+      }
+      requestAnimationFrame(() => {
+        const stage = this.hostElement.nativeElement;
+        punchIn(stage.querySelector('.cine-stage .game-hero'));
+        slideUp(stage.querySelector('.cine-stage .action-panel'), { delay: 0.08 });
+        slideUp(stage.querySelector('.cine-stage .chat-panel'), { delay: 0.14 });
+      });
+    });
+
     // Grosse annonce dramatique a chaque nouvelle aube / resultat de vote,
-    // en plus du recap discret deja affiche dans le fil du jour.
+    // en plus du recap discret deja affiche dans le fil du jour. Delai avant
+    // affichage pour laisser peser le silence, puis son sombre + texte qui slam.
     effect(() => {
       const dawn = this.brume.lastDawn();
       if (dawn && dawn !== this.seenDawn) {
         this.seenDawn = dawn;
-        this.dawnAnnounce.set(dawn);
-        setTimeout(() => this.dawnAnnounce.set(null), 5000);
+        this.audio.play('whoosh', { volume: 0.5 });
+        setTimeout(() => {
+          this.dawnAnnounce.set(dawn);
+          this.audio.play(dawn.deaths.length ? 'impact' : 'reveal', { volume: 0.85 });
+          if (dawn.deaths.length) {
+            requestAnimationFrame(() => {
+              const card = this.hostElement.nativeElement.querySelector('.announce-card');
+              shake(card);
+            });
+          }
+        }, 900);
+        setTimeout(() => this.dawnAnnounce.set(null), 5900);
       }
     });
     effect(() => {
@@ -125,8 +165,32 @@ export class BrumeComponent {
       if (vr && vr !== this.seenVote) {
         this.seenVote = vr;
         this.voteAnnounce.set(vr);
+        this.audio.play(vr.eliminatedId ? 'impact' : 'reveal', { volume: 0.75 });
         setTimeout(() => this.voteAnnounce.set(null), 4200);
       }
+    });
+
+    // Battement sourd sur les 10 dernieres secondes du vote : tension visuelle
+    // et sonore pendant que l'Assemblee decide.
+    effect(() => {
+      const phase = this.brume.phase();
+      const secondsLeft = this.remainingSeconds();
+      if (phase === 'vote' && secondsLeft > 0 && secondsLeft <= 10) {
+        this.audio.play('timer-urgent', { volume: 0.4 });
+      }
+    });
+
+    // Victoire finale : renforce le confetti existant avec un burst de
+    // particules + fanfare au moment ou le reveal du camp gagnant apparait.
+    effect(() => {
+      const results = this.brume.results();
+      if (!results || this.resultStage() !== 0) return;
+      this.audio.play(results.winner === 'circle' ? 'fanfare' : 'round-win', { volume: 0.85 });
+      requestAnimationFrame(() => {
+        const stage = this.hostElement.nativeElement.querySelector('.results-stage') as HTMLElement | null;
+        punchIn(stage?.querySelector('.reveal-winner') ?? null);
+        burstParticles(stage, { count: 46 });
+      });
     });
 
     // Auto-scroll des fils de chat vers le bas a chaque nouveau message.
@@ -231,12 +295,29 @@ export class BrumeComponent {
   /** Un joueur peut changer d'avis autant de fois qu'il veut tant que la nuit n'est pas resolue (voir demande produit) : plus de verrou sur myNightActionSubmitted() ici. */
   submitAction(action: 'hunt'): void {
     this.brume.submitNightAction(action);
+    this.audio.play('ui-click', { volume: 0.6 });
   }
 
   submitTargetedAction(action: 'consommer' | 'effroi' | 'mark_fiddlesticks' | 'protect' | 'scout' | 'huddle' | 'mark_kindred'): void {
     const target = this.selectedTarget();
     if (!target) return;
     this.brume.submitNightAction(action, target);
+    this.audio.play('ui-click', { volume: 0.6 });
+  }
+
+  pickTarget(id: string): void {
+    this.selectedTarget.set(id);
+    this.audio.play('ui-click', { volume: 0.45 });
+  }
+
+  /** Vote de jour : tension visuelle (pulse sur la carte) + tick sonore a chaque changement d'avis. */
+  castVote(id: string): void {
+    this.brume.submitVote(id);
+    this.audio.play('score-tick', { volume: 0.5 });
+    requestAnimationFrame(() => {
+      const card = this.hostElement.nativeElement.querySelector(`.vote-card[data-target="${id}"]`) as HTMLElement | null;
+      floatScore(card, '✓', '#c13c4d');
+    });
   }
 
   sendPack(): void {

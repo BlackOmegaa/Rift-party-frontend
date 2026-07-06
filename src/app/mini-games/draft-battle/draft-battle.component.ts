@@ -33,6 +33,8 @@ import {
 } from "../../core/models/draft.model";
 import { championSplashUrl, championSquareUrl } from "../../shared/lol-assets";
 import { IconComponent, IconName } from "../../shared/components/icon/icon.component";
+import { AudioService } from "../../core/services/audio.service";
+import { burstParticles, pulse } from "../../shared/cinematic/cinematic";
 
 const ROLE_ORDER: Role[] = ["TOP", "JUNGLE", "MID", "ADC", "SUPPORT"];
 const ROLE_LABEL: Record<Role, string> = {
@@ -218,8 +220,8 @@ export class DraftBattleComponent {
 
 		const roundLabels = svg.querySelectorAll(".svg-round-label");
 		const playerInners = svg.querySelectorAll(".svg-player-inner");
-		const winnerCards = svg.querySelectorAll(".svg-player.winner .svg-player-card");
-		gsap.killTweensOf([roundLabels, playerInners, winnerCards] as unknown as gsap.TweenTarget[]);
+		const winnerInners = svg.querySelectorAll<SVGGElement>(".svg-player.winner .svg-player-inner");
+		gsap.killTweensOf([roundLabels, playerInners, winnerInners] as unknown as gsap.TweenTarget[]);
 
 		// IMPORTANT : masquer AVANT de programmer quoi que ce soit d'autre, dans
 		// le meme tick que l'effect qui declenche cette methode (pas dans un
@@ -243,9 +245,22 @@ export class DraftBattleComponent {
 		// perdants "disparaissaient" (opacite 0 figee) au lieu de finir grises.
 		tl.to(playerInners, { opacity: 1, x: 0, scale: 1, duration: 0.4, stagger: 0.05, ease: "back.out(1.6)" }, 0.1);
 
-		tl.to(winnerCards, { filter: "brightness(1.35)", duration: 0.35, yoyo: true, repeat: 1, ease: "sine.inOut" }, 0.5);
-
 		tl.set(playerInners, { clearProps: "opacity,transform" });
+
+		// Pulse doree sur les vainqueurs une fois toutes les cartes posees : un
+		// vrai "coup de coeur" (scale + glow via pulse()) plutot qu'un simple
+		// flash de luminosite, joue une fois par carte gagnante (pas de halo qui
+		// tourne en continu).
+		if (winnerInners.length) {
+			tl.call(
+				() => {
+					this.audio.play("round-win", { volume: 0.55 });
+					winnerInners.forEach((el) => pulse(el, 1.14));
+				},
+				undefined,
+				0.65,
+			);
+		}
 
 		// Le trace des traits de progression a besoin de `getTotalLength()`, qui
 		// suppose le SVG deja mis en page : ca, en revanche, peut attendre un frame
@@ -310,6 +325,7 @@ export class DraftBattleComponent {
 
 		const tl = gsap.timeline();
 		this.vsRevealTimeline = tl;
+		tl.call(() => this.audio.play("whoosh", { volume: 0.6 }), undefined, 0);
 		if (you) tl.to(you, { x: 0, opacity: 1, duration: 0.5, ease: "power3.out" }, 0);
 		if (opponent) tl.to(opponent, { x: 0, opacity: 1, duration: 0.5, ease: "power3.out" }, 0);
 		if (core) {
@@ -318,11 +334,23 @@ export class DraftBattleComponent {
 				{ filter: "brightness(1.6)", duration: 0.15, yoyo: true, repeat: 1 },
 				0.15,
 			);
+			tl.call(() => this.audio.play("impact", { volume: 0.5 }), undefined, 0.15);
 		}
 
+		// Decompte 3-2-1-FIGHT : un "tick" sonore par chiffre, puis un "go" plus
+		// marque sur FIGHT (jamais l'inverse — le go doit clairement se detacher
+		// des ticks reguliers qui le precedent).
 		let cursor = 0.65;
 		steps.forEach((step) => {
 			const isFight = step.classList.contains("fight");
+			tl.call(
+				() =>
+					this.audio.play(isFight ? "countdown-go" : "countdown-tick", {
+						volume: isFight ? 0.75 : 0.55,
+					}),
+				undefined,
+				cursor,
+			);
 			tl.fromTo(
 				step,
 				{ opacity: 0, scale: isFight ? 1.6 : 2.4, rotate: isFight ? 0 : -6 },
@@ -398,27 +426,47 @@ export class DraftBattleComponent {
 		}
 	}
 
-	/** Popup de victoire : le bloc champion "spawn" en premier, puis le classement arrive en cascade. Joue une seule fois a l'ouverture. */
+	/**
+	 * Popup de victoire finale du tournoi : le champion "spawn" en spotlight
+	 * (fanfare + particules dorees), puis le classement arrive en cascade.
+	 * Joue une seule fois a l'ouverture (cf. showFinalRecap/finalRecapAnimated).
+	 */
 	private animateFinalRecap(): void {
 		requestAnimationFrame(() => {
-			const popup = document.querySelector(".final-popup");
+			const popup = document.querySelector<HTMLElement>(".final-popup");
 			if (!popup) return;
 
 			const spotlight = popup.querySelector(".champion-spotlight");
+			const crown = popup.querySelector(".champion-spotlight .crown");
 			const rows = popup.querySelectorAll(".placement-row");
 			const footer = popup.querySelector(".final-popup-footer");
 
-			gsap.killTweensOf([spotlight, rows, footer].filter(Boolean) as Element[]);
+			gsap.killTweensOf([spotlight, crown, rows, footer].filter(Boolean) as Element[]);
+
+			this.audio.play("fanfare", { volume: 0.85 });
 
 			const tl = gsap.timeline();
 			if (spotlight) {
 				tl.from(spotlight, {
 					opacity: 0,
-					scale: 0.4,
-					y: 30,
-					duration: 0.6,
-					ease: "back.out(1.8)",
+					scale: 0.35,
+					y: 40,
+					duration: 0.7,
+					ease: "back.out(1.9)",
 				});
+				tl.call(
+					() =>
+						burstParticles(popup, {
+							colors: ["#c8aa6e", "#f0e6d2", "#fff6dc"],
+							count: 56,
+							origin: { x: popup.clientWidth / 2, y: popup.clientHeight * 0.32 },
+						}),
+					undefined,
+					"<",
+				);
+			}
+			if (crown) {
+				tl.from(crown, { scale: 0, rotate: -35, duration: 0.5, ease: "back.out(3)" }, "<0.1");
 			}
 			if (rows.length) {
 				tl.from(
@@ -429,6 +477,47 @@ export class DraftBattleComponent {
 			}
 			if (footer) {
 				tl.from(footer, { opacity: 0, y: 10, duration: 0.3, ease: "power1.out" }, "-=0.1");
+			}
+		});
+	}
+
+	/**
+	 * Reveal du vainqueur en mode simple (duel 1v1, sans bracket) : fanfare +
+	 * particules dorees sur la carte du gagnant, puis les cartes de resultat
+	 * arrivent en cascade. Meme esprit que animateFinalRecap, adapte a
+	 * `app-draft-result` (une carte par joueur, triee, la premiere = vainqueur).
+	 */
+	private animateSimpleResults(): void {
+		requestAnimationFrame(() => {
+			const stage = document.querySelector<HTMLElement>(".results-stage");
+			if (!stage) return;
+			const title = stage.querySelector(".stage-title");
+			const cards = stage.querySelectorAll<HTMLElement>("app-draft-result .result");
+			const winnerCard = stage.querySelector<HTMLElement>("app-draft-result .result.winner");
+
+			gsap.killTweensOf([title, ...Array.from(cards)].filter(Boolean) as Element[]);
+
+			this.audio.play("fanfare", { volume: 0.85 });
+
+			const tl = gsap.timeline();
+			if (title) tl.from(title, { opacity: 0, y: -16, duration: 0.4, ease: "power2.out" });
+			if (cards.length) {
+				tl.from(
+					cards,
+					{ opacity: 0, y: 24, scale: 0.96, duration: 0.45, stagger: 0.1, ease: "back.out(1.6)" },
+					"-=0.1",
+				);
+			}
+			if (winnerCard) {
+				tl.call(
+					() =>
+						burstParticles(winnerCard, {
+							colors: ["#c8aa6e", "#f0e6d2", "#0ac8b9"],
+							count: 40,
+						}),
+					undefined,
+					"-=0.15",
+				);
 			}
 		});
 	}
@@ -526,6 +615,8 @@ export class DraftBattleComponent {
 	private bracketDialogWasOpen = false;
 	private vsStepWasOpen = false;
 	private finalRecapAnimated = false;
+	/** Idem finalRecapAnimated, mais pour le reveal du vainqueur en mode simple (< 4 joueurs, sans bracket). */
+	private simpleResultsAnimated = false;
 
 	isTournament = computed(() => !!this.draft.tournamentProgress());
 	myMatchKey = computed<string | null>(() => {
@@ -650,6 +741,7 @@ export class DraftBattleComponent {
 		protected readonly draft: DraftService,
 		protected readonly room: RoomService,
 		protected readonly mix: MixRuntimeService,
+		private readonly audio: AudioService,
 	) {
 		effect(() => {
 			const incoming = this.draft.myMatchup();
@@ -746,6 +838,20 @@ export class DraftBattleComponent {
 			if (this.showFinalRecap() && !this.finalRecapAnimated) {
 				this.finalRecapAnimated = true;
 				this.animateFinalRecap();
+			}
+		});
+
+		effect(() => {
+			// Reveal du vainqueur en mode simple (< 4 joueurs, sans bracket) :
+			// meme traitement fanfare + particules que le recap de tournoi, cf.
+			// animateFinalRecap. Ne joue qu'une fois par partie.
+			if (
+				!this.isTournament() &&
+				this.isSingleRevealed() &&
+				!this.simpleResultsAnimated
+			) {
+				this.simpleResultsAnimated = true;
+				this.animateSimpleResults();
 			}
 		});
 
@@ -984,6 +1090,7 @@ export class DraftBattleComponent {
 
 	/** Petit pulse d'echelle joue avant de valider un choix (champion ou carte de strategie). */
 	private playConfirmPulse(selector: string, onComplete?: () => void): void {
+		this.audio.play("ui-click", { volume: 0.6 });
 		const el = document.querySelector<HTMLElement>(selector);
 		if (!el) {
 			onComplete?.();
@@ -995,25 +1102,36 @@ export class DraftBattleComponent {
 	}
 
 	private shakeLockedCard(championId: string): void {
+		this.audio.play("wrong", { volume: 0.35 });
 		const card = document.querySelector<HTMLElement>(`.pick-card[data-champ-id="${championId}"]`);
 		if (!card) return;
 		gsap.fromTo(card, { x: -6 }, { x: 0, duration: 0.4, ease: "elastic.out(1, 0.3)", clearProps: "x" });
 	}
 
-	/** Entree en cascade 3D des cartes a chaque fois que les offres changent (nouveau role, reroll). */
+	/**
+	 * Entree en cascade 3D des cartes a chaque fois que les offres changent
+	 * (nouveau role, reroll) : les 3 offres "atterrissent" une a une depuis le
+	 * haut, avec un rebond marque et un impact sonore/visuel a chaque poser
+	 * (whoosh au depart, impact + flash de bordure au contact) plutot qu'un
+	 * simple fondu — le moment ou l'offre est revelee doit se sentir.
+	 */
 	private animateOffersEntrance(): void {
 		requestAnimationFrame(() => {
 			const cards = document.querySelectorAll<HTMLElement>(".pick-card");
 			if (!cards.length) return;
 			gsap.killTweensOf(cards);
-			gsap.from(cards, {
+			this.audio.play("whoosh", { volume: 0.55 });
+			const tl = gsap.timeline();
+			tl.from(cards, {
 				opacity: 0,
-				y: 36,
-				rotateX: -10,
+				y: -90,
+				scale: 0.82,
+				rotateX: -22,
+				rotateZ: () => gsap.utils.random(-6, 6),
 				transformPerspective: 800,
-				duration: 0.5,
-				stagger: 0.08,
-				ease: "power3.out",
+				duration: 0.62,
+				stagger: 0.14,
+				ease: "back.out(1.7)",
 				// IMPORTANT : ne jamais utiliser clearProps:"all" ici. Les cartes
 				// portent aussi la variable CSS inline --rarity-color (via
 				// [style.--rarity-color] dans le template) : "all" efface TOUT le
@@ -1022,7 +1140,21 @@ export class DraftBattleComponent {
 				// sur la couleur de repli (dore) — la rarete redevenait invisible
 				// des que l'entree etait terminee. On ne nettoie donc que les
 				// props ecrites par CETTE tween.
-				clearProps: "opacity,transform,rotationX,perspective",
+				clearProps: "opacity,transform,rotationX,rotationZ,perspective",
+			});
+			cards.forEach((card, i) => {
+				tl.call(
+					() => {
+						this.audio.play("impact", { volume: 0.32, rate: 1.15 });
+						gsap.fromTo(
+							card,
+							{ filter: "brightness(1.8)" },
+							{ filter: "brightness(1)", duration: 0.35, ease: "power2.out" },
+						);
+					},
+					undefined,
+					i * 0.14 + 0.5,
+				);
 			});
 		});
 	}
@@ -1036,6 +1168,7 @@ export class DraftBattleComponent {
 
 	reroll(): void {
 		if (this.rerollsLeft() <= 0) return;
+		this.audio.play("swap", { volume: 0.6 });
 		this.rerollsUsed.update((n) => n + 1);
 		this.refreshOffers(this.currentRole());
 	}

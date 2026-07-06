@@ -1,24 +1,28 @@
 @if (room.room(); as currentRoom) {
   @if (roundIntro(); as intro) {
-    <div class="round-intro" [class.phase-interlude]="intro.phase === 'interlude'" [class.small]="intro.isSmall" [style.--accent]="intro.accent">
-      @if (intro.phase === 'interlude') {
+    <div class="round-intro" [class.phase-countdown]="intro.phase === 'countdown'" [class.small]="intro.isSmall" [style.--accent]="intro.accent">
+      @if (intro.phase === 'title') {
         <div class="intro-slate">
-          <span class="eyebrow">Party Mix · Manche {{ currentRoom.activeMix?.cursor }}/{{ currentRoom.activeMix?.total }}</span>
-          <h1>Interlude</h1>
-          <span class="divider"></span>
-          <p>Petit jeu express, accrochez-vous</p>
-        </div>
-      } @else {
-        <div class="intro-slate">
-          <span class="eyebrow">{{ intro.isSmall ? 'Interlude · Petit jeu' : 'Manche' }} {{ currentRoom.activeMix?.cursor }}/{{ currentRoom.activeMix?.total }}</span>
+          <span class="eyebrow">{{ intro.isSmall ? 'Interlude express' : 'Manche' }} · {{ currentRoom.activeMix?.cursor }}/{{ currentRoom.activeMix?.total }}</span>
           <h1>{{ intro.label }}</h1>
           <span class="divider"></span>
           <p>{{ intro.description }}</p>
         </div>
+      } @else {
+        <div class="intro-countdown">
+          <!-- @switch recree l'element a chaque valeur, donc l'animation CSS repart -->
+          @switch (countdownValue()) {
+            @case (3) { <span class="count">3</span> }
+            @case (2) { <span class="count">2</span> }
+            @case (1) { <span class="count">1</span> }
+            @default { <span class="count go">GO !</span> }
+          }
+        </div>
       }
     </div>
   }
-  <div class="layout">
+  <app-sound-toggle />
+  <div class="layout" [class.cinematic]="cinematicMode(currentRoom)">
     <aside class="sidebar">
       <div class="room-code card">
         <span class="label">Code du lobby</span>

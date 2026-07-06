@@ -4,6 +4,7 @@
 			<span class="eyebrow">Last Survivor termine</span>
 			<h2>{{ lastSurvivor.results()?.category }}</h2>
 			<div class="winner-card">
+				<div class="winner-spotlight"></div>
 				<img class="winner-img" [src]="square(lastSurvivor.results()?.winner?.champion ?? '')" alt="" />
 				<span class="winner-pill"><app-icon name="crown" [size]="15" /> Survivant</span>
 				<strong>{{ lastSurvivor.results()?.winner?.label }}</strong>
@@ -40,76 +41,103 @@
 			}
 		</section>
 	} @else if (lastSurvivor.phase() === 'voting') {
-		<header class="game-hero">
-			<div>
-				<span class="eyebrow">Last Survivor • Élimination {{ lastSurvivor.roundNumber() }}/{{ lastSurvivor.totalRounds() }}</span>
+		<main class="cine-stage voting-stage">
+			<div class="stage-vignette"></div>
+
+			<!-- HUD minimal : manche + survivants restants + timer -->
+			<header class="hud-top">
+				<span class="hud-round">Élimination {{ lastSurvivor.roundNumber() }}/{{ lastSurvivor.totalRounds() }}</span>
+				<span class="hud-survivors"><app-icon name="skull" [size]="13" /> {{ survivorCount() }} survivants restants</span>
+				<span class="timer-pill" [class.low]="remainingSec() <= 5">{{ remainingSec() }}s</span>
+			</header>
+
+			<!-- Categorie, enorme et centree -->
+			<div class="target-splash">
+				<span class="stake">VOTE POUR ÉLIMINER</span>
 				<h2>{{ lastSurvivor.category() }}</h2>
-				<p>Vote pour ÉLIMINER un candidat. Le plus visé disparaît, le dernier survivant gagne.</p>
+				<p class="sub-line">Le plus visé disparaît. Le dernier debout gagne.</p>
 			</div>
-			<small class="timer-pill" [class.low]="remainingSec() <= 5">{{ remainingSec() }}s</small>
-		</header>
-		<section class="vote-stage card" [class.voted]="lastSurvivor.myVote() !== null">
-			<div class="candidates">
-				@for (cand of lastSurvivor.candidates(); track cand.label) {
-					<button
-						class="candidate"
-						[class.picked]="lastSurvivor.myVote() === cand.label"
-						[disabled]="lastSurvivor.myVote() !== null"
-						(click)="vote(cand.label)"
-					>
-						<img class="cand-img" loading="lazy" draggable="false" [src]="square(cand.champion)" alt="" />
-						<span>{{ cand.label }}</span>
-					</button>
-				}
-			</div>
-			@if (lastSurvivor.myVote() !== null) {
-				<div class="wait-pill">
-					Vote enregistré · {{ lastSurvivor.votedCount() }}/{{ lastSurvivor.expectedCount() }} joueurs ont voté
+
+			<!-- Barre de candidats flottante -->
+			<div class="candidates-bar" [class.voted]="lastSurvivor.myVote() !== null">
+				<div class="candidates">
+					@for (cand of lastSurvivor.candidates(); track cand.label) {
+						<button
+							class="candidate"
+							[class.picked]="lastSurvivor.myVote() === cand.label"
+							[disabled]="lastSurvivor.myVote() !== null"
+							(click)="vote(cand.label)"
+						>
+							<img class="cand-img" loading="lazy" draggable="false" [src]="square(cand.champion)" alt="" />
+							<span>{{ cand.label }}</span>
+						</button>
+					}
 				</div>
-			} @else {
-				<p class="hint-line">Clique sur le candidat à éliminer. Choix définitif.</p>
-			}
-		</section>
-	} @else {
-		<header class="game-hero">
-			<div>
-				<span class="eyebrow">Élimination {{ lastSurvivor.lastRound()?.roundNumber }}/{{ lastSurvivor.lastRound()?.totalRounds }}</span>
-				<h2>{{ lastSurvivor.lastRound()?.eliminated?.label }} est éliminé</h2>
-				<p>
-					{{ lastSurvivor.lastRound()?.tieBreak ? 'Égalité au sommet : tirage au sort du condamné.' : 'Le lobby a tranché sans hésiter.' }}
-				</p>
-			</div>
-			<div class="score-orb">
-				<span>Cette manche</span><strong>+{{ myRoundPoints() }}</strong>
-			</div>
-		</header>
-		<section class="reveal-stage card">
-			<div class="tally-list">
-				@for (row of revealRows(); track row.label; let i = $index) {
-					<div class="tally-row" [class.eliminated]="row.eliminated" [style.animation-delay.ms]="i * 180">
-						<img class="tally-img" [src]="square(row.champion)" alt="" />
-						<div class="who">
-							<strong>{{ row.label }}</strong>
-							<small>{{ row.voters.length ? 'Visé par ' + votersLine(row.voters) : 'Épargné par tout le monde' }}</small>
-						</div>
-						<div class="count">
-							<strong>{{ row.votes }}</strong>
-							<span>voix</span>
-						</div>
-						@if (row.eliminated) {
-							<span class="eliminated-pill"><app-icon name="skull" [size]="14" /> Éliminé</span>
-						}
+				@if (lastSurvivor.myVote() !== null) {
+					<div class="wait-pill">
+						Vote enregistré · {{ lastSurvivor.votedCount() }}/{{ lastSurvivor.expectedCount() }} joueurs ont voté
 					</div>
+				} @else {
+					<p class="hint-line">Clique sur le candidat à éliminer. Choix définitif.</p>
 				}
 			</div>
-			@if (room.isHost()) {
-				<button class="rift-btn rift-btn-next next-inline" (click)="next()">
-					<span>{{ isFinalElimination() ? "Couronner le survivant" : "Élimination suivante" }}</span>
-				</button>
-			} @else {
-				<p class="hint-line">En attente que l'host lance la suite...</p>
-			}
-		</section>
+		</main>
+	} @else {
+		<main class="cine-stage reveal-stage" [class.final]="isFinalElimination()">
+			<div class="stage-vignette"></div>
+
+			<header class="hud-top">
+				<span class="hud-round">Élimination {{ lastSurvivor.lastRound()?.roundNumber }}/{{ lastSurvivor.lastRound()?.totalRounds }}</span>
+				<span class="hud-survivors"><app-icon name="skull" [size]="13" /> {{ survivorCount() }} survivants restants</span>
+				<div class="score-orb">
+					<span>Cette manche</span><strong>+{{ myRoundPoints() }}</strong>
+				</div>
+			</header>
+
+			<!-- Portrait de l'elimine, plein centre, verdict cinematique -->
+			<div class="reveal-splash">
+				<img
+					class="reveal-portrait"
+					draggable="false"
+					[src]="square(lastSurvivor.lastRound()?.eliminated?.champion ?? '')"
+					alt=""
+				/>
+				<span class="eliminated-stamp"><app-icon name="skull" [size]="20" /> Éliminé</span>
+				<strong class="eliminated-name">{{ lastSurvivor.lastRound()?.eliminated?.label }}</strong>
+				<span class="eliminated-sub">
+					{{ lastSurvivor.lastRound()?.tieBreak ? 'Égalité au sommet · tirage au sort du condamné' : 'Le lobby a tranché sans hésiter' }}
+				</span>
+			</div>
+
+			<!-- Tally des votes, en barre basse -->
+			<div class="tally-bar">
+				<div class="tally-list">
+					@for (row of revealRows(); track row.label; let i = $index) {
+						<div class="tally-row" [class.eliminated]="row.eliminated" [style.animation-delay.ms]="i * 180">
+							<img class="tally-img" [src]="square(row.champion)" alt="" />
+							<div class="who">
+								<strong>{{ row.label }}</strong>
+								<small>{{ row.voters.length ? 'Visé par ' + votersLine(row.voters) : 'Épargné par tout le monde' }}</small>
+							</div>
+							<div class="count">
+								<strong>{{ row.votes }}</strong>
+								<span>voix</span>
+							</div>
+							@if (row.eliminated) {
+								<span class="eliminated-pill"><app-icon name="skull" [size]="14" /> Éliminé</span>
+							}
+						</div>
+					}
+				</div>
+				@if (room.isHost()) {
+					<button class="rift-btn rift-btn-next next-inline" (click)="next()">
+						<span>{{ isFinalElimination() ? "Couronner le survivant" : "Élimination suivante" }}</span>
+					</button>
+				} @else {
+					<p class="hint-line">En attente que l'host lance la suite...</p>
+				}
+			</div>
+		</main>
 	}
 	<footer class="actions">
 		@if (!finished() && !mix.active() && room.isHost()) {

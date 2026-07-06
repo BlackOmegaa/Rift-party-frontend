@@ -17,10 +17,15 @@ import { CroquisService } from "../../core/services/croquis.service";
 import { ChampionSelectComponent } from "../../shared/components/champion-select/champion-select.component";
 import { CHAMPION_OPTIONS, championSquareUrl } from "../../shared/lol-assets";
 import { IconComponent } from "../../shared/components/icon/icon.component";
+import { AudioService } from "../../core/services/audio.service";
+import { GameSettingsService } from "../../core/services/game-settings.service";
 import { animateEndScreen } from "../../shared/end-screen-animate";
+import { burstParticles, floatScore, punchIn, pulse, slideUp } from "../../shared/cinematic/cinematic";
 
 const CANVAS_WIDTH = 520;
 const CANVAS_HEIGHT = 390;
+/** Doit rester synchro avec DRAWING_TIME_SEC cote backend (backend/src/croquis/croquis.service.ts). */
+const DRAWING_TIME_SEC = 90;
 const PALETTE = ["#111111", "#c0392b", "#2980b9", "#27ae60", "#f1c40f", "#8e44ad", "#e67e22", "#7f8c8d"];
 const SIZES = [3, 7, 14];
 
@@ -64,19 +69,77 @@ export class CroquisComponent implements AfterViewInit {
 		if (!reveal) return 0;
 		return reveal.roundPoints[this.room.myId() ?? ""] ?? 0;
 	});
+	/** Un seul chip de statut affiche a la fois pendant la phase dessin/guessing. */
+	protected readonly drawingTimerPct = computed(() => {
+		const total = DRAWING_TIME_SEC;
+		return Math.max(0, Math.min(100, (this.remainingSec() / total) * 100));
+	});
+	protected readonly guessTimerPct = computed(() => {
+		const total = this.settings.roundTimeSec();
+		return Math.max(0, Math.min(100, (this.remainingSec() / total) * 100));
+	});
 
 	private readonly hostElement = inject(ElementRef<HTMLElement>);
+	private lastPhase: string | null = null;
 
 	constructor(
 		protected readonly room: RoomService,
 		protected readonly mix: MixRuntimeService,
 		protected readonly croquis: CroquisService,
+		private readonly audio: AudioService,
+		private readonly settings: GameSettingsService,
 	) {
 		const ticker = setInterval(() => this.now.set(Date.now()), 250);
 		inject(DestroyRef).onDestroy(() => clearInterval(ticker));
 		this.croquis.requestState();
 		effect(() => {
-			if (this.croquis.results()) animateEndScreen(this.hostElement.nativeElement);
+			if (this.croquis.results()) {
+				this.audio.play("fanfare");
+				const host = this.hostElement.nativeElement;
+				animateEndScreen(host, {
+					onCountTick: () => this.audio.play("score-tick", { volume: 0.4 }),
+				});
+				requestAnimationFrame(() =>
+					burstParticles(host.querySelector(".end-screen"), { count: 42 }),
+				);
+			}
+		});
+		// Battement sourd sur les dernieres secondes des timers dessin/guessing.
+		effect(() => {
+			const secondsLeft = this.remainingSec();
+			const phase = this.croquis.phase();
+			if ((phase === "drawing" || phase === "guessing") && secondsLeft > 0 && secondsLeft <= 5) {
+				this.audio.play("timer-urgent", { volume: 0.7 });
+			}
+		});
+		// Entrees cinematiques a chaque changement de phase.
+		effect(() => {
+			const phase = this.croquis.phase();
+			if (phase === this.lastPhase) return;
+			this.lastPhase = phase;
+			const host = this.hostElement.nativeElement;
+			requestAnimationFrame(() => {
+				if (phase === "drawing") {
+					punchIn(host.querySelector(".secret-banner"));
+					slideUp(host.querySelector(".canvas-frame"), { delay: 0.08 });
+					slideUp(host.querySelector(".toolbar"), { delay: 0.14 });
+				} else if (phase === "guessing") {
+					this.audio.play("reveal", { volume: 0.5 });
+					punchIn(host.querySelector(".gallery-frame"));
+					slideUp(host.querySelector(".guess-bar"), { delay: 0.12 });
+				} else if (phase === "reveal") {
+					const reveal = this.croquis.lastReveal();
+					this.audio.play(reveal && this.myRoundPoints() > 0 ? "correct" : "reveal");
+					const stage = host.querySelector(".verdict-stage") as HTMLElement | null;
+					punchIn(host.querySelector(".verdict-champ-name"));
+					slideUp(host.querySelector(".guess-list"), { delay: 0.15 });
+					if (this.myRoundPoints() > 0) {
+						burstParticles(stage, { colors: ["#b673ff", "#e8d1ff", "#3fd67a"], count: 32 });
+						floatScore(stage, `+${this.myRoundPoints()}`, "#b673ff");
+					}
+					pulse(host.querySelector(".score-orb strong"));
+				}
+			});
 		});
 	}
 
@@ -135,18 +198,22 @@ export class CroquisComponent implements AfterViewInit {
 	pickColor(c: string): void {
 		this.color.set(c);
 		this.erasing.set(false);
+		this.audio.play("ui-click", { volume: 0.5 });
 	}
 
 	clearCanvas(): void {
 		if (!this.ctx || this.croquis.mySubmitted()) return;
 		this.ctx.fillStyle = "#ffffff";
 		this.ctx.fillRect(0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+		this.audio.play("ui-click", { volume: 0.5 });
 	}
 
 	submitDrawing(): void {
 		const canvas = this.padRef?.nativeElement;
 		if (!canvas) return;
 		this.croquis.submitDrawing(canvas.toDataURL("image/png"));
+		this.audio.play("swap", { volume: 0.7 });
+		punchIn(this.hostElement.nativeElement.querySelector(".wait-pill"));
 	}
 
 	submitGuess(): void {
@@ -154,6 +221,7 @@ export class CroquisComponent implements AfterViewInit {
 		if (!name) return;
 		this.croquis.guess(name);
 		this.guessInput = "";
+		this.audio.play("swap", { volume: 0.7 });
 	}
 
 	next(): void {

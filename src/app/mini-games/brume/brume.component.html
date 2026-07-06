@@ -1,8 +1,9 @@
 <div class="party-game brume">
   @if (dawnAnnounce(); as dawn) {
-    <div class="announce-overlay" (click)="dawnAnnounce.set(null)">
+    <div class="announce-overlay dawn-overlay" (click)="dawnAnnounce.set(null)">
       <div class="announce-card" [class.danger]="dawn.deaths.length > 0">
-        <div class="announce-icon"><app-icon [name]="dawn.deaths.length ? 'blood-drop' : 'moon'" [size]="48" /></div>
+        <div class="announce-icon"><app-icon [name]="dawn.deaths.length ? 'blood-drop' : 'moon'" [size]="56" /></div>
+        <span class="announce-eyebrow">Aube</span>
         <h2>{{ dawnTitle(dawn) }}</h2>
         @if (dawn.bloodTracePseudo) {
           <p>Une odeur de sang trompeuse flotte près de {{ dawn.bloodTracePseudo }} — un leurre, presque jamais la vraie victime.</p>
@@ -14,7 +15,8 @@
   @if (voteAnnounce(); as vr) {
     <div class="announce-overlay" (click)="voteAnnounce.set(null)">
       <div class="announce-card" [class.danger]="!!vr.eliminatedId">
-        <div class="announce-icon"><app-icon [name]="vr.eliminatedId ? 'scale' : 'handshake'" [size]="48" /></div>
+        <div class="announce-icon"><app-icon [name]="vr.eliminatedId ? 'scale' : 'handshake'" [size]="56" /></div>
+        <span class="announce-eyebrow">Verdict de l'Assemblée</span>
         <h2>{{ vr.eliminatedPseudo ? vr.eliminatedPseudo + " a été banni par l'Assemblée" : "Égalité — personne n'est éliminé" }}</h2>
         <span class="announce-tap">Touche pour continuer</span>
       </div>
@@ -83,59 +85,59 @@
   }
 
   @if (brume.phase() === 'reveal') {
-    <section class="reveal-stage">
-      <header class="game-hero">
-        <div>
-          <span class="eyebrow">La Brume</span>
-          <h2>Ton rôle secret</h2>
-          <p>Mémorise ta mécanique. Personne d'autre ne doit connaître ton camp.</p>
-        </div>
-      </header>
-      <div class="role-card card" [class]="'team-' + (brume.myTeam() ?? 'circle')">
-        @if (brume.myChampion(); as champion) {
-          @if (isPoro(champion)) {
-            <div class="role-portrait poro-portrait"><app-icon name="paw" [size]="40" /></div>
-          } @else {
-            <img class="role-portrait" [src]="portraitUrl(champion)" [alt]="champion" />
+    <section class="cine-stage reveal-stage">
+      <div class="stage-vignette"></div>
+      <div class="stage-inner">
+        <span class="eyebrow">La Brume</span>
+        <h2 class="stage-title">Ton rôle secret</h2>
+        <p class="stage-sub">Mémorise ta mécanique. Personne d'autre ne doit connaître ton camp.</p>
+        <div class="role-card card" [class]="'team-' + (brume.myTeam() ?? 'circle')">
+          @if (brume.myChampion(); as champion) {
+            @if (isPoro(champion)) {
+              <div class="role-portrait poro-portrait"><app-icon name="paw" [size]="40" /></div>
+            } @else {
+              <img class="role-portrait" [src]="portraitUrl(champion)" [alt]="champion" />
+            }
           }
-        }
-        <div class="role-body">
-          <span class="team-pill">{{ teamLabel() }}</span>
-          <strong class="role-name">{{ brume.myChampion() ?? '...' }}</strong>
-          <p class="role-kit">{{ brume.myKit() ?? '...' }}</p>
-          @if (brume.myTeammates().length) {
-            <div class="teammates-block">
-              <span class="teammates-label">Tes complices</span>
-              <div class="teammates-list">
-                @for (mate of brume.myTeammates(); track mate.id) {
-                  <span class="teammate-chip">{{ mate.pseudo }} <em>({{ roleLabelFor(mate.role) }})</em></span>
-                }
+          <div class="role-body">
+            <span class="team-pill">{{ teamLabel() }}</span>
+            <strong class="role-name">{{ brume.myChampion() ?? '...' }}</strong>
+            <p class="role-kit">{{ brume.myKit() ?? '...' }}</p>
+            @if (brume.myTeammates().length) {
+              <div class="teammates-block">
+                <span class="teammates-label">Tes complices</span>
+                <div class="teammates-list">
+                  @for (mate of brume.myTeammates(); track mate.id) {
+                    <span class="teammate-chip">{{ mate.pseudo }} <em>({{ roleLabelFor(mate.role) }})</em></span>
+                  }
+                </div>
               </div>
-            </div>
-          }
+            }
+          </div>
         </div>
+        @if (!brume.revealReady()) {
+          <button class="rift-btn rift-btn-confirm" (click)="brume.acknowledgeReveal()">
+            <span>J'ai mémorisé mon rôle</span>
+          </button>
+        } @else {
+          <div class="wait-pill">
+            {{ brume.revealProgress()?.ready ?? 1 }}/{{ brume.revealProgress()?.total ?? room.players().length }}
+            joueurs prêts
+          </div>
+        }
       </div>
-      @if (!brume.revealReady()) {
-        <button class="rift-btn rift-btn-confirm" (click)="brume.acknowledgeReveal()">
-          <span>J'ai mémorisé mon rôle</span>
-        </button>
-      } @else {
-        <div class="wait-pill">
-          {{ brume.revealProgress()?.ready ?? 1 }}/{{ brume.revealProgress()?.total ?? room.players().length }}
-          joueurs prêts
-        </div>
-      }
     </section>
   } @else if (brume.phase() === 'night') {
-    <section class="night-stage">
+    <section class="cine-stage phase-night">
+      <div class="stage-vignette"></div>
       <div class="main-content">
       <header class="game-hero">
         <div>
-          <span class="eyebrow">Nuit {{ brume.dayNumber() }} · La Brume</span>
+          <span class="eyebrow night">Nuit {{ brume.dayNumber() }} · La Brume</span>
           <h2>{{ amIAlive() ? "L'obscurité s'installe" : 'Tu observes depuis la Brume' }}</h2>
           <p>{{ nightHint() }}</p>
         </div>
-        <div class="timer-orb" [class.danger]="remainingSeconds() <= 10">
+        <div class="timer-orb night" [class.danger]="remainingSeconds() <= 10">
           <span>Temps</span>
           <strong>{{ remainingSeconds() }}</strong>
         </div>
@@ -153,7 +155,7 @@
               @if (pendingAction()) {
                 <div class="target-grid">
                   @for (p of othersAlive(); track p.id) {
-                    <button class="target-card" [class.selected]="selectedTarget() === p.id" (click)="selectedTarget.set(p.id)">{{ p.pseudo }}</button>
+                    <button class="target-card" [class.selected]="selectedTarget() === p.id" (click)="pickTarget(p.id)">{{ p.pseudo }}</button>
                   }
                 </div>
                 <button class="rift-btn rift-btn-confirm" [disabled]="!selectedTarget()" (click)="submitTargetedAction(pendingAction()!)">
@@ -168,7 +170,7 @@
                 <p class="action-hint">Repère une cible en silence : elle mourra la nuit suivante si elle n'est pas protégée.</p>
                 <div class="target-grid">
                   @for (p of othersAlive(); track p.id) {
-                    <button class="target-card" [class.selected]="selectedTarget() === p.id" (click)="selectedTarget.set(p.id)">{{ p.pseudo }}</button>
+                    <button class="target-card" [class.selected]="selectedTarget() === p.id" (click)="pickTarget(p.id)">{{ p.pseudo }}</button>
                   }
                 </div>
                 <button class="rift-btn rift-btn-confirm" [disabled]="!selectedTarget()" (click)="submitTargetedAction('mark_fiddlesticks')">
@@ -180,7 +182,7 @@
               <p class="action-hint">Protège un joueur avec ta Lanterne : il survivra à toute élimination cette nuit.</p>
               <div class="target-grid">
                 @for (p of aliveIncludingSelf(); track p.id) {
-                  <button class="target-card" [class.selected]="selectedTarget() === p.id" (click)="selectedTarget.set(p.id)">{{ p.pseudo }}</button>
+                  <button class="target-card" [class.selected]="selectedTarget() === p.id" (click)="pickTarget(p.id)">{{ p.pseudo }}</button>
                 }
               </div>
               <button class="rift-btn rift-btn-confirm" [disabled]="!selectedTarget()" (click)="submitTargetedAction('protect')">
@@ -191,7 +193,7 @@
               <p class="action-hint">Scoute un joueur avec Hawkshot : indice fiable à 100%.</p>
               <div class="target-grid">
                 @for (p of othersAlive(); track p.id) {
-                  <button class="target-card" [class.selected]="selectedTarget() === p.id" (click)="selectedTarget.set(p.id)">{{ p.pseudo }}</button>
+                  <button class="target-card" [class.selected]="selectedTarget() === p.id" (click)="pickTarget(p.id)">{{ p.pseudo }}</button>
                 }
               </div>
               <button class="rift-btn rift-btn-confirm" [disabled]="!selectedTarget()" (click)="submitTargetedAction('scout')">
@@ -207,7 +209,7 @@
               <p class="action-hint">Blottissement : nomme le joueur que le Cercle doit surveiller cette nuit. À l'aube, tu sauras si un danger rôdait vraiment près de lui (mais pas qui l'a visé).</p>
               <div class="target-grid">
                 @for (p of othersAlive(); track p.id) {
-                  <button class="target-card" [class.selected]="selectedTarget() === p.id" (click)="selectedTarget.set(p.id)">{{ p.pseudo }}</button>
+                  <button class="target-card" [class.selected]="selectedTarget() === p.id" (click)="pickTarget(p.id)">{{ p.pseudo }}</button>
                 }
               </div>
               <button class="rift-btn rift-btn-confirm" [disabled]="!selectedTarget()" (click)="submitTargetedAction('huddle')">
@@ -219,7 +221,7 @@
                 <p class="action-hint">Marque ta cible en secret. Deux nuits de chasse ininterrompue suffiront à gagner seul.</p>
                 <div class="target-grid">
                   @for (p of othersAlive(); track p.id) {
-                    <button class="target-card" [class.selected]="selectedTarget() === p.id" (click)="selectedTarget.set(p.id)">{{ p.pseudo }}</button>
+                    <button class="target-card" [class.selected]="selectedTarget() === p.id" (click)="pickTarget(p.id)">{{ p.pseudo }}</button>
                   }
                 </div>
                 <button class="rift-btn rift-btn-confirm" [disabled]="!selectedTarget()" (click)="submitTargetedAction('mark_kindred')">
@@ -235,7 +237,7 @@
                 <p class="action-hint small">Ou choisis une nouvelle Marque (la traque repart à zéro) :</p>
                 <div class="target-grid">
                   @for (p of othersAlive(); track p.id) {
-                    <button class="target-card" [class.selected]="selectedTarget() === p.id" (click)="selectedTarget.set(p.id)">{{ p.pseudo }}</button>
+                    <button class="target-card" [class.selected]="selectedTarget() === p.id" (click)="pickTarget(p.id)">{{ p.pseudo }}</button>
                   }
                 </div>
                 @if (selectedTarget()) {
@@ -303,7 +305,8 @@
       </aside>
     </section>
   } @else if (brume.phase() === 'day' || brume.phase() === 'vote') {
-    <section class="day-stage">
+    <section class="cine-stage phase-day" [class.phase-vote]="brume.phase() === 'vote'">
+      <div class="stage-vignette"></div>
       <div class="main-content">
       <header class="game-hero">
         <div>
@@ -346,9 +349,20 @@
       }
 
       @if (brume.phase() === 'vote') {
+        <div class="vote-countdown" [class.danger]="remainingSeconds() <= 10">
+          <span class="vote-countdown-num">{{ remainingSeconds() }}</span>
+          <span class="vote-countdown-label">secondes pour trancher</span>
+        </div>
         <div class="vote-grid">
           @for (p of othersAlive(); track p.id) {
-            <button class="vote-card" [class.selected]="brume.myVote() === p.id" [disabled]="!amIAlive() || amISilenced()" (click)="brume.submitVote(p.id)">
+            <button
+              class="vote-card"
+              [attr.data-target]="p.id"
+              [class.selected]="brume.myVote() === p.id"
+              [disabled]="!amIAlive() || amISilenced()"
+              (click)="castVote(p.id)"
+            >
+              <span class="vote-avatar-fallback" aria-hidden="true">{{ p.pseudo.charAt(0).toUpperCase() }}</span>
               <span class="vote-name">{{ p.pseudo }}</span>
               @if (votersFor(p.id).length) {
                 <div class="incoming-votes">

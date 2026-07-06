@@ -10,6 +10,8 @@ import { GameSettingsService } from '../../core/services/game-settings.service';
 import { DevBotsService } from '../../core/services/dev-bots.service';
 import { IconComponent, IconName } from '../../shared/components/icon/icon.component';
 import { MixRuntimeService } from '../../core/services/mix-runtime.service';
+import { AudioService } from '../../core/services/audio.service';
+import { SoundToggleComponent } from '../../shared/components/sound-toggle/sound-toggle.component';
 
 interface GameSettings {
   rounds: number;
@@ -36,13 +38,13 @@ interface RoundIntro {
   description: string;
   accent: string;
   isSmall: boolean;
-  phase: 'interlude' | 'title';
+  phase: 'title' | 'countdown';
 }
 
 @Component({
   selector: 'app-room',
   standalone: true,
-  imports: [NgComponentOutlet, PlayerBadgeComponent, IconComponent],
+  imports: [NgComponentOutlet, PlayerBadgeComponent, IconComponent, SoundToggleComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './room.component.html',
   styleUrl: './room.component.scss',
@@ -65,9 +67,11 @@ export class RoomComponent implements OnDestroy {
   protected readonly copiedInvite = signal(false);
   protected readonly isDevMode = isDevMode;
 
-  /** Ecran cinematique affiche en debut de manche (nom + regles du jeu, interlude pour les petits jeux). */
+  /** Ecran cinematique affiche en debut de manche : carte-titre puis countdown 3-2-1-GO. */
   protected readonly roundIntro = signal<RoundIntro | null>(null);
-  private introTimer?: ReturnType<typeof setTimeout>;
+  /** 3, 2, 1 puis 0 = "GO !". */
+  protected readonly countdownValue = signal(3);
+  private introTimers: ReturnType<typeof setTimeout>[] = [];
   private introKey: string | null = null;
 
   constructor(
@@ -75,6 +79,7 @@ export class RoomComponent implements OnDestroy {
     protected readonly gameSettings: GameSettingsService,
     protected readonly devBots: DevBotsService,
     protected readonly mix: MixRuntimeService,
+    protected readonly audio: AudioService,
   ) {
     this.gamesService.list().subscribe((games) => this.games.set(games));
 
@@ -93,31 +98,67 @@ export class RoomComponent implements OnDestroy {
       this.introKey = key;
       this.triggerRoundIntro(gameId);
     });
+
+    // Bande-son orchestree par l'etat de la room : tension pendant les manches, nappe ambient partout ailleurs.
+    effect(() => {
+      const currentRoom = this.room.room();
+      if (!currentRoom) {
+        this.audio.stopMusic();
+        return;
+      }
+      const inGame = currentRoom.status === 'in-game' && !!currentRoom.currentGameId;
+      this.audio.playMusic(inGame ? 'tension' : 'ambient');
+    });
   }
 
   ngOnDestroy(): void {
-    if (this.introTimer) clearTimeout(this.introTimer);
+    this.clearIntroTimers();
+    this.audio.stopMusic();
   }
 
+  private clearIntroTimers(): void {
+    this.introTimers.forEach((t) => clearTimeout(t));
+    this.introTimers = [];
+  }
+
+  /** Sequence cinematique de debut de manche : carte-titre (whoosh + impact) puis countdown 3-2-1-GO sonorise. */
   private triggerRoundIntro(gameId: string): void {
-    if (this.introTimer) clearTimeout(this.introTimer);
+    this.clearIntroTimers();
     const game = this.games().find((g) => g.id === gameId);
     const isSmall = SMALL_GAMES.has(gameId);
     const base = { gameId, label: game?.label ?? gameId, description: game?.description ?? '', accent: this.accentFor(gameId), isSmall };
-    if (isSmall) {
-      this.roundIntro.set({ ...base, phase: 'interlude' });
-      this.introTimer = setTimeout(() => {
-        this.roundIntro.set({ ...base, phase: 'title' });
-        this.introTimer = setTimeout(() => this.roundIntro.set(null), 4500);
-      }, 1500);
-    } else {
-      this.roundIntro.set({ ...base, phase: 'title' });
-      this.introTimer = setTimeout(() => this.roundIntro.set(null), 5000);
-    }
+    const titleMs = isSmall ? 2800 : 3600;
+
+    this.roundIntro.set({ ...base, phase: 'title' });
+    this.audio.play('whoosh');
+    this.introTimers.push(setTimeout(() => this.audio.play('impact'), 220));
+
+    this.introTimers.push(
+      setTimeout(() => {
+        this.roundIntro.set({ ...base, phase: 'countdown' });
+        this.countdownValue.set(3);
+        this.audio.play('countdown-tick');
+        for (const step of [2, 1, 0]) {
+          this.introTimers.push(
+            setTimeout(() => {
+              this.countdownValue.set(step);
+              if (step === 0) this.audio.play('countdown-go');
+              else this.audio.play('countdown-tick', { rate: step === 1 ? 1.12 : 1 });
+            }, (3 - step) * 750),
+          );
+        }
+        this.introTimers.push(setTimeout(() => this.roundIntro.set(null), 3 * 750 + 700));
+      }, titleMs),
+    );
   }
 
   spectateSupported(gameId: string | null): boolean {
     return !!gameId && SPECTATABLE_GAMES.has(gameId);
+  }
+
+  /** Mode cinema : pendant une manche jouee, la sidebar disparait pour laisser tout l'ecran au jeu. */
+  cinematicMode(currentRoom: Room): boolean {
+    return currentRoom.status === 'in-game' && !!currentRoom.currentGameId && !this.room.joinedMidGame();
   }
 
   spectateRows() {

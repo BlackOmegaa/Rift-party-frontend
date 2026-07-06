@@ -2,7 +2,9 @@ import {
 	ChangeDetectionStrategy,
 	Component,
 	DestroyRef,
+	ElementRef,
 	computed,
+	effect,
 	inject,
 	signal,
 } from "@angular/core";
@@ -11,9 +13,16 @@ import { RoomService } from "../../core/services/room.service";
 import { MixRuntimeService } from "../../core/services/mix-runtime.service";
 import { UndercoverService } from "../../core/services/undercover.service";
 import { IconComponent } from "../../shared/components/icon/icon.component";
+import { AudioService } from "../../core/services/audio.service";
+import {
+	burstParticles,
+	pulse,
+	punchIn,
+	shake,
+	slideUp,
+} from "../../shared/cinematic/cinematic";
 
 const RESULT_STAGE_LABELS = [
-	"Revele l'identite",
 	"Voir les mots",
 	"Voir les deux tours",
 	"Voir les scores",
@@ -32,6 +41,10 @@ export class UndercoverChampionComponent {
 	protected readonly resultStage = signal(0);
 	protected readonly submittedToMix = signal(false);
 	private readonly now = signal(Date.now());
+	/** Pilote le flip 3D de la carte du mot secret (dos -> face). */
+	protected readonly wordFlipped = signal(false);
+	/** Suspense avant le reveal final : petit delai dramatique avant d'afficher l'identite. */
+	protected readonly suspense = signal(false);
 
 	protected readonly resultStageLabels = RESULT_STAGE_LABELS;
 
@@ -41,6 +54,10 @@ export class UndercoverChampionComponent {
 	protected readonly activePlayerPseudo = computed(() => {
 		const id = this.uc.activeTurn()?.playerId;
 		return this.uc.turnOrder().find((p) => p.id === id)?.pseudo ?? "Quelqu'un";
+	});
+	protected readonly activePlayer = computed(() => {
+		const id = this.uc.activeTurn()?.playerId;
+		return this.uc.turnOrder().find((p) => p.id === id) ?? null;
 	});
 	protected readonly currentRound = computed(
 		() => this.uc.activeTurn()?.round ?? 1,
@@ -91,18 +108,107 @@ export class UndercoverChampionComponent {
 	protected readonly resultStageLabel = computed(
 		() => RESULT_STAGE_LABELS[this.resultStage()] ?? "Suivant",
 	);
+	/** Tally en live pendant le vote : nombre de votes recus par joueur, pour remplir les barres. */
+	protected readonly voteTally = computed(() => {
+		const votes = this.uc.voteProgress()?.votes ?? {};
+		return Object.values(votes).reduce<Record<string, number>>((acc, targetId) => {
+			acc[targetId] = (acc[targetId] ?? 0) + 1;
+			return acc;
+		}, {});
+	});
+	protected readonly voteTotalCast = computed(
+		() => Object.keys(this.uc.voteProgress()?.votes ?? {}).length,
+	);
+
+	private readonly hostElement = inject(ElementRef<HTMLElement>);
 
 	constructor(
 		protected readonly room: RoomService,
 		protected readonly mix: MixRuntimeService,
 		protected readonly uc: UndercoverService,
+		private readonly audio: AudioService,
 	) {
+		const destroyRef = inject(DestroyRef);
 		const ticker = setInterval(() => this.now.set(Date.now()), 250);
-		inject(DestroyRef).onDestroy(() => clearInterval(ticker));
+		destroyRef.onDestroy(() => clearInterval(ticker));
 		// Toujours se resynchroniser au montage : les events one-shot (START,
 		// REVEAL...) peuvent avoir ete emis par le serveur avant que ce
 		// composant (et les listeners d'UndercoverService) n'existent.
 		this.uc.requestState();
+
+		// Reveal du mot secret : la carte punch a l'ecran, puis se retourne avec un impact sonore.
+		effect(() => {
+			const word = this.uc.myWord();
+			if (this.uc.phase() !== "reveal" || !word) return;
+			this.wordFlipped.set(false);
+			requestAnimationFrame(() => {
+				const host = this.hostElement.nativeElement;
+				punchIn(host.querySelector(".word-card-3d"));
+				const flipTimer = setTimeout(() => {
+					this.wordFlipped.set(true);
+					this.audio.play("whoosh", { volume: 0.6 });
+					setTimeout(() => this.audio.play("impact", { volume: 0.7 }), 260);
+				}, 550);
+				destroyRef.onDestroy(() => clearTimeout(flipTimer));
+			});
+		});
+
+		// Tour actif : le joueur qui parle prend toute la place, entree punchee.
+		effect(() => {
+			const turn = this.uc.activeTurn();
+			if (this.uc.phase() !== "turns" || !turn) return;
+			this.audio.play("swap", { volume: 0.6 });
+			requestAnimationFrame(() => {
+				const host = this.hostElement.nativeElement;
+				punchIn(host.querySelector(".active-spotlight"));
+				slideUp(host.querySelector(".turn-input-bar"), { delay: 0.1 });
+			});
+		});
+
+		// Battement dans les 5 dernieres secondes du tour.
+		effect(() => {
+			const secondsLeft = this.remainingSeconds();
+			if (this.uc.phase() === "turns" && secondsLeft > 0 && secondsLeft <= 5) {
+				this.audio.play("timer-urgent", { volume: 0.55 });
+			}
+		});
+
+		// Entree de la phase de vote.
+		effect(() => {
+			if (this.uc.phase() !== "vote") return;
+			requestAnimationFrame(() => {
+				const host = this.hostElement.nativeElement;
+				punchIn(host.querySelector(".vote-title"));
+				slideUp(host.querySelector(".vote-grid"), { delay: 0.1 });
+			});
+		});
+
+		// Reveal final : suspense (delai dramatique) puis identite + particules du camp gagnant.
+		effect(() => {
+			const results = this.uc.results();
+			if (this.uc.phase() !== "results" || !results) return;
+			this.resultStage.set(0);
+			this.suspense.set(true);
+			this.audio.play("countdown-tick", { volume: 0.5 });
+			const host = this.hostElement.nativeElement;
+			requestAnimationFrame(() => punchIn(host.querySelector(".mystery-mask")));
+			const timer = setTimeout(() => {
+				this.suspense.set(false);
+				this.audio.play("reveal", { volume: 0.8 });
+				requestAnimationFrame(() => {
+					const stage = host.querySelector(".results-stage") as HTMLElement | null;
+					punchIn(host.querySelector(".reveal-identity"));
+					this.audio.play(results.found ? "round-win" : "impact", { volume: 0.7 });
+					burstParticles(stage, {
+						colors: results.found
+							? ["#3fd67a", "#f0e6d2", "#6c5ce7"]
+							: ["#c13c4d", "#6c5ce7", "#1a1230"],
+						count: 44,
+					});
+				});
+			}, 1600);
+			destroyRef.onDestroy(() => clearTimeout(timer));
+		});
 	}
 
 	avatarColor(id: string): string {
@@ -118,17 +224,26 @@ export class UndercoverChampionComponent {
 
 	acknowledgeReveal(): void {
 		this.uc.acknowledgeReveal();
+		this.audio.play("ui-click", { volume: 0.6 });
 	}
 
 	submitWord(): void {
 		const word = this.wordInput.trim();
-		if (!word || !this.isMyTurn()) return;
+		if (!word || !this.isMyTurn()) {
+			if (!word) shake(this.hostElement.nativeElement.querySelector(".turn-input-bar"));
+			return;
+		}
 		this.uc.submitWord(word);
 		this.wordInput = "";
+		this.audio.play("whoosh", { volume: 0.5 });
 	}
 
 	vote(targetId: string): void {
 		this.uc.submitVote(targetId);
+		this.audio.play("ui-click", { volume: 0.7 });
+		requestAnimationFrame(() =>
+			pulse(this.hostElement.nativeElement.querySelector(".vote-card.selected")),
+		);
 	}
 
 	votersFor(targetId: string) {
@@ -136,10 +251,21 @@ export class UndercoverChampionComponent {
 		return this.uc.turnOrder().filter((p) => votes[p.id] === targetId);
 	}
 
+	voteTallyPct(playerId: string): number {
+		const total = this.voteTotalCast();
+		if (total <= 0) return 0;
+		return ((this.voteTally()[playerId] ?? 0) / total) * 100;
+	}
+
 	nextResultStage(): void {
-		if (this.resultStage() >= 4) return;
+		if (this.resultStage() >= 3) return;
 		this.resultStage.update((s) => s + 1);
-		if (this.resultStage() === 4) this.submitMix();
+		this.audio.play("ui-click", { volume: 0.6 });
+		requestAnimationFrame(() => {
+			const host = this.hostElement.nativeElement;
+			punchIn(host.querySelector(".results-stage > div:not(.reveal-mystery)"));
+		});
+		if (this.resultStage() === 3) this.submitMix();
 	}
 
 	private submitMix(): void {

@@ -25,15 +25,43 @@
 			}
 		</section>
 	} @else if (croquis.phase() === 'drawing') {
-		<header class="game-hero">
-			<div>
-				<span class="eyebrow">Croquis • Phase dessin</span>
-				<h2>Dessine : <em>{{ croquis.myChampion() }}</em></h2>
-				<p>Ton champion est secret. Pas de lettres ni de chiffres sur le dessin, sinon c'est de la triche assumée.</p>
+		<main class="cine-stage draw-mode">
+			<div class="stage-vignette"></div>
+
+			<!-- HUD minimal -->
+			<header class="hud-top">
+				<span class="phase-tag">Atelier secret</span>
+				<div class="timer-wrap" [class.low]="remainingSec() <= 10">
+					<div class="timer-bar" [style.width.%]="drawingTimerPct()"></div>
+					<span class="timer-num">{{ remainingSec() }}s</span>
+				</div>
+				@if (!mix.active() && room.isHost()) {
+					<button class="hud-exit" (click)="room.endGame('Croquis termine.')" title="Retour lobby">
+						<app-icon name="back" [size]="15" />
+					</button>
+				}
+			</header>
+
+			<div class="secret-banner">
+				<span class="stake">TON CHAMPION À DESSINER</span>
+				<h2>{{ croquis.myChampion() }}</h2>
+				<p>Secret pour les autres. Pas de lettres ni de chiffres, sinon c'est de la triche assumée.</p>
 			</div>
-			<small class="timer-pill" [class.low]="remainingSec() <= 10">{{ remainingSec() }}s</small>
-		</header>
-		<section class="draw-stage card">
+
+			<div class="canvas-frame" [class.locked]="croquis.mySubmitted()">
+				<div class="canvas-frame-glow"></div>
+				<canvas
+					#pad
+					[width]="canvasWidth"
+					[height]="canvasHeight"
+					[class.locked]="croquis.mySubmitted()"
+					(pointerdown)="onPointerDown($event)"
+					(pointermove)="onPointerMove($event)"
+					(pointerup)="onPointerUp()"
+					(pointercancel)="onPointerUp()"
+				></canvas>
+			</div>
+
 			<div class="toolbar" [class.disabled]="croquis.mySubmitted()">
 				@for (c of palette; track c) {
 					<button class="swatch" [style.background]="c" [class.active]="!erasing() && color() === c" (click)="pickColor(c)"></button>
@@ -48,67 +76,83 @@
 				<button class="tool-btn" [class.active]="erasing()" (click)="erasing.set(!erasing())">Gomme</button>
 				<button class="tool-btn" (click)="clearCanvas()">Tout effacer</button>
 			</div>
-			<canvas
-				#pad
-				[width]="canvasWidth"
-				[height]="canvasHeight"
-				[class.locked]="croquis.mySubmitted()"
-				(pointerdown)="onPointerDown($event)"
-				(pointermove)="onPointerMove($event)"
-				(pointerup)="onPointerUp()"
-				(pointercancel)="onPointerUp()"
-			></canvas>
+
 			@if (croquis.mySubmitted()) {
 				<div class="wait-pill">
 					Dessin envoyé · {{ croquis.submittedCount() }}/{{ croquis.expectedCount() }} artistes ont rendu
 				</div>
 			} @else {
-				<button class="rift-btn rift-btn-confirm" (click)="submitDrawing()">
+				<button class="rift-btn rift-btn-confirm submit-btn" (click)="submitDrawing()">
 					<span>Envoyer mon chef-d'œuvre</span>
 				</button>
 			}
-		</section>
+		</main>
 	} @else if (croquis.phase() === 'guessing') {
-		<header class="game-hero">
-			<div>
-				<span class="eyebrow">Galerie • Œuvre {{ croquis.item()?.index }}/{{ croquis.item()?.total }}</span>
+		<main class="cine-stage guess-mode">
+			<div class="stage-vignette"></div>
+
+			<header class="hud-top">
+				<span class="phase-tag">Galerie · Œuvre {{ croquis.item()?.index }}/{{ croquis.item()?.total }}</span>
+				<div class="timer-wrap" [class.low]="remainingSec() <= 5">
+					<div class="timer-bar" [style.width.%]="guessTimerPct()"></div>
+					<span class="timer-num">{{ remainingSec() }}s</span>
+				</div>
+				@if (!mix.active() && room.isHost()) {
+					<button class="hud-exit" (click)="room.endGame('Croquis termine.')" title="Retour lobby">
+						<app-icon name="back" [size]="15" />
+					</button>
+				}
+			</header>
+
+			<div class="gallery-caption">
 				<h2>{{ isArtist() ? "Ton œuvre est exposée !" : "Croquis de " + croquis.item()?.artistPseudo }}</h2>
 				<p>{{ isArtist() ? "Les autres tentent de deviner ton champion. +5 pts par bonne réponse pour toi." : "Quel champion se cache derrière ce croquis ?" }}</p>
 			</div>
-			<small class="timer-pill" [class.low]="remainingSec() <= 5">{{ remainingSec() }}s</small>
-		</header>
-		<section class="gallery-stage card">
-			<img class="artwork" [src]="croquis.item()?.image" alt="Croquis à deviner" />
-			@if (isArtist()) {
-				<div class="wait-pill">{{ croquis.guessedCount() }}/{{ croquis.guessExpectedCount() }} propositions reçues</div>
-			} @else if (croquis.myGuess() !== null) {
-				<div class="wait-pill">
-					Proposition envoyée · {{ croquis.guessedCount() }}/{{ croquis.guessExpectedCount() }} joueurs ont proposé
-				</div>
-			} @else {
-				<div class="guess-row">
-					<app-champion-select [options]="championOptions" [(value)]="guessInput" placeholder="C'est qui ça ?" />
-					<button class="rift-btn rift-btn-confirm" (click)="submitGuess()" [disabled]="!guessInput.trim()"><span>Valider</span></button>
-				</div>
-			}
-		</section>
+
+			<div class="gallery-frame">
+				<div class="gallery-frame-glow"></div>
+				<img class="artwork" [src]="croquis.item()?.image" alt="Croquis à deviner" />
+			</div>
+
+			<div class="guess-bar">
+				@if (isArtist()) {
+					<div class="wait-pill">{{ croquis.guessedCount() }}/{{ croquis.guessExpectedCount() }} propositions reçues</div>
+				} @else if (croquis.myGuess() !== null) {
+					<div class="wait-pill">
+						Proposition envoyée · {{ croquis.guessedCount() }}/{{ croquis.guessExpectedCount() }} joueurs ont proposé
+					</div>
+				} @else {
+					<div class="guess-row">
+						<app-champion-select [options]="championOptions" [(value)]="guessInput" placeholder="C'est qui ça ?" />
+						<button class="rift-btn rift-btn-confirm" (click)="submitGuess()" [disabled]="!guessInput.trim()"><span>Valider</span></button>
+					</div>
+				}
+			</div>
+		</main>
 	} @else {
 		@if (croquis.lastReveal(); as reveal) {
-		<header class="game-hero">
-			<div>
-				<span class="eyebrow">Révélation</span>
-				<h2>C'était {{ reveal.champion }} !</h2>
-				<p>Croquis signé {{ reveal.artistPseudo }}.</p>
-			</div>
-			<div class="score-orb">
-				<span>Cette manche</span><strong>+{{ myRoundPoints() }}</strong>
-			</div>
-		</header>
-		<section class="reveal-stage card">
+		<main class="cine-stage verdict-stage" [class.win]="myRoundPoints() > 0">
+			<div class="stage-vignette"></div>
+
+			@if (!mix.active() && room.isHost()) {
+				<button class="hud-exit reveal-exit" (click)="room.endGame('Croquis termine.')" title="Retour lobby">
+					<app-icon name="back" [size]="15" />
+				</button>
+			}
+
+			<div class="verdict-eyebrow">Révélation</div>
+			<strong class="verdict-champ-name">{{ reveal.champion }}</strong>
+			<span class="verdict-sub">Croquis signé {{ reveal.artistPseudo }}</span>
+
 			<div class="reveal-duo">
 				<img class="artwork small" [src]="reveal.image" alt="Croquis" />
 				<img class="real-champion" [src]="square(reveal.champion)" alt="" />
 			</div>
+
+			<div class="score-orb" [class.win]="myRoundPoints() > 0">
+				<span>Cette manche</span><strong>+{{ myRoundPoints() }}</strong>
+			</div>
+
 			<div class="guess-list">
 				@for (g of reveal.guesses; track g.playerId) {
 					<div class="guess-row-item" [class.correct]="g.correct">
@@ -120,6 +164,7 @@
 					<p class="hint-line">Personne n'a osé proposer quoi que ce soit.</p>
 				}
 			</div>
+
 			@if (room.isHost()) {
 				<button class="rift-btn rift-btn-next next-inline" (click)="next()">
 					<span>{{ reveal.isLast ? "Voir le classement final" : "Œuvre suivante" }}</span>
@@ -127,14 +172,7 @@
 			} @else {
 				<p class="hint-line">En attente que l'host lance la suite...</p>
 			}
-		</section>
+		</main>
 		}
 	}
-	<footer class="actions">
-		@if (!finished() && !mix.active() && room.isHost()) {
-			<button class="rift-btn rift-btn-exit" (click)="room.endGame('Croquis termine.')">
-				<span>Retour lobby</span>
-			</button>
-		}
-	</footer>
 </div>

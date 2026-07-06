@@ -5,6 +5,7 @@ import {
 	effect,
 	ElementRef,
 	inject,
+	OnDestroy,
 	signal,
 } from "@angular/core";
 import { FormsModule } from "@angular/forms";
@@ -14,7 +15,16 @@ import { GameSettingsService } from "../../core/services/game-settings.service";
 import { championLoadingUrl, itemIconUrl } from "../../shared/lol-assets";
 import { RoundTimer } from "../../shared/round-timer";
 import { IconComponent } from "../../shared/components/icon/icon.component";
+import { AudioService } from "../../core/services/audio.service";
 import { animateEndScreen } from "../../shared/end-screen-animate";
+import {
+	burstParticles,
+	floatScore,
+	pulse,
+	punchIn,
+	shake,
+	slideUp,
+} from "../../shared/cinematic/cinematic";
 
 interface Scenario {
 	champ: string;
@@ -846,7 +856,7 @@ const SCENARIOS: Scenario[] = [
 	templateUrl: './turret-tank.component.html',
 	styleUrl: './turret-tank.component.scss',
 })
-export class TurretTankComponent {
+export class TurretTankComponent implements OnDestroy {
 	choices = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 	maxRounds = computed(() =>
 		this.mix.active()
@@ -859,6 +869,9 @@ export class TurretTankComponent {
 	guess = signal<number | null>(null);
 	result = signal("");
 	locked = signal(false);
+	/** Resultat du round en cours, pilote l'overlay de verdict cinematique. */
+	protected verdict = signal<"correct" | "wrong" | "timeout" | null>(null);
+	private autoNextTimer?: ReturnType<typeof setTimeout>;
 	protected readonly timer = new RoundTimer();
 	protected remainingSec = signal(0);
 	private scenarios = this.shuffleScenarios();
@@ -866,6 +879,16 @@ export class TurretTankComponent {
 		() => this.scenarios[this.index() % this.scenarios.length],
 	);
 	finished = computed(() => this.index() >= this.maxRounds());
+	roundNumber = computed(() => this.index() + 1);
+	protected readonly dots = computed(() =>
+		Array.from({ length: this.maxRounds() }),
+	);
+	protected timerPct(): number {
+		const total = this.settings.roundTimeSec();
+		return total > 0
+			? Math.max(0, Math.min(100, (this.remainingSec() / total) * 100))
+			: 0;
+	}
 	protected leaderboardRows = computed(() => {
 		const scores = this.mix.progress()?.scores ?? [];
 		const byId = new Map(scores.map((s) => [s.playerId, s.points]));
@@ -880,14 +903,45 @@ export class TurretTankComponent {
 		protected room: RoomService,
 		protected mix: MixRuntimeService,
 		protected settings: GameSettingsService,
+		private readonly audio: AudioService,
 	) {
 		this.startRoundTimer();
 		this.room.onGameRestarted((payload) => {
 			if (payload.gameId === "turret-tank") this.restart();
 		});
 		effect(() => {
-			if (this.finished()) animateEndScreen(this.hostElement.nativeElement);
+			if (!this.finished()) return;
+			this.audio.play("fanfare");
+			const host = this.hostElement.nativeElement;
+			animateEndScreen(host, {
+				onCountTick: () => this.audio.play("score-tick", { volume: 0.4 }),
+			});
+			requestAnimationFrame(() =>
+				burstParticles(host.querySelector(".end-screen"), { count: 42 }),
+			);
 		});
+		// Battement sourd sur les 5 dernieres secondes du timer.
+		effect(() => {
+			const secondsLeft = this.remainingSec();
+			if (!this.locked() && secondsLeft > 0 && secondsLeft <= 5) {
+				this.audio.play("timer-urgent", { volume: 0.7 });
+			}
+		});
+		// Entree animee de chaque round (enigme qui punch, tuiles qui glissent).
+		effect(() => {
+			this.index();
+			if (this.finished()) return;
+			requestAnimationFrame(() => {
+				const host = this.hostElement.nativeElement;
+				punchIn(host.querySelector(".enigma"));
+				slideUp(host.querySelector(".stat-chips"), { delay: 0.08 });
+				slideUp(host.querySelector(".action-bar"), { delay: 0.14 });
+			});
+		});
+	}
+	ngOnDestroy(): void {
+		this.timer.stop();
+		clearTimeout(this.autoNextTimer);
 	}
 	private startRoundTimer() {
 		this.timer.start(
@@ -901,7 +955,16 @@ export class TurretTankComponent {
 		this.result.set(
 			`Temps ecoule : il tank ${this.scenario().answer} coups. ${this.scenario().note}`,
 		);
+		this.verdict.set("timeout");
 		this.locked.set(true);
+		this.audio.play("timeout");
+		this.audio.play("reveal", { volume: 0.6 });
+		this.scheduleAutoNext();
+	}
+	/** Enchaine automatiquement apres le verdict pour garder le rythme (le bouton Suivant reste dispo pour zapper). */
+	private scheduleAutoNext() {
+		clearTimeout(this.autoNextTimer);
+		this.autoNextTimer = setTimeout(() => this.next(), 3200);
 	}
 	private shuffleScenarios() {
 		const copy = [...SCENARIOS];
@@ -917,20 +980,42 @@ export class TurretTankComponent {
 	itemUrl(item: string) {
 		return itemIconUrl(item);
 	}
+	selectGuess(n: number) {
+		if (this.locked()) return;
+		this.guess.set(n);
+		this.audio.play("ui-click", { volume: 0.5 });
+	}
 	validate() {
 		if (this.locked()) return;
 		this.timer.stop();
+		const host = this.hostElement.nativeElement;
+		const stage = host.querySelector(".cine-stage") as HTMLElement | null;
 		const d = Math.abs((this.guess() ?? 0) - this.scenario().answer);
-		if (d === 0) this.score.update((s) => s + 1);
-		this.result.set(
-			d === 0
-				? `Exact : ${this.scenario().answer} coups. ${this.scenario().note}`
-				: `Rate : il tank ${this.scenario().answer} coups. ${this.scenario().note}`,
-		);
+		if (d === 0) {
+			this.score.update((s) => s + 1);
+			this.result.set(`Exact : ${this.scenario().answer} coups. ${this.scenario().note}`);
+			this.verdict.set("correct");
+			this.audio.play("correct");
+			burstParticles(stage, {
+				colors: ["#ffb347", "#ffd8a8", "#3fd67a"],
+				count: 36,
+			});
+			floatScore(stage, "+1", "#ffb347");
+			pulse(host.querySelector(".score-chip"));
+		} else {
+			this.result.set(`Rate : il tank ${this.scenario().answer} coups. ${this.scenario().note}`);
+			this.verdict.set("wrong");
+			this.audio.play("wrong");
+			shake(stage);
+		}
+		this.audio.play("reveal", { volume: 0.6 });
 		this.locked.set(true);
+		this.scheduleAutoNext();
 	}
 	next() {
 		if (!this.locked()) return;
+		clearTimeout(this.autoNextTimer);
+		this.audio.play("swap", { volume: 0.7 });
 		this.index.update((i) => i + 1);
 		if (this.finished()) {
 			this.timer.stop();
@@ -939,6 +1024,7 @@ export class TurretTankComponent {
 		}
 		this.guess.set(null);
 		this.result.set("");
+		this.verdict.set(null);
 		this.locked.set(false);
 		this.startRoundTimer();
 	}
@@ -956,11 +1042,13 @@ export class TurretTankComponent {
 	}
 	restart() {
 		this.scenarios = this.shuffleScenarios();
+		clearTimeout(this.autoNextTimer);
 		this.submittedToMix.set(false);
 		this.index.set(0);
 		this.score.set(0);
 		this.guess.set(null);
 		this.result.set("");
+		this.verdict.set(null);
 		this.locked.set(false);
 		this.startRoundTimer();
 	}

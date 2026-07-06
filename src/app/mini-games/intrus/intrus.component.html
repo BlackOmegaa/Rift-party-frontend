@@ -45,60 +45,93 @@
 			}
 		</section>
 	} @else {
-		<header class="game-hero">
-			<div>
-				<span class="eyebrow">Intrus • {{ roundNumber() }}/{{ maxRounds() }}</span>
-				<h2>Trouve l'intrus</h2>
-				<p>Un des 5 ne colle pas avec les autres. Un seul clic, pas de retour en arrière.</p>
-			</div>
-			<div class="score-side">
-				<div class="score-orb">
-					<span>Score</span><strong>{{ score() }}</strong>
+		<main
+			class="cine-stage"
+			[class.locked]="locked()"
+			[class.won]="verdict() === 'correct'"
+			[class.lost]="verdict() === 'wrong' || verdict() === 'timeout'"
+		>
+			<img
+				class="stage-splash"
+				draggable="false"
+				[src]="splash(round().intrus.champion)"
+				alt=""
+			/>
+			<div class="stage-vignette"></div>
+
+			<!-- HUD minimal : progression, timer, score -->
+			<header class="hud-top">
+				<div class="round-dots">
+					@for (dot of dots(); track $index) {
+						<span
+							[class.done]="$index < index()"
+							[class.active]="$index === index()"
+						></span>
+					}
 				</div>
-				@if (!locked()) {
-					<small class="timer-pill" [class.low]="remainingSec() <= 5">{{ remainingSec() }}s</small>
+				<div class="timer-wrap" [class.low]="remainingSec() <= 5 && !locked()">
+					<div class="timer-bar" [style.width.%]="timerPct()"></div>
+					@if (!locked()) {
+						<span class="timer-num">{{ remainingSec() }}</span>
+					}
+				</div>
+				<div class="score-chip">
+					<strong>{{ score() }}</strong>
+					<small>pts</small>
+				</div>
+				@if (!mix.active() && room.isHost()) {
+					<button
+						class="hud-exit"
+						(click)="room.endGame('Intrus termine.')"
+						title="Retour lobby"
+					>
+						<app-icon name="back" [size]="15" />
+					</button>
 				}
-			</div>
-		</header>
-		<section class="intrus-stage card" [class.locked]="locked()">
-			<div class="choices">
+			</header>
+
+			<!-- La grille de suspects, plein centre -->
+			<div class="suspects-grid" [class.revealed]="locked()">
 				@for (item of items(); track item.label; let i = $index) {
 					<button
 						class="choice"
+						[attr.data-index]="i"
 						[class.selected]="pickedIndex() === i"
 						[class.answer]="locked() && intrusIndex() === i"
 						[class.wrong]="locked() && pickedIndex() === i && intrusIndex() !== i"
+						[class.faded]="locked() && intrusIndex() !== i && pickedIndex() !== i"
 						[disabled]="locked()"
 						(click)="pick(i)"
 					>
 						<img class="choice-img" loading="lazy" draggable="false" [src]="square(item.champion)" alt="" />
-						<span>{{ item.label }}</span>
+						<span class="choice-label">{{ item.label }}</span>
+						@if (locked() && intrusIndex() === i) {
+							<span class="choice-tag intrus-tag">Intrus</span>
+						}
 					</button>
 				}
 			</div>
-			@if (locked()) {
-				<div class="reveal card">
-					<span class="reveal-category">{{ round().category }}</span>
-					<p>{{ round().explanation }}</p>
+
+			@if (!locked()) {
+				<p class="stage-caption">Categorie tenue secrete... trouve l'intrus.</p>
+			} @else {
+				<!-- Verdict cinématique -->
+				<div class="verdict" [class.win]="verdict() === 'correct'">
+					<span class="verdict-stamp">{{ verdict() === "correct" ? "✔" : "✗" }}</span>
+					<span class="verdict-category">{{ round().category }}</span>
+					<p class="verdict-explanation">{{ round().explanation }}</p>
 				</div>
 			}
-			@if (!locked()) {
-				<p class="hint-line">Categorie tenue secrete jusqu'au verdict...</p>
-			} @else {
-				<button class="rift-btn rift-btn-next next-inline" (click)="next()">
-					<span>{{ roundNumber() >= maxRounds() ? "Terminer" : "Manche suivante" }}</span>
-				</button>
-			}
-		</section>
-		<footer class="actions">
-			@if (!mix.active() && room.isHost()) {
-				<button
-					class="rift-btn rift-btn-exit"
-					(click)="room.endGame('Intrus termine.')"
-				>
-					<span>Retour lobby</span>
-				</button>
-			}
-		</footer>
+
+			<!-- Barre d'action flottante -->
+			<div class="action-bar">
+				@if (locked()) {
+					<button class="rift-btn rift-btn-next next-auto" (click)="next()">
+						<span class="next-fill"></span>
+						<span>{{ roundNumber() >= maxRounds() ? "Terminer" : "Manche suivante" }}</span>
+					</button>
+				}
+			</div>
+		</main>
 	}
 </div>

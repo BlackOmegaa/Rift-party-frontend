@@ -39,20 +39,52 @@
 			}
 		</section>
 	} @else if (voteParty.phase() === 'voting') {
-		<header class="game-hero">
-			<div>
-				<span class="eyebrow">Vote Party • {{ voteParty.roundNumber() }}/{{ voteParty.totalRounds() }}</span>
+		<main class="cine-stage voting-stage" [class.voted]="voteParty.myVote() !== null">
+			<div class="stage-vignette"></div>
+
+			<!-- HUD minimal -->
+			<header class="hud-top">
+				<div class="round-dots">
+					@for (dot of dots(); track $index) {
+						<span
+							[class.done]="$index < voteParty.roundNumber() - 1"
+							[class.active]="$index === voteParty.roundNumber() - 1"
+						></span>
+					}
+				</div>
+				<div class="timer-wrap" [class.low]="remainingSec() <= 5 && voteParty.myVote() === null">
+					<div class="timer-bar" [style.width.%]="timerPct()"></div>
+					@if (voteParty.myVote() === null) {
+						<span class="timer-num">{{ remainingSec() }}</span>
+					}
+				</div>
+				@if (!mix.active() && room.isHost()) {
+					<button
+						class="hud-exit"
+						(click)="room.endGame('Vote Party termine.')"
+						title="Retour lobby"
+					>
+						<app-icon name="back" [size]="15" />
+					</button>
+				}
+			</header>
+
+			<!-- La question, ENORME et centree -->
+			<div class="question-hero">
+				<span class="stake">TOUR {{ voteParty.roundNumber() }}/{{ voteParty.totalRounds() }}</span>
 				<h2>{{ voteParty.question() }}</h2>
-				<p>Vote secret : personne ne voit ton choix avant la révélation.</p>
+				@if (voteParty.myVote() === null) {
+					<p class="sub-hint">Clique sur un joueur. Choix définitif, personne ne voit ton vote.</p>
+				}
 			</div>
-			<small class="timer-pill" [class.low]="remainingSec() <= 5">{{ remainingSec() }}s</small>
-		</header>
-		<section class="vote-stage card" [class.voted]="voteParty.myVote() !== null">
+
+			<!-- Avatars cliquables, gros et satisfaisants -->
 			<div class="targets">
 				@for (player of targets(); track player.id) {
 					<button
 						class="target"
 						[class.picked]="voteParty.myVote() === player.id"
+						[attr.data-player-id]="player.id"
 						[disabled]="voteParty.myVote() !== null"
 						(click)="vote(player.id)"
 					>
@@ -61,64 +93,65 @@
 					</button>
 				}
 			</div>
+
 			@if (voteParty.myVote() !== null) {
-				<div class="wait-pill">
+				<div class="wait-pill floating">
 					Vote enregistré · {{ voteParty.votedCount() }}/{{ voteParty.expectedCount() }} joueurs ont voté
 				</div>
-			} @else {
-				<p class="hint-line">Clique sur un joueur pour voter. Choix définitif.</p>
 			}
-		</section>
+		</main>
 	} @else {
-		<header class="game-hero">
-			<div>
-				<span class="eyebrow">Révélation • {{ voteParty.lastRound()?.roundNumber }}/{{ voteParty.lastRound()?.totalRounds }}</span>
+		<main class="cine-stage reveal-full">
+			<div class="stage-vignette"></div>
+
+			<header class="reveal-hero">
+				<span class="eyebrow">Révélation · {{ voteParty.lastRound()?.roundNumber }}/{{ voteParty.lastRound()?.totalRounds }}</span>
 				<h2>{{ voteParty.lastRound()?.question }}</h2>
-				<p>Les votes sont tombés. Le tribunal du lobby a parlé.</p>
-			</div>
-			<div class="score-orb">
-				<span>Cette manche</span><strong>+{{ myRoundPoints() }}</strong>
-			</div>
-		</header>
-		<section class="reveal-stage card">
-			@if (revealRows().length === 0) {
-				<p class="hint-line">Personne n'a voté. Lobby étonnamment diplomate.</p>
-			}
-			<div class="tally-list">
-				@for (row of revealRows(); track row.playerId; let i = $index) {
-					<div class="tally-row" [class.elected]="row.elected" [style.animation-delay.ms]="i * 220">
-						<span class="rank">{{ i + 1 }}</span>
-						<div class="who">
-							<strong>{{ row.pseudo }}</strong>
-							<small>{{ row.voters.length ? 'Voté par ' + votersLine(row.voters) : '' }}</small>
-						</div>
-						<div class="count">
-							<strong>{{ row.votes }}</strong>
-							<span>voix</span>
-						</div>
-						@if (row.elected) {
-							<span class="elected-pill"><app-icon name="crown" [size]="14" /> Élu</span>
-						}
-					</div>
+				<div class="score-orb">
+					<span>Cette manche</span><strong>+{{ myRoundPoints() }}</strong>
+				</div>
+			</header>
+
+			<section class="reveal-stage">
+				@if (revealRows().length === 0) {
+					<p class="hint-line">Personne n'a voté. Lobby étonnamment diplomate.</p>
 				}
-			</div>
-			@if (room.isHost()) {
-				<button class="rift-btn rift-btn-next next-inline" (click)="next()">
-					<span>{{ isLastRound() ? "Voir le classement final" : "Question suivante" }}</span>
-				</button>
-			} @else {
-				<p class="hint-line">En attente que l'host lance la suite...</p>
-			}
-		</section>
+				<div class="tally-list">
+					@for (row of revealRows(); track row.playerId; let i = $index) {
+						<div
+							class="tally-row"
+							[class.elected]="row.elected"
+							[class.shown]="i < revealedCount()"
+						>
+							<span class="rank">{{ i + 1 }}</span>
+							<div class="who">
+								<strong>{{ row.pseudo }}</strong>
+								<small>{{ row.voters.length ? 'Voté par ' + votersLine(row.voters) : '' }}</small>
+							</div>
+							<div class="bar-track">
+								<div
+									class="bar-fill"
+									[style.width.%]="i < revealedCount() ? row.barPct : 0"
+								></div>
+							</div>
+							<div class="count">
+								<strong>{{ i < revealedCount() ? row.votes : 0 }}</strong>
+								<span>voix</span>
+							</div>
+							@if (row.elected) {
+								<span class="elected-pill"><app-icon name="crown" [size]="14" /> Élu</span>
+							}
+						</div>
+					}
+				</div>
+				@if (room.isHost()) {
+					<button class="rift-btn rift-btn-next next-inline" (click)="next()">
+						<span>{{ isLastRound() ? "Voir le classement final" : "Question suivante" }}</span>
+					</button>
+				} @else {
+					<p class="hint-line">En attente que l'host lance la suite...</p>
+				}
+			</section>
+		</main>
 	}
-	<footer class="actions">
-		@if (!finished() && !mix.active() && room.isHost()) {
-			<button
-				class="rift-btn rift-btn-exit"
-				(click)="room.endGame('Vote Party termine.')"
-			>
-				<span>Retour lobby</span>
-			</button>
-		}
-	</footer>
 </div>

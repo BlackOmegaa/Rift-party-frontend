@@ -1,14 +1,15 @@
-<div class="fusion-game">
+<div class="party-game fusion">
 	@if (finished()) {
 		<section class="end-screen card">
-			<span class="eyebrow">Fusion terminee</span>
+			<span class="eyebrow">Fusion terminée</span>
 			<h2>Score final</h2>
+
 			<div class="score-hero">
-				<strong><span data-count-up>{{ score() }}</span>/{{ maxRounds() }}</strong>
-				<span>fusions trouvées</span>
+				<strong data-count-up>{{ score() * 10 }}</strong>
+				<span>points</span>
 			</div>
 			<span class="sub-stat">
-				Classement fictif : les artistes devant les joueurs qui tapent Ashuo.
+				{{ correctCount() }}/{{ maxRounds() }} duos trouvés
 			</span>
 			<div class="leaderboard">
 				@for (row of leaderboardRows(); track row.playerId; let i = $index) {
@@ -28,14 +29,16 @@
 				</div>
 			} @else if (room.isHost()) {
 				<div class="end-actions">
-					<button class="btn btn-gold" (click)="requestRestart()">
-						<span class="btn-icon"><app-icon name="replay" [size]="16" /></span><span>Relancer</span>
+					<button class="rift-btn rift-btn-next" (click)="requestRestart()">
+						<span class="btn-icon"><app-icon name="replay" [size]="16" /></span>
+						<span>Rejouer</span>
 					</button>
 					<button
-						class="btn btn-ghost"
+						class="rift-btn rift-btn-ghost"
 						(click)="room.endGame('Fusion Champions termine.')"
 					>
-						<span class="btn-icon"><app-icon name="back" [size]="16" /></span><span>Retour lobby</span>
+						<span class="btn-icon"><app-icon name="back" [size]="16" /></span>
+						<span>Retour lobby</span>
 					</button>
 				</div>
 			} @else {
@@ -43,86 +46,125 @@
 			}
 		</section>
 	} @else {
-		<header>
-			<span class="eyebrow"
-				>Fusion Champions • {{ index() + 1 }}/{{ maxRounds() }}</span
-			>
-			@if (!locked()) {
-				<small class="timer-pill" [class.low]="remainingSec() <= 5">{{ remainingSec() }}s</small>
-			}
-			<h2>Devine les 2 champions fusionnes</h2>
-			<p>
-				Tu dois trouver les deux. Lock apres validation pour eviter le spam
-				avec la solution visible.
-			</p>
-		</header>
-		<section class="fusion-card card" [class.locked]="locked()">
-			<div class="fusion-art" [class.revealed]="locked()">
-				<div
-					class="fusion-bg left"
-					[style.background-image]="'url(' + square(fusion().a) + ')'"
-				></div>
-				<div
-					class="fusion-bg right"
-					[style.background-image]="'url(' + square(fusion().b) + ')'"
-				></div>
-
-				<div class="fusion-mask"></div>
-
-				@if (!locked()) {
-					<div class="sigil">?</div>
-				} @else {
-					<div class="reveal-names">
-						<span>{{ fusion().a }}</span>
-						<b>+</b>
-						<span>{{ fusion().b }}</span>
-					</div>
-				}
+		<main
+			class="cine-stage"
+			[class.locked]="locked()"
+			[class.won]="verdict() === 'correct'"
+			[class.lost]="verdict() === 'wrong' || verdict() === 'timeout'"
+		>
+			<div class="stage-splash-pair">
+				<img
+					class="stage-splash left"
+					draggable="false"
+					[src]="splash(fusion().a)"
+					alt=""
+				/>
+				<img
+					class="stage-splash right"
+					draggable="false"
+					[src]="splash(fusion().b)"
+					alt=""
+				/>
 			</div>
-			<div class="fusion-info">
-				<span class="fake-name" [class.hidden-name]="!locked()">
-					{{ locked() ? fusion().name : "Fusion inconnue" }}
-				</span>
-				<h3>{{ fusion().vibe }}</h3>
-				<div class="inputs">
+			<div class="stage-seam"></div>
+			<div class="stage-vignette"></div>
+
+			<!-- HUD minimal : progression, timer, score -->
+			<header class="hud-top">
+				<div class="round-dots">
+					@for (dot of dots(); track $index) {
+						<span
+							[class.done]="$index < index()"
+							[class.active]="$index === index()"
+						></span>
+					}
+				</div>
+				<div class="timer-wrap" [class.low]="remainingSec() <= 5 && !locked()">
+					<div class="timer-bar" [style.width.%]="timerPct()"></div>
+					@if (!locked()) {
+						<span class="timer-num">{{ remainingSec() }}</span>
+					}
+				</div>
+				<div class="score-chip">
+					<strong>{{ score() * 10 }}</strong>
+					<small>pts</small>
+				</div>
+				@if (!mix.active() && room.isHost()) {
+					<button
+						class="hud-exit"
+						(click)="room.endGame('Fusion Champions termine.')"
+						title="Retour lobby"
+					>
+						<app-icon name="back" [size]="15" />
+					</button>
+				}
+			</header>
+
+			<!-- La fusion, plein centre -->
+			@if (!locked()) {
+				<div class="fusion-stage-art">
+					<span class="stake">EN JEU · {{ pointsPerFusion }} PTS</span>
+					<div class="sigil">?</div>
+					<span class="fake-name">{{ fusion().name }}</span>
+				</div>
+
+				<div class="fusion-vibe">
+					<h2>{{ fusion().vibe }}</h2>
+				</div>
+			} @else {
+				<!-- Verdict cinématique : chaque moitié de la fusion validée séparément -->
+				<div class="verdict" [class.win]="verdict() === 'correct'">
+					<span class="verdict-stamp">{{ verdict() === "correct" ? "✔" : "✗" }}</span>
+					<div class="verdict-duo">
+						<span class="verdict-half" [class.ok]="firstOk()" [class.ko]="!firstOk()">
+							<em>{{ firstOk() ? "✔" : "✗" }}</em>
+							<strong>{{ fusion().a }}</strong>
+						</span>
+						<b class="verdict-plus">+</b>
+						<span class="verdict-half" [class.ok]="secondOk()" [class.ko]="!secondOk()">
+							<em>{{ secondOk() ? "✔" : "✗" }}</em>
+							<strong>{{ fusion().b }}</strong>
+						</span>
+					</div>
+					<span class="verdict-points">
+						@switch (verdict()) {
+							@case ("correct") { +{{ lastGain() }} pts }
+							@case ("timeout") { Temps écoulé · +0 pt }
+							@default { +0 pt }
+						}
+					</span>
+				</div>
+			}
+
+			<!-- Barre d'action flottante -->
+			<div class="action-bar">
+				@if (!locked()) {
 					<app-champion-select
 						[options]="championOptions"
 						[(value)]="first"
 						[disabled]="locked()"
 						placeholder="Champion 1"
-					/><app-champion-select
+					/>
+					<app-champion-select
 						[options]="championOptions"
 						[(value)]="second"
 						[disabled]="locked()"
 						placeholder="Champion 2"
 					/>
-				</div>
-				<button
-					class="rift-btn rift-btn-confirm"
-					(click)="validate()"
-					[disabled]="locked() || !first.trim() || !second.trim()"
-				>
-					<span>Valider</span>
-				</button>
-				@if (feedback(); as f) {
-					<p class="feedback" [class.win]="f.includes('GG')">{{ f }}</p>
+					<button
+						class="rift-btn rift-btn-confirm"
+						(click)="validate()"
+						[disabled]="!first.trim() || !second.trim()"
+					>
+						<span>Valider</span>
+					</button>
+				} @else {
+					<button class="rift-btn rift-btn-next next-auto" (click)="nextRound()">
+						<span class="next-fill"></span>
+						<span>{{ roundNumber() >= maxRounds() ? "Terminer" : "Suivant" }}</span>
+					</button>
 				}
 			</div>
-		</section>
-		<footer>
-			@if (locked()) {
-				<button class="rift-btn rift-btn-next next-inline" (click)="next()">
-					<span>Nouvelle fusion</span>
-				</button>
-			}
-			@if (!mix.active() && room.isHost()) {
-				<button
-					class="rift-btn rift-btn-exit"
-					(click)="room.endGame('Fusion Champions termine.')"
-				>
-					<span>Retour lobby</span>
-				</button>
-			}
-		</footer>
+		</main>
 	}
 </div>

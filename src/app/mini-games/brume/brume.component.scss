@@ -1,25 +1,72 @@
 .party-game { display: flex; flex-direction: column; gap: 1.5rem; min-height: calc(100vh - 3.2rem); position: relative; }
 .eyebrow { color: var(--teal); text-transform: uppercase; letter-spacing: 0.16em; font-size: 0.72rem; font-weight: 900; }
+.eyebrow.night { color: #ff9aa8; }
 .game-hero { display: flex; justify-content: space-between; gap: 1rem; align-items: center; }
 .game-hero h2 { font-size: clamp(1.6rem, 3.8vw, 2.8rem); color: var(--gold-bright); line-height: 0.95; text-transform: uppercase; margin-top: 0.35rem; }
 .game-hero p { margin-top: 0.55rem; max-width: 640px; color: var(--text-secondary); }
 
-.timer-orb { width: 84px; height: 84px; border-radius: 50%; display: grid; place-items: center; align-content: center; border: 1px solid var(--teal); background: rgba(10,200,185,.08); box-shadow: 0 0 30px var(--teal-glow); flex: 0 0 auto; transition: border-color .2s, box-shadow .2s; }
+.timer-orb { width: 84px; height: 84px; border-radius: 50%; display: grid; place-items: center; align-content: center; border: 1px solid var(--teal); background: rgba(10,200,185,.08); box-shadow: 0 0 30px var(--teal-glow); flex: 0 0 auto; transition: border-color .2s, box-shadow .2s, background .3s; }
 .timer-orb strong { font-size: 1.7rem; color: var(--gold-bright); }
 .timer-orb span { font-size: .65rem; color: var(--text-muted); text-transform: uppercase; }
+.timer-orb.night { border-color: #c13c4d; background: rgba(193,60,77,.1); box-shadow: 0 0 30px rgba(193,60,77,.24); }
 .timer-orb.danger { border-color: var(--danger); box-shadow: 0 0 30px rgba(193,60,77,.28); animation: timer-pulse 1s ease-in-out infinite; }
 
-/* ===== Announce overlay (aube / vote) ===== */
-.announce-overlay { position: fixed; inset: 0; z-index: 200; display: grid; place-items: center; padding: 1.5rem; background: rgba(1,6,12,.72); backdrop-filter: blur(6px); animation: overlay-in .25s ease both; cursor: pointer; }
-.announce-card { width: min(480px, 100%); text-align: center; padding: 2.4rem 1.8rem; border-radius: 26px; border: 1px solid rgba(10,200,185,.4); background: radial-gradient(circle at 50% 0%, rgba(10,200,185,.16), transparent 55%), linear-gradient(160deg, var(--bg-elevated), var(--bg-base)); box-shadow: 0 30px 80px rgba(0,0,0,.6); animation: announce-in .45s cubic-bezier(.2,1.4,.4,1) both; }
-.announce-card.danger { border-color: rgba(193,60,77,.55); background: radial-gradient(circle at 50% 0%, rgba(193,60,77,.22), transparent 55%), linear-gradient(160deg, var(--bg-elevated), var(--bg-base)); }
-.announce-icon { font-size: 3.4rem; animation: icon-bounce .6s ease .1s both; }
-.announce-card h2 { margin-top: 1rem; font-size: clamp(1.5rem, 4vw, 2.3rem); color: var(--gold-bright); text-transform: uppercase; line-height: 1.05; }
-.announce-card p { margin-top: .7rem; color: var(--text-secondary); font-style: italic; }
-.announce-tap { display: block; margin-top: 1.4rem; font-size: .7rem; text-transform: uppercase; letter-spacing: .12em; color: var(--text-muted); }
+/* ===== Scene cinematique plein ecran : fond sombre atmospherique, teinte
+ * differente selon la phase (nuit = rouge sombre / brume, jour = or pale). ===== */
+.cine-stage {
+  position: relative;
+  border-radius: 28px;
+  overflow: hidden;
+  border: 1px solid var(--border-subtle);
+  background: #05080d;
+  isolation: isolate;
+  padding: 1.6rem;
+  transition: background 0.6s ease, border-color 0.6s ease, box-shadow 0.6s ease;
+}
+.cine-stage.phase-night {
+  background:
+    radial-gradient(circle at 50% 0%, rgba(193, 60, 77, 0.14), transparent 55%),
+    linear-gradient(165deg, #0c0508, #05080d 60%);
+  border-color: rgba(193, 60, 77, 0.35);
+  box-shadow: 0 0 80px rgba(193, 60, 77, 0.1), inset 0 0 140px rgba(193, 60, 77, 0.05);
+}
+.cine-stage.phase-day {
+  background:
+    radial-gradient(circle at 50% 0%, rgba(200, 170, 110, 0.14), transparent 55%),
+    linear-gradient(165deg, #0d0e0a, #05080d 60%);
+  border-color: rgba(200, 170, 110, 0.3);
+  box-shadow: 0 0 80px rgba(200, 170, 110, 0.08), inset 0 0 140px rgba(200, 170, 110, 0.04);
+}
+.cine-stage.phase-vote {
+  border-color: rgba(193, 60, 77, 0.5);
+  box-shadow: 0 0 90px rgba(193, 60, 77, 0.16), inset 0 0 140px rgba(193, 60, 77, 0.06);
+}
+.cine-stage .stage-vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 90% 60% at 50% 0%, transparent 40%, rgba(1, 6, 12, 0.5) 100%),
+    linear-gradient(0deg, rgba(1, 6, 12, 0.55), transparent 30%);
+}
+.cine-stage > *:not(.stage-vignette) { position: relative; z-index: 1; }
+
+/* ===== Announce overlay (aube / vote) : poids dramatique renforce ===== */
+.announce-overlay { position: fixed; inset: 0; z-index: 200; display: grid; place-items: center; padding: 1.5rem; background: rgba(1,6,12,.82); backdrop-filter: blur(10px); animation: overlay-in .3s ease both; cursor: pointer; }
+.announce-card { width: min(500px, 100%); text-align: center; padding: 2.8rem 2rem; border-radius: 26px; border: 1px solid rgba(10,200,185,.4); background: radial-gradient(circle at 50% 0%, rgba(10,200,185,.16), transparent 55%), linear-gradient(160deg, var(--bg-elevated), var(--bg-base)); box-shadow: 0 30px 90px rgba(0,0,0,.7); animation: announce-in .55s cubic-bezier(.16,1.3,.3,1) both; }
+.announce-card.danger { border-color: rgba(193,60,77,.6); background: radial-gradient(circle at 50% 0%, rgba(193,60,77,.26), transparent 55%), linear-gradient(160deg, var(--bg-elevated), var(--bg-base)); box-shadow: 0 30px 90px rgba(193,60,77,.25), 0 0 120px rgba(193,60,77,.12); }
+.announce-eyebrow { display: block; color: var(--danger); text-transform: uppercase; letter-spacing: .22em; font-size: .7rem; font-weight: 1000; margin-bottom: .5rem; text-shadow: 0 0 16px rgba(193,60,77,.5); }
+.announce-icon { font-size: 3.6rem; display: grid; place-items: center; color: var(--danger); animation: icon-bounce .65s cubic-bezier(.16,1.3,.3,1) .15s both; filter: drop-shadow(0 0 20px rgba(193,60,77,.5)); }
+.announce-card h2 { margin-top: 1.1rem; font-size: clamp(1.7rem, 4.6vw, 2.6rem); color: var(--gold-bright); text-transform: uppercase; line-height: 1.05; text-shadow: 0 6px 30px rgba(0,0,0,.9); animation: stamp-slam .5s .25s cubic-bezier(.16,1.3,.3,1) both; }
+.announce-card p { margin-top: .8rem; color: var(--text-secondary); font-style: italic; animation: verdict-rise .4s .5s ease both; }
+.announce-tap { display: block; margin-top: 1.6rem; font-size: .7rem; text-transform: uppercase; letter-spacing: .12em; color: var(--text-muted); animation: verdict-rise .4s .6s ease both; }
 
 /* ===== Reveal ===== */
-.reveal-stage { display: flex; flex-direction: column; align-items: center; gap: 1.4rem; padding-top: .6rem; }
+.reveal-stage { min-height: calc(100vh - 3.2rem); display: flex; align-items: center; justify-content: center; }
+.stage-inner { display: flex; flex-direction: column; align-items: center; gap: 1rem; text-align: center; max-width: 480px; }
+.stage-title { font-size: clamp(1.9rem, 4.6vw, 3rem); color: var(--gold-bright); text-transform: uppercase; text-shadow: 0 4px 30px rgba(0,0,0,.85), 0 0 70px rgba(200,170,110,.22); }
+.stage-sub { color: var(--text-secondary); max-width: 420px; }
 .role-card { width: min(420px, 100%); overflow: hidden; display: flex; flex-direction: column; animation: card-pop .5s cubic-bezier(.2,1.2,.4,1) both; }
 .role-card.team-predators { border-color: rgba(193,60,77,.4); }
 .role-card.team-circle { border-color: rgba(200,170,110,.4); }
@@ -47,19 +94,17 @@
 .role-reminder-card { position: relative; width: min(420px, 100%); }
 .role-reminder-card .close { position: absolute; right: -.6rem; top: -.6rem; z-index: 3; width: 34px; height: 34px; border-radius: 50%; border: 1px solid var(--border-subtle); background: var(--bg-elevated); color: var(--gold); cursor: pointer; }
 
-/* ===== Night / Day stages : c'etait la cause des blocs colles ===== */
-.night-stage, .day-stage {
+/* ===== Night / Day stages ===== */
+.night-stage, .day-stage, .cine-stage.phase-night, .cine-stage.phase-day {
   display: grid;
   grid-template-columns: minmax(0, 1fr) 230px;
   align-items: start;
   gap: 1.4rem;
-  animation: stage-in .4s cubic-bezier(.2,1,.4,1) both;
 }
 .main-content { display: flex; flex-direction: column; gap: 1.4rem; min-width: 0; }
-.reveal-stage, .results-stage { animation: stage-in .4s cubic-bezier(.2,1,.4,1) both; }
+.results-stage { animation: stage-in .4s cubic-bezier(.2,1,.4,1) both; }
 
-/* ===== Glossaire des roles (panneau lateral droit) : liste cliquable, ouvre
- * le detail du kit dans une popup plutot que d'agrandir le chat inutilement. */
+/* ===== Glossaire des roles (panneau lateral droit) ===== */
 .roles-legend { display: flex; flex-direction: column; gap: .6rem; padding: 1rem .9rem; border-radius: 16px; border: 1px solid var(--border-subtle); background: rgba(15,18,26,.5); align-self: start; }
 .roles-legend-title { display: flex; align-items: center; gap: .4rem; font-weight: 900; color: var(--teal); font-size: .78rem; text-transform: uppercase; letter-spacing: .05em; }
 .role-legend-card { display: flex; flex-direction: column; gap: .1rem; text-align: left; border-radius: 12px; border: 1px solid var(--border-subtle); border-left-width: 3px; background: var(--bg-elevated); padding: .55rem .75rem; cursor: pointer; transition: transform .15s, border-color .15s; }
@@ -88,7 +133,7 @@
 .clue-pill { align-self: flex-start; border: 1px solid rgba(193,60,77,.4); background: rgba(193,60,77,.1); border-radius: 999px; padding: .5rem 1rem; font-weight: 800; color: #ff9aa8; animation: card-pop .3s ease both; }
 .clue-pill.ombre { border-color: rgba(193,60,77,.5); }
 
-/* ===== Chat panels (Nuée + Assemblée) ===== */
+/* ===== Chat panels (Nuee + Assemblee) ===== */
 .chat-panel { padding: 1.1rem; display: flex; flex-direction: column; gap: .75rem; height: 340px; max-width: 640px; }
 .chat-panel.pack { border-color: rgba(193,60,77,.35); }
 .chat-panel.assembly { border-color: rgba(200,170,110,.35); }
@@ -117,14 +162,57 @@
 .dawn-line.danger { color: #ff9aa8; font-weight: 800; }
 .dawn-line.hint { color: var(--text-muted); font-style: italic; font-size: .88rem; }
 
-/* ===== Vote ===== */
-.vote-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: .75rem; }
-.vote-card { min-height: 90px; border-radius: 16px; border: 1px solid var(--border-subtle); background: linear-gradient(160deg, var(--bg-elevated), var(--bg-base)); color: var(--gold-bright); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: .4rem; cursor: pointer; transition: transform .15s, border-color .15s, box-shadow .15s; }
+/* ===== Vote : tension visuelle (compte a rebours + avatars en gros) ===== */
+.vote-countdown { display: flex; flex-direction: column; align-items: center; gap: .1rem; align-self: center; }
+.vote-countdown-num { font-size: clamp(2.4rem, 6vw, 3.6rem); font-weight: 1000; line-height: 1; color: var(--gold-bright); text-shadow: 0 0 30px rgba(200,170,110,.35); font-variant-numeric: tabular-nums; }
+.vote-countdown.danger .vote-countdown-num { color: var(--danger); text-shadow: 0 0 40px rgba(193,60,77,.6); animation: timer-panic 1s ease-in-out infinite; }
+.vote-countdown-label { font-size: .68rem; text-transform: uppercase; letter-spacing: .16em; color: var(--text-muted); font-weight: 900; }
+
+.vote-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: .85rem; }
+.vote-card {
+  position: relative;
+  min-height: 168px;
+  border-radius: 18px;
+  border: 1px solid var(--border-subtle);
+  background: linear-gradient(160deg, var(--bg-elevated), var(--bg-base));
+  color: var(--gold-bright);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: .5rem;
+  cursor: pointer;
+  overflow: hidden;
+  padding: .9rem .6rem .8rem;
+  transition: transform .15s, border-color .15s, box-shadow .15s;
+}
+/* Pas de portrait de champion ici : le role/champion d'un suspect est secret
+ * jusqu'au reveal final, on ne peut donc afficher qu'un avatar neutre (silhouette
+ * + initiale), en gros plan pour la tension visuelle du vote. */
+.vote-avatar-fallback {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  display: grid;
+  place-items: center;
+  font-size: clamp(2.4rem, 6vw, 3.4rem);
+  font-weight: 1000;
+  color: rgba(193, 60, 77, 0.55);
+  background:
+    radial-gradient(circle at 50% 32%, rgba(193, 60, 77, 0.16), transparent 62%),
+    linear-gradient(165deg, #150a0d, #05080d 70%);
+  transition: color .25s ease, transform .3s ease;
+}
+.vote-card:hover:not(:disabled) .vote-avatar-fallback,
+.vote-card.selected .vote-avatar-fallback { color: rgba(193, 60, 77, 0.85); transform: scale(1.08); }
+.vote-card::after { content: ""; position: absolute; inset: 0; z-index: 1; background: linear-gradient(0deg, rgba(1,6,12,.92), rgba(1,6,12,.15) 60%); }
+.vote-name, .incoming-votes { position: relative; z-index: 2; }
+.vote-name { font-weight: 1000; font-size: 1.02rem; text-shadow: 0 3px 12px rgba(0,0,0,.8); }
 .vote-card:hover:not(:disabled) { transform: translateY(-3px); border-color: var(--teal); box-shadow: 0 12px 28px rgba(0,0,0,.32); }
-.vote-card.selected { border-color: var(--gold); box-shadow: 0 0 24px rgba(200,170,110,.24); }
+.vote-card.selected { border-color: var(--danger); box-shadow: 0 0 28px rgba(193,60,77,.4); }
 .vote-card:disabled { opacity: .55; cursor: not-allowed; }
 .incoming-votes { display: flex; flex-wrap: wrap; justify-content: center; gap: .25rem; }
-.mini-tag { font-size: .62rem; background: rgba(200,170,110,.12); border-radius: 999px; padding: .1rem .4rem; color: var(--gold); animation: card-pop .2s ease both; }
+.mini-tag { font-size: .62rem; background: rgba(200,170,110,.16); border: 1px solid rgba(200,170,110,.3); border-radius: 999px; padding: .1rem .4rem; color: var(--gold-bright); animation: card-pop .2s ease both; }
 .wait-pill { align-self: center; border: 1px solid rgba(200,170,110,.32); border-radius: 999px; padding: .65rem 1.1rem; color: var(--gold-bright); font-weight: 900; background: rgba(200,170,110,.08); }
 
 /* ===== Results ===== */
@@ -154,9 +242,12 @@
 @keyframes bubble-in { from { opacity: 0; transform: translateY(6px) scale(.96); } to { opacity: 1; transform: none; } }
 @keyframes select-pulse { 0% { box-shadow: 0 0 0 var(--teal-glow); } 50% { box-shadow: 0 0 24px var(--teal-glow); } 100% { box-shadow: 0 0 16px var(--teal-glow); } }
 @keyframes timer-pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.06); } }
+@keyframes timer-panic { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.12); } }
 @keyframes overlay-in { from { opacity: 0; } to { opacity: 1; } }
-@keyframes announce-in { from { opacity: 0; transform: scale(.8) translateY(30px); } to { opacity: 1; transform: none; } }
+@keyframes announce-in { from { opacity: 0; transform: scale(.75) translateY(36px); } to { opacity: 1; transform: none; } }
 @keyframes icon-bounce { 0% { transform: scale(.4); opacity: 0; } 60% { transform: scale(1.15); opacity: 1; } 100% { transform: scale(1); } }
+@keyframes stamp-slam { 0% { opacity: 0; transform: scale(1.6); } 60% { opacity: 1; transform: scale(.96); } 100% { opacity: 1; transform: scale(1); } }
+@keyframes verdict-rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
 @keyframes title-glow { 0%, 100% { text-shadow: 0 0 30px rgba(200,170,110,.35); } 50% { text-shadow: 0 0 50px rgba(200,170,110,.6); } }
 @keyframes row-in { from { opacity: 0; transform: translateX(-14px); } to { opacity: 1; transform: none; } }
 @keyframes confetti-fall { 0% { transform: translateY(0) rotate(0deg); opacity: 0; } 8% { opacity: 1; } 100% { transform: translateY(560px) rotate(560deg); opacity: 0; } }
@@ -165,7 +256,8 @@
   .game-hero { flex-direction: column; align-items: flex-start; }
   .target-grid, .vote-grid { grid-template-columns: repeat(2, 1fr); }
   .chat-bubble { max-width: 88%; }
-  .night-stage, .day-stage { grid-template-columns: 1fr; }
+  .night-stage, .day-stage, .cine-stage.phase-night, .cine-stage.phase-day { grid-template-columns: 1fr; }
   .roles-legend { flex-direction: row; flex-wrap: wrap; }
   .role-legend-card { flex: 1 1 140px; }
+  .vote-card { min-height: 130px; }
 }

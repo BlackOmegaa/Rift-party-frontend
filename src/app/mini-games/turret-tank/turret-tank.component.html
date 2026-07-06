@@ -1,129 +1,164 @@
 <div class="turret-game">
-@if (finished()) {
-	<section class="end-screen card">
-		<span class="eyebrow">Turret Challenge termine</span>
-		<h2>Victoire de {{ score() >= 6 ? "la science" : "la tour" }}</h2>
-		<div class="score-hero">
-			<strong><span data-count-up>{{ score() }}</span>/{{ maxRounds() }}</strong>
-			<span>bonnes estimations</span>
-		</div>
-		<span class="sub-stat">
-			Les joueurs qui respectent l'armor devant ceux qui disent "il tank 10 easy".
-		</span>
-		<div class="leaderboard">
-			@for (row of leaderboardRows(); track row.playerId; let i = $index) {
-				<div class="lb-row" [class.me]="row.playerId === room.myId()" [class.leader]="i === 0">
-					<b>{{ i + 1 }}</b>
-					<span>{{ row.pseudo }}</span>
-					<strong>{{ row.points === null ? "en cours..." : row.points + " pts" }}</strong>
-				</div>
-			}
-		</div>
-		@if (mix.active()) {
-			<div class="wait-pill">
-				{{ mix.progress()?.ready ?? 1 }}/{{
-					mix.progress()?.total ?? room.players().length
-				}}
-				joueurs prêts · le Mix reprend la main
+	@if (finished()) {
+		<section class="end-screen card">
+			<span class="eyebrow">Turret Challenge termine</span>
+			<h2>Victoire de {{ score() >= 6 ? "la science" : "la tour" }}</h2>
+			<div class="score-hero">
+				<strong><span data-count-up>{{ score() }}</span>/{{ maxRounds() }}</strong>
+				<span>bonnes estimations</span>
 			</div>
-		} @else if (room.isHost()) {
-			<div class="end-actions">
-				<button class="btn btn-gold" (click)="requestRestart()">
-					<span class="btn-icon"><app-icon name="replay" [size]="16" /></span><span>Rejouer</span>
-				</button>
-				<button
-					class="btn btn-ghost"
-					(click)="room.endGame('Turret Tank termine.')"
-				>
-					<span class="btn-icon"><app-icon name="back" [size]="16" /></span><span>Retour lobby</span>
-				</button>
-			</div>
-		} @else {
-			<p class="wait-pill">En attente que l'host relance la partie...</p>
-		}
-	</section>
-} @else {
-	<header>
-		<span class="eyebrow"
-			>Turret Tank Challenge • {{ index() + 1 }}/{{ maxRounds() }}</span
-		>
-		@if (!locked()) {
-			<small class="timer-pill" [class.low]="remainingSec() <= 5">{{ remainingSec() }}s</small>
-		}
-		<h2>Combien de coups de tour il tank ?</h2>
-		<p>
-			Une reponse par scenario. Une fois lock, impossible de changer en
-			regardant la solution.
-		</p>
-	</header>
-	<section class="arena card" [class.locked]="locked()">
-		<div
-			class="champ-panel"
-			[style.background-image]="
-				'linear-gradient(180deg, rgba(8,10,15,.28), rgba(8,10,15,.95)), url(' +
-				splash(scenario().champ) +
-				')'
-			"
-		>
-			<h3>{{ scenario().champ }}</h3>
-			<span>Niveau {{ scenario().level }}</span>
-		</div>
-		<div class="stats-panel">
-			<div class="stat">
-				<span>HP</span><strong>{{ scenario().hp }}</strong>
-			</div>
-			<div class="stat">
-				<span>Armor</span><strong>{{ scenario().armor }}</strong>
-			</div>
-			<div class="items">
-				@for (item of scenario().items; track item) {
-					<span><img [src]="itemUrl(item)" [alt]="item" />{{ item }}</span>
+			<span class="sub-stat">
+				Les joueurs qui respectent l'armor devant ceux qui disent "il tank 10 easy".
+			</span>
+			<div class="leaderboard">
+				@for (row of leaderboardRows(); track row.playerId; let i = $index) {
+					<div class="lb-row" [class.me]="row.playerId === room.myId()" [class.leader]="i === 0">
+						<b>{{ i + 1 }}</b>
+						<span>{{ row.pseudo }}</span>
+						<strong>{{ row.points === null ? "en cours..." : row.points + " pts" }}</strong>
+					</div>
 				}
 			</div>
-			<div class="choices">
-				@for (n of choices; track n) {
+			@if (mix.active()) {
+				<div class="wait-pill">
+					{{ mix.progress()?.ready ?? 1 }}/{{
+						mix.progress()?.total ?? room.players().length
+					}}
+					joueurs prêts · le Mix reprend la main
+				</div>
+			} @else if (room.isHost()) {
+				<div class="end-actions">
+					<button class="rift-btn rift-btn-next" (click)="requestRestart()">
+						<span class="btn-icon"><app-icon name="replay" [size]="16" /></span>
+						<span>Rejouer</span>
+					</button>
 					<button
-						class="choice"
-						[class.selected]="guess() === n"
-						[class.answer]="locked() && scenario().answer === n"
-						[disabled]="locked()"
-						(click)="guess.set(n)"
+						class="rift-btn rift-btn-ghost"
+						(click)="room.endGame('Turret Tank termine.')"
 					>
-						{{ n }}
+						<span class="btn-icon"><app-icon name="back" [size]="16" /></span>
+						<span>Retour lobby</span>
+					</button>
+				</div>
+			} @else {
+				<p class="wait-pill">En attente que l'host relance la partie...</p>
+			}
+		</section>
+	} @else {
+		<main
+			class="cine-stage"
+			[class.locked]="locked()"
+			[class.won]="verdict() === 'correct'"
+			[class.lost]="verdict() === 'wrong' || verdict() === 'timeout'"
+		>
+			<img
+				class="stage-splash"
+				draggable="false"
+				[src]="splash(scenario().champ)"
+				alt=""
+			/>
+			<div class="stage-vignette"></div>
+
+			<!-- HUD minimal : progression, timer, score -->
+			<header class="hud-top">
+				<div class="round-dots">
+					@for (dot of dots(); track $index) {
+						<span
+							[class.done]="$index < index()"
+							[class.active]="$index === index()"
+						></span>
+					}
+				</div>
+				<div class="timer-wrap" [class.low]="remainingSec() <= 5 && !locked()">
+					<div class="timer-bar" [style.width.%]="timerPct()"></div>
+					@if (!locked()) {
+						<span class="timer-num">{{ remainingSec() }}</span>
+					}
+				</div>
+				<div class="score-chip">
+					<strong>{{ score() }}</strong>
+					<small>pts</small>
+				</div>
+				@if (!mix.active() && room.isHost()) {
+					<button
+						class="hud-exit"
+						(click)="room.endGame('Turret Tank termine.')"
+						title="Retour lobby"
+					>
+						<app-icon name="back" [size]="15" />
+					</button>
+				}
+			</header>
+
+			<!-- L'énigme, plein centre -->
+			@if (!locked()) {
+				<div class="enigma">
+					<span class="stake">COMBIEN DE COUPS DE TOUR ?</span>
+					<h2>{{ scenario().champ }}</h2>
+					<span class="champ-level">Niveau {{ scenario().level }}</span>
+				</div>
+
+				<div class="stat-chips">
+					<span class="chip stat-hp">
+						<app-icon name="blood-drop" [size]="15" />
+						{{ scenario().hp }} HP
+					</span>
+					<span class="chip stat-armor">
+						<app-icon name="shield" [size]="15" />
+						{{ scenario().armor }} armure
+					</span>
+					@for (item of scenario().items; track item) {
+						<span class="chip stat-item">
+							<img [src]="itemUrl(item)" [alt]="item" />
+							{{ item }}
+						</span>
+					}
+				</div>
+			} @else {
+				<!-- Verdict cinématique -->
+				<div class="verdict" [class.win]="verdict() === 'correct'">
+					<span class="verdict-stamp">{{ verdict() === "correct" ? "✔" : "✗" }}</span>
+					<strong class="verdict-name">{{ scenario().answer }} coups</strong>
+					<span class="verdict-points">
+						@switch (verdict()) {
+							@case ("correct") { Estimation exacte }
+							@case ("timeout") { Temps écoulé }
+							@default { Raté }
+						}
+					</span>
+					<p class="verdict-note">{{ scenario().note }}</p>
+				</div>
+			}
+
+			<!-- Barre d'action flottante : QCM en grosses tuiles -->
+			<div class="action-bar" [class.result-mode]="locked()">
+				@if (!locked()) {
+					<div class="choices">
+						@for (n of choices; track n) {
+							<button
+								class="choice-tile"
+								[class.selected]="guess() === n"
+								(click)="selectGuess(n)"
+							>
+								{{ n }}
+							</button>
+						}
+					</div>
+					<button
+						class="rift-btn rift-btn-confirm"
+						(click)="validate()"
+						[disabled]="!guess()"
+					>
+						<span class="btn-icon"><app-icon name="check" [size]="16" /></span>
+						<span>Valider</span>
+					</button>
+				} @else {
+					<button class="rift-btn rift-btn-next next-auto" (click)="next()">
+						<span class="next-fill"></span>
+						<span>{{ roundNumber() >= maxRounds() ? "Terminer" : "Suivant" }}</span>
 					</button>
 				}
 			</div>
-			@if (!locked()) {
-				<button
-					class="btn btn-primary"
-					[disabled]="!guess()"
-					(click)="validate()"
-				>
-					<span class="btn-icon"><app-icon name="check" [size]="16" /></span><span>Valider</span>
-				</button>
-			} @else {
-				<button class="btn btn-gold next-inline" (click)="next()">
-					<span class="btn-icon">›</span><span>Scénario suivant</span>
-				</button>
-			}
-			@if (result(); as r) {
-				<p class="result" [class.win]="r.includes('Exact')">{{ r }}</p>
-			}
-		</div>
-		<div class="tower" [class.firing]="locked()">
-			<div class="tower-icon"><app-icon name="tower" [size]="34" /></div>
-			<span>Tour</span>
-		</div>
-	</section>
-	<footer>
-		@if (!mix.active() && room.isHost()) {
-			<button
-				class="btn btn-ghost"
-				(click)="room.endGame('Turret Tank termine.')"
-			>
-				<span class="btn-icon"><app-icon name="back" [size]="16" /></span><span>Retour lobby</span>
-			</button>
-		}
-	</footer>
-}
+		</main>
+	}
 </div>

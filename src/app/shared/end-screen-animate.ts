@@ -6,7 +6,10 @@ import { gsap } from "gsap";
  * sur le score final (element marque `[data-count-up]`), plutot qu'un simple
  * `@if` statique.
  */
-export function animateEndScreen(root: HTMLElement | null): void {
+export function animateEndScreen(
+	root: HTMLElement | null,
+	options?: { onCountTick?: (value: number) => void },
+): void {
 	if (!root) return;
 	requestAnimationFrame(() => {
 		const rows = root.querySelectorAll<HTMLElement>(".lb-row");
@@ -20,13 +23,18 @@ export function animateEndScreen(root: HTMLElement | null): void {
 			const target = Number(el.textContent?.trim() ?? 0);
 			if (!Number.isFinite(target)) return;
 			const obj = { val: 0 };
+			let lastShown = -1;
 			gsap.killTweensOf(obj);
 			gsap.to(obj, {
 				val: target,
 				duration: 0.7,
 				ease: "power2.out",
 				onUpdate: () => {
-					el.textContent = String(Math.round(obj.val));
+					const shown = Math.round(obj.val);
+					if (shown === lastShown) return;
+					lastShown = shown;
+					el.textContent = String(shown);
+					options?.onCountTick?.(shown);
 				},
 			});
 		});
