@@ -1,0 +1,1 @@
+import{Ta as o,n as r,r as e}from"./chunk-ZSDVN6LQ.js";var a="https://rift-party-backend-production.up.railway.app",l=(()=>{class t{http=e(o);list(){return this.http.get(`${a}/games`)}static \u0275fac=function(i){return new(i||t)};static \u0275prov=r({token:t,factory:t.\u0275fac,providedIn:"root"})}return t})();export{l as a};

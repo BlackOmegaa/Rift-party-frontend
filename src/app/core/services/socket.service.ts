@@ -1,6 +1,7 @@
 import { Injectable } from "@angular/core";
 import { io, Socket } from "socket.io-client";
 import { getOrCreateAnonId } from "./anon-id";
+import { getAcquisitionSource } from "./acquisition";
 
 //export const BACKEND_URL = "http://localhost:3050";
 export const BACKEND_URL = "https://rift-party-backend-production.up.railway.app";
@@ -15,7 +16,7 @@ export class SocketService {
 	private socket: Socket = io(BACKEND_URL, {
 		autoConnect: true,
 		transports: ["websocket"],
-		query: { anonId: getOrCreateAnonId() },
+		query: { anonId: getOrCreateAnonId(), source: getAcquisitionSource() ?? "" },
 	});
 
 	get id(): string | undefined {

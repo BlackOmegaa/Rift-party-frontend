@@ -1,10 +1,10 @@
 .dashboard {
-	max-width: 1100px;
+	max-width: 1280px;
 	margin: 0 auto;
-	padding: 2rem 1.4rem 3rem;
+	padding: 2rem 1.4rem 4rem;
 	display: flex;
 	flex-direction: column;
-	gap: 1.4rem;
+	gap: 1.6rem;
 }
 header {
 	display: flex;
@@ -42,16 +42,108 @@ header p {
 	color: var(--danger);
 }
 
+/* ===== Selecteur de periode ===== */
+.period-bar {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.8rem;
+}
+.period-tabs {
+	display: inline-flex;
+	gap: 0.3rem;
+	padding: 0.3rem;
+	border-radius: 14px;
+	border: 1px solid var(--border-subtle);
+	background: rgba(1, 10, 19, 0.5);
+}
+.period-tab {
+	appearance: none;
+	border: none;
+	background: transparent;
+	color: var(--text-secondary);
+	font-weight: 800;
+	font-size: 0.78rem;
+	padding: 0.5rem 0.85rem;
+	border-radius: 10px;
+	cursor: pointer;
+	transition: 0.18s;
+}
+.period-tab:hover {
+	color: var(--gold-bright);
+}
+.period-tab.active {
+	background: linear-gradient(180deg, var(--gold), var(--gold-dim));
+	color: #120d05;
+}
+.period-custom {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+}
+.period-custom input[type="date"] {
+	background: rgba(1, 10, 19, 0.6);
+	border: 1px solid var(--border-subtle);
+	border-radius: 10px;
+	color: var(--text-primary);
+	padding: 0.45rem 0.6rem;
+	font: inherit;
+}
+.btn-sm {
+	min-height: auto;
+	padding: 0.5rem 0.9rem;
+	font-size: 0.78rem;
+}
+
+/* ===== Sections ===== */
+.section {
+	display: flex;
+	flex-direction: column;
+	gap: 0.8rem;
+}
+.section-title {
+	color: var(--gold-bright);
+	font-size: 1.05rem;
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+	font-weight: 900;
+}
+.hint-inline {
+	font-size: 0.75rem;
+	color: var(--text-muted);
+	font-weight: 400;
+	text-transform: none;
+	letter-spacing: 0;
+}
+
 .grid {
 	display: grid;
-	grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
 	gap: 1rem;
 }
+.hero-grid {
+	grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+}
+.retention-grid {
+	grid-template-columns: repeat(3, minmax(160px, 1fr));
+}
+@media (max-width: 640px) {
+	.retention-grid {
+		grid-template-columns: 1fr;
+	}
+}
+
 .metric {
 	padding: 1.2rem;
 	display: flex;
 	flex-direction: column;
 	gap: 0.3rem;
+}
+.metric.muted {
+	opacity: 0.55;
+}
+.metric.retention {
+	align-items: center;
+	text-align: center;
 }
 .metric .label {
 	font-size: 0.72rem;
@@ -60,27 +152,124 @@ header p {
 	color: var(--text-muted);
 }
 .metric strong {
-	font-size: 1.8rem;
+	font-size: 1.9rem;
 	color: var(--gold-bright);
 }
 .metric .sub {
 	font-size: 0.75rem;
 	color: var(--text-secondary);
 }
-
-.table-card {
-	padding: 1.4rem;
-	overflow-x: auto;
+.metric .delta {
+	font-size: 0.75rem;
+	font-weight: 800;
 }
-.table-card h2 {
-	color: var(--gold-bright);
-	font-size: 1.1rem;
-	margin-bottom: 0.8rem;
+.metric .delta.up {
+	color: var(--success);
 }
-.hint-inline {
-	font-size: 0.78rem;
+.metric .delta.down {
+	color: var(--danger);
+}
+.metric .delta.flat {
 	color: var(--text-muted);
-	font-weight: 400;
+}
+
+/* ===== Cartes de contenu (charts, tableaux) ===== */
+.two-col {
+	display: grid;
+	grid-template-columns: 1.4fr 1fr;
+	gap: 1rem;
+	align-items: start;
+}
+@media (max-width: 860px) {
+	.two-col {
+		grid-template-columns: 1fr;
+	}
+}
+.card {
+	padding: 1.3rem;
+}
+.card h3 {
+	color: var(--gold-bright);
+	font-size: 0.95rem;
+	margin-bottom: 0.9rem;
+	text-transform: uppercase;
+	letter-spacing: 0.03em;
+}
+.card-head {
+	display: flex;
+	justify-content: space-between;
+	align-items: baseline;
+	gap: 0.6rem;
+	margin-bottom: 0.9rem;
+}
+.card-head h3 {
+	margin-bottom: 0;
+}
+
+.stat-row {
+	display: flex;
+	gap: 1.6rem;
+	margin-bottom: 1rem;
+	flex-wrap: wrap;
+}
+.stat-row > div {
+	display: flex;
+	flex-direction: column;
+	gap: 0.15rem;
+}
+.stat-row strong {
+	font-size: 1.5rem;
+	color: var(--gold-bright);
+}
+.stat-row span {
+	font-size: 0.72rem;
+	color: var(--text-muted);
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+
+/* ===== Funnel de conversion ===== */
+.funnel {
+	display: flex;
+	align-items: center;
+	gap: 0.9rem;
+	flex-wrap: wrap;
+	padding: 1.3rem;
+	border-radius: 22px;
+	border: 1px solid var(--border-subtle);
+	background: rgba(1, 10, 19, 0.5);
+}
+.funnel-step {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.2rem;
+	padding: 0.8rem 1.1rem;
+	border-radius: 16px;
+	background: rgba(200, 170, 110, 0.06);
+	border: 1px solid rgba(200, 170, 110, 0.18);
+	min-width: 120px;
+}
+.funnel-step strong {
+	font-size: 1.5rem;
+	color: var(--gold-bright);
+}
+.funnel-step span {
+	font-size: 0.72rem;
+	color: var(--text-muted);
+	text-transform: uppercase;
+	letter-spacing: 0.03em;
+}
+.funnel-arrow {
+	color: var(--teal);
+	font-weight: 900;
+	font-size: 0.85rem;
+	white-space: nowrap;
+}
+
+/* ===== Tableau modes de jeu ===== */
+.table-card {
+	overflow-x: auto;
 }
 table {
 	width: 100%;

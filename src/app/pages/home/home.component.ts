@@ -22,6 +22,8 @@ export class HomeComponent {
 	mode = signal<Mode>("create");
 	pseudo = "";
 	code = "";
+	/** Code exact pre-rempli depuis un lien ?join=CODE, pour detecter si le joueur l'a modifie a la main avant de soumettre (auquel cas ce n'est plus une arrivee par invitation). Voir RoomService.joinRoom. */
+	private readonly prefilledInviteCode: string | null = null;
 
 	constructor(
 		protected readonly roomService: RoomService,
@@ -39,6 +41,7 @@ export class HomeComponent {
 		if (joinCode) {
 			this.mode.set("join");
 			this.code = joinCode.toUpperCase();
+			this.prefilledInviteCode = this.code;
 		}
 	}
 
@@ -52,7 +55,8 @@ export class HomeComponent {
 		if (this.mode() === "create") {
 			this.roomService.createRoom(this.pseudo.trim());
 		} else {
-			this.roomService.joinRoom(this.code.trim(), this.pseudo.trim());
+			const viaInvite = !!this.prefilledInviteCode && this.code.trim().toUpperCase() === this.prefilledInviteCode;
+			this.roomService.joinRoom(this.code.trim(), this.pseudo.trim(), viaInvite);
 		}
 	}
 }

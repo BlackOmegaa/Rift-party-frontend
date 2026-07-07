@@ -376,7 +376,7 @@ export class RoomComponent implements OnDestroy {
   togglePremium(event: Event) { const checked = (event.target as HTMLInputElement).checked; localStorage.setItem('rift-party-premium-dev', String(checked)); this.premiumUnlocked.set(checked); }
   copyCode(code: string): void { navigator.clipboard?.writeText(code).catch(() => undefined); this.copiedCode.set(true); window.setTimeout(() => this.copiedCode.set(false), 1200); }
   /** Lien d'invitation direct : la home lit ?join=CODE et pre-remplit l'onglet Rejoindre. */
-  copyInviteLink(code: string): void { navigator.clipboard?.writeText(`${window.location.origin}/?join=${code}`).catch(() => undefined); this.copiedInvite.set(true); window.setTimeout(() => this.copiedInvite.set(false), 1200); }
+  copyInviteLink(code: string): void { navigator.clipboard?.writeText(`${window.location.origin}/?join=${code}`).catch(() => undefined); this.copiedInvite.set(true); this.room.notifyInviteGenerated(); window.setTimeout(() => this.copiedInvite.set(false), 1200); }
   leave(): void { this.room.leaveRoom(); this.router.navigate(['/']); }
 }
 

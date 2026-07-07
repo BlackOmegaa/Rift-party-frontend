@@ -90,10 +90,15 @@ export class RoomService {
 		this.socket.emit(ROOM_EVENTS.CREATE, { pseudo });
 	}
 
-	joinRoom(code: string, pseudo: string): void {
+	joinRoom(code: string, pseudo: string, viaInvite = false): void {
 		this._error.set(null);
 		this.pendingPseudo = pseudo;
-		this.socket.emit(ROOM_EVENTS.JOIN, { code, pseudo });
+		this.socket.emit(ROOM_EVENTS.JOIN, { code, pseudo, viaInvite });
+	}
+
+	/** A appeler quand le joueur copie le lien d'invitation (voir room.component.ts copyInviteLink), pour la stat de viralite. */
+	notifyInviteGenerated(): void {
+		this.socket.emit("room:invite-generated");
 	}
 
 	leaveRoom(): void {
