@@ -42,10 +42,13 @@ export class RoomService {
 	private hasReceivedFirstState = false;
 	/** Pseudo utilise pour le create/join en cours, pour pouvoir sauvegarder la session {code, pseudo} des reception du premier STATE (voir tryRejoin, appele au reload par RoomComponent). */
 	private pendingPseudo: string | null = null;
+	private errorAutoClearTimer: ReturnType<typeof setTimeout> | null = null;
 
 	readonly room = this._room.asReadonly();
 	readonly error = this._error.asReadonly();
 	readonly lastGameStarted = this._lastGameStarted.asReadonly();
+	/** True si le transport socket est tombe alors qu'on etait dans une room : la reco est automatique (socket.io), mais le joueur a besoin d'un feedback le temps qu'on rejoigne. */
+	readonly reconnecting = computed(() => !this.socket.connected() && !!this._room());
 	/**
 	 * True si on a rejoint la room alors qu'une manche tournait deja : le
 	 * mini-jeu en cours n'a jamais recu notre etat initial (pool de
@@ -75,12 +78,34 @@ export class RoomService {
 				localStorage.setItem(SESSION_KEY, JSON.stringify({ code: room.code, pseudo: this.pendingPseudo }));
 			}
 		});
-		this.socket.on<{ message: string }>(ROOM_EVENTS.ERROR, (payload) =>
-			this._error.set(payload.message),
-		);
+		this.socket.on<{ message: string }>(ROOM_EVENTS.ERROR, (payload) => {
+			this._error.set(payload.message);
+			// Auto-dismiss : evite un message d'erreur (ex: "Room introuvable")
+			// qui reste affiche indefiniment si le joueur ne retente pas tout de suite.
+			if (this.errorAutoClearTimer) clearTimeout(this.errorAutoClearTimer);
+			this.errorAutoClearTimer = setTimeout(() => this._error.set(null), 6000);
+		});
 		this.socket.on<{ gameId: string }>(ROOM_EVENTS.GAME_STARTED, (payload) => {
 			this._lastGameStarted.set(payload.gameId);
 			this._joinedMidGame.set(false);
+		});
+		// Reco transport (wifi coupe puis revenu) : socket.io reconnecte tout seul
+		// mais cote serveur c'est une toute nouvelle connexion (nouveau socket.id),
+		// on a donc ete silencieusement retire de la room. On retente un JOIN avec
+		// la session sauvegardee plutot que de laisser le joueur bloque.
+		this.socket.on("connect", () => {
+			const room = this._room();
+			if (!room) return;
+			const raw = localStorage.getItem(SESSION_KEY);
+			if (!raw) return;
+			try {
+				const session = JSON.parse(raw) as { code: string; pseudo: string };
+				if (session.code?.toUpperCase() === room.code.toUpperCase()) {
+					this.joinRoom(room.code, session.pseudo);
+				}
+			} catch {
+				/* session corrompue, on abandonne la reco silencieusement */
+			}
 		});
 	}
 

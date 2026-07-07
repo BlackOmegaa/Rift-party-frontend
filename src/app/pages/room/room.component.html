@@ -22,6 +22,9 @@
     </div>
   }
   <app-sound-toggle />
+  @if (room.reconnecting()) {
+    <div class="reconnect-banner" role="status">Connexion perdue, reconnexion en cours...</div>
+  }
   <div class="layout" [class.cinematic]="cinematicMode(currentRoom)">
     <aside class="sidebar">
       <div class="room-code card">

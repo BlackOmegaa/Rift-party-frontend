@@ -31,6 +31,7 @@
 				[(ngModel)]="pseudo"
 				maxlength="24"
 				placeholder="Ton pseudo"
+				(input)="roomService.clearError()"
 			/>
 		</div>
 
@@ -42,7 +43,7 @@
 					[(ngModel)]="code"
 					maxlength="8"
 					placeholder="F4K2P"
-					(input)="code = code.toUpperCase()"
+					(input)="code = code.toUpperCase(); roomService.clearError()"
 				/>
 			</div>
 		}

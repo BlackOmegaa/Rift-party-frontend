@@ -1,4 +1,4 @@
-import { Injectable } from "@angular/core";
+import { Injectable, signal } from "@angular/core";
 import { io, Socket } from "socket.io-client";
 import { environment } from "../../../environments/environment";
 import { getOrCreateAnonId } from "./anon-id";
@@ -18,8 +18,24 @@ export class SocketService {
 	private socket: Socket = io(BACKEND_URL, {
 		autoConnect: true,
 		transports: ["websocket"],
+		// Explicite plutot que de compter sur les defauts socket.io-client : une
+		// coupure reseau (wifi, veille telephone...) doit reconnecter tout seul,
+		// avec un backoff qui ne spamme pas le serveur.
+		reconnection: true,
+		reconnectionAttempts: Infinity,
+		reconnectionDelay: 1000,
+		reconnectionDelayMax: 5000,
 		query: { anonId: getOrCreateAnonId(), source: getAcquisitionSource() ?? "" },
 	});
+
+	/** Reflete l'etat de transport reel du socket, pour un feedback UI (bandeau "reconnexion..."). */
+	private readonly _connected = signal(this.socket.connected);
+	readonly connected = this._connected.asReadonly();
+
+	constructor() {
+		this.socket.on("connect", () => this._connected.set(true));
+		this.socket.on("disconnect", () => this._connected.set(false));
+	}
 
 	get id(): string | undefined {
 		return this.socket.id;
