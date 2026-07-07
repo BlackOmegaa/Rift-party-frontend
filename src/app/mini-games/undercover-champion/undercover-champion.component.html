@@ -110,19 +110,37 @@
 				</div>
 			}
 
-			<!-- Feed compact des mots deja dits, relegue en bas -->
+			<!-- Feed compact des mots deja dits, relegue en bas — tour 1 et tour 2
+			     dans deux groupes bien distincts (libelle + rangee separee), plutot
+			     que des puces melangees ou seul un pointille discret les distinguait. -->
 			<div class="word-feed-strip">
-				@for (entry of wordsRound1(); track entry.playerId) {
-					<span class="feed-chip" [class.me]="entry.playerId === room.myId()">
-						<b [class.supporter-name]="isSupporterPlayer(entry.playerId)">{{ entry.pseudo }}</b>
-						{{ entry.timedOut ? "⏱" : entry.word }}
-					</span>
+				@if (wordsRound1().length) {
+					<div class="feed-round-group">
+						<span class="feed-round-label">Tour 1</span>
+						<div class="feed-round-chips">
+							@for (entry of wordsRound1(); track entry.playerId) {
+								<span class="feed-chip" [class.me]="entry.playerId === room.myId()">
+									<b [class.supporter-name]="isSupporterPlayer(entry.playerId)">{{ entry.pseudo }}</b
+									><span class="feed-sep">:</span>
+									{{ entry.timedOut ? "⏱" : entry.word }}
+								</span>
+							}
+						</div>
+					</div>
 				}
-				@for (entry of wordsRound2(); track entry.playerId) {
-					<span class="feed-chip round2" [class.me]="entry.playerId === room.myId()">
-						<b [class.supporter-name]="isSupporterPlayer(entry.playerId)">{{ entry.pseudo }}</b>
-						{{ entry.timedOut ? "⏱" : entry.word }}
-					</span>
+				@if (wordsRound2().length) {
+					<div class="feed-round-group round2">
+						<span class="feed-round-label">Tour 2</span>
+						<div class="feed-round-chips">
+							@for (entry of wordsRound2(); track entry.playerId) {
+								<span class="feed-chip round2" [class.me]="entry.playerId === room.myId()">
+									<b [class.supporter-name]="isSupporterPlayer(entry.playerId)">{{ entry.pseudo }}</b
+									><span class="feed-sep">:</span>
+									{{ entry.timedOut ? "⏱" : entry.word }}
+								</span>
+							}
+						</div>
+					</div>
 				}
 			</div>
 		</main>

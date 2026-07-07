@@ -305,12 +305,44 @@
 	position: relative;
 	z-index: 2;
 	display: flex;
+	flex-direction: column;
+	gap: 0.45rem;
+	width: min(760px, 94%);
+	max-height: 160px;
+	overflow-y: auto;
+}
+/* Un groupe = un tour entier : libelle "Tour 1"/"Tour 2" + ses puces, pour que
+   la coupure entre les deux tours soit visible d'un coup d'oeil plutot que
+   simple pointille discret sur des puces melangees. */
+.feed-round-group {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	padding: 0.35rem 0.5rem;
+	border-radius: 14px;
+	background: rgba(108, 92, 231, 0.05);
+}
+.feed-round-group.round2 {
+	background: rgba(255, 255, 255, 0.03);
+	border-top: 1px dashed rgba(255, 255, 255, 0.12);
+}
+.feed-round-label {
+	flex: 0 0 auto;
+	font-size: 0.68rem;
+	font-weight: 800;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	color: var(--text-muted);
+	padding: 0.2rem 0.55rem;
+	border-radius: 999px;
+	border: 1px solid rgba(108, 92, 231, 0.3);
+}
+.feed-round-chips {
+	display: flex;
 	flex-wrap: wrap;
 	justify-content: center;
 	gap: 0.5rem;
-	max-width: min(760px, 94%);
-	max-height: 92px;
-	overflow-y: auto;
 }
 .feed-chip {
 	padding: 0.4rem 0.8rem;
@@ -324,6 +356,10 @@
 }
 .feed-chip b {
 	color: #a29bfe;
+	margin-right: 0.15rem;
+}
+.feed-sep {
+	color: var(--text-muted);
 	margin-right: 0.3rem;
 }
 /* Skin Supporter : pseudo dore, reutilise sur feed/votes/spotlight (voir isSupporterPlayer). */

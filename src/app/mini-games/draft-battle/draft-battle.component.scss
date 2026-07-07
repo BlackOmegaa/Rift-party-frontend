@@ -2087,12 +2087,14 @@
 .pick-card:hover .card-shine {
 	transform: translateX(55%) rotate(10deg);
 }
-.pick-card:hover .portrait {
-	transform: scale(1.06);
-}
-.portrait {
-	transition: transform 0.55s ease;
-}
+// Le zoom du portrait au survol est desormais pilote par GSAP (onPickCardMove/
+// onPickCardLeave, draft-battle.component.ts) plutot que par ce `:hover` CSS :
+// `.pick-card` est en `transform-style: preserve-3d` et incline par GSAP
+// (rotateX/rotateY) pendant le tilt — un `transform: scale()` CSS independant
+// sur l'enfant `.portrait`, avec sa propre transition, se recalculait dans ce
+// plan 3D deja incline sans etre synchronise avec le tilt : resultat, un zoom
+// non uniforme (etirement) au lieu d'un simple agrandissement. Un seul moteur
+// (GSAP) pilote maintenant transform sur toute la hierarchie de la carte.
 .pick-card:hover .portrait img {
 	animation: icon-bounce 0.55s ease;
 }

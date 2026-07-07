@@ -2798,10 +2798,8 @@ export class TiktokRankingComponent implements OnDestroy {
 		const unique = this.slots.filter((slot) =>
 			this.isUniquePlacement(row, slot),
 		);
-		const community = this.fakeCommunityTop();
 		const cards = [
 			`${row.pseudo} met ${top} Top 1. ${this.percentFor(1, top)}% du lobby valide cette couronne.`,
-			`Communauté fictive : ${community} garde la couronne avec ${this.fakeCommunityPercent()}%.`,
 			mine && mine.playerId !== row.playerId
 				? `${exact}/10 placements identiques avec toi. ${exact >= 6 ? "Même cerveau, inquiétant." : exact <= 2 ? "Vous ne jouez pas au même jeu." : "Désaccord raisonnable."}`
 				: `C’est ta tier list. Assume devant le tribunal.`,
@@ -2811,21 +2809,6 @@ export class TiktokRankingComponent implements OnDestroy {
 			`${bottom} finit Top 10 chez ${row.pseudo}. C’est personnel à ce niveau.`,
 		];
 		return cards;
-	}
-	fakeCommunityTop(): string {
-		return (
-			this.round().options[
-				Math.abs(this.hash(this.round().question)) % this.round().options.length
-			] ?? this.round().options[0]
-		);
-	}
-	fakeCommunityPercent(): number {
-		return 56 + (Math.abs(this.hash(this.round().question + "x")) % 31);
-	}
-	private hash(value: string): number {
-		return value
-			.split("")
-			.reduce((acc, char) => ((acc << 5) - acc + char.charCodeAt(0)) | 0, 0);
 	}
 	scoreLabel(): string {
 		return this.mix.active() ? "Mix en cours" : "Question terminée";

@@ -1207,30 +1207,62 @@ export class DraftBattleComponent implements OnDestroy {
 		});
 	}
 
+	/**
+	 * Setters quickTo par carte, reutilises a chaque mousemove au lieu de creer
+	 * un nouveau gsap.to() a chaque frame. Avant, un mousemove rapide (enchainement
+	 * de survols) empilait des dizaines de tweens independants sur rotateX/rotateY,
+	 * chacun avec sa propre duree/ease ; "overwrite: auto" ne les tuait qu'au tick
+	 * suivant, ce qui laissait des etats intermediaires se chevaucher et donnait
+	 * l'impression que la carte "s'etirait". quickTo garantit un seul tween par
+	 * propriete et par carte, juste retargete a chaque appel.
+	 *
+	 * On ne tween plus `transformPerspective` ici : `.cards-stage` (le parent)
+	 * pose deja `perspective: 1000px` en CSS — en avoir un deuxieme, anime,
+	 * directement sur la carte faisait cohabiter deux perspectives differentes
+	 * dans la meme hierarchie 3D (preserve-3d), ce qui deformait le rendu du
+	 * `.portrait` (zoom hover CSS) de facon non uniforme (etirement) des que
+	 * l'angle de tilt devenait important.
+	 */
+	private readonly cardTilters = new WeakMap<
+		HTMLElement,
+		{ x: (v: number) => void; y: (v: number) => void; scale: (v: number) => void }
+	>();
+
+	private tilterFor(card: HTMLElement) {
+		let tilter = this.cardTilters.get(card);
+		if (!tilter) {
+			const portrait = card.querySelector<HTMLElement>(".portrait");
+			tilter = {
+				x: gsap.quickTo(card, "rotateX", { duration: 0.4, ease: "power2.out" }),
+				y: gsap.quickTo(card, "rotateY", { duration: 0.4, ease: "power2.out" }),
+				scale: portrait
+					? gsap.quickTo(portrait, "scale", { duration: 0.4, ease: "power2.out" })
+					: () => {},
+			};
+			this.cardTilters.set(card, tilter);
+		}
+		return tilter;
+	}
+
 	/** Tilt de la carte suivant la position du curseur (effet "carte a collectionner"). */
 	onPickCardMove(event: MouseEvent): void {
+		if (this.confirmingStep()) return;
 		const card = event.currentTarget as HTMLElement;
 		const rect = card.getBoundingClientRect();
 		const px = (event.clientX - rect.left) / rect.width - 0.5;
 		const py = (event.clientY - rect.top) / rect.height - 0.5;
-		gsap.to(card, {
-			rotateY: px * 14,
-			rotateX: -py * 14,
-			transformPerspective: 800,
-			duration: 0.4,
-			ease: "power2.out",
-			overwrite: "auto",
-		});
+		const tilter = this.tilterFor(card);
+		tilter.x(-py * 14);
+		tilter.y(px * 14);
+		tilter.scale(1.06);
 	}
 
 	onPickCardLeave(event: MouseEvent): void {
-		gsap.to(event.currentTarget as HTMLElement, {
-			rotateY: 0,
-			rotateX: 0,
-			duration: 0.5,
-			ease: "elastic.out(1, 0.6)",
-			overwrite: "auto",
-		});
+		const card = event.currentTarget as HTMLElement;
+		const tilter = this.tilterFor(card);
+		tilter.x(0);
+		tilter.y(0);
+		tilter.scale(1);
 	}
 
 	/** Petit pulse de confirmation avant de passer au role/etape suivant. */

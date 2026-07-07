@@ -410,7 +410,6 @@ export class RoomComponent implements OnDestroy {
   }
   tiktokCards(currentRoom: Room): string[] { return this.lastRound(currentRoom)?.details?.cards ?? []; }
   tiktokTop(currentRoom: Room, slot: number): string { return this.lastRound(currentRoom)?.details?.lobbyTop?.find((entry: any) => entry.slot === slot)?.champion ?? 'Yasuo'; }
-  tiktokCommunityTop(currentRoom: Room): string { return this.lastRound(currentRoom)?.details?.cards?.find((line: string) => line.includes('Communaute'))?.split(': ')[1]?.split(' garde')[0] ?? 'Yasuo'; }
   finalPlayerTag(currentRoom: Room, playerId: string, index: number): string {
     if (index === 0) return 'Top 1 du lobby, ego validé.';
     const bestRound = currentRoom.roundHistory.reduce((best, round) => Math.max(best, round.scores[playerId] ?? 0), 0);

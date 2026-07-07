@@ -136,11 +136,6 @@
                   <strong>{{ tiktokTop(currentRoom, 1) }}</strong>
                   <small>{{ tiktokTop(currentRoom, 2) }} puis {{ tiktokTop(currentRoom, 3) }}</small>
                 </article>
-                <article>
-                  <span>Top communauté</span>
-                  <strong>{{ tiktokCommunityTop(currentRoom) }}</strong>
-                  <small>Stats globales simulées pour le MVP</small>
-                </article>
               </div>
               <div class="take-cards">
                 @for (card of tiktokCards(currentRoom); track card; let i = $index) {
@@ -174,9 +169,20 @@
             }
           </div>
 
-          <div class="mix-bars big">
+          <!-- Etapes du Mix avec numero + nom du jeu visibles en permanence (avant,
+               un simple pointille sans texte, illisible sur mobile ou le survol
+               n'existe pas). -->
+          <div class="mix-stepper">
             @for (gameId of currentRoom.activeMix?.playlist ?? []; track $index; let i = $index) {
-              <span [class.done]="i < (currentRoom.activeMix?.cursor ?? 0)" [class.active]="i === (currentRoom.activeMix?.cursor ?? 0)" [style.--accent]="accentFor(gameId)" [title]="labelFor(gameId)"></span>
+              <div
+                class="mix-step"
+                [class.done]="i < (currentRoom.activeMix?.cursor ?? 0)"
+                [class.active]="i === (currentRoom.activeMix?.cursor ?? 0)"
+                [style.--accent]="accentFor(gameId)"
+              >
+                <span class="mix-step-num">{{ i + 1 }}</span>
+                <span class="mix-step-label">{{ labelFor(gameId) }}</span>
+              </div>
             }
           </div>
           @if (!playerAuth.profile()?.isSubscriber) {
