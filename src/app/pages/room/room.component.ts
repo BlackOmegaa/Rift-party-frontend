@@ -334,7 +334,7 @@ export class RoomComponent implements OnDestroy {
     const lastRound = currentRoom.roundHistory[currentRoom.roundHistory.length - 1];
     if (lastRound) {
       const zeros = Object.entries(lastRound.scores).filter(([, score]) => score <= 0);
-      if (zeros.length) return `${this.nameOf(zeros[0][0])} fait son downfall, mais la remontada reste mathematiquement possible.`;
+      if (zeros.length) return `${this.nameOf(zeros[0][0])} s'effondre completement, mais la remontada reste mathematiquement possible.`;
       const winner = Object.entries(lastRound.scores).sort((a, b) => b[1] - a[1])[0];
       if (winner) return `${this.nameOf(winner[0])} vient de prendre +${winner[1]}, le lobby est sous pression.`;
     }
@@ -349,7 +349,7 @@ export class RoomComponent implements OnDestroy {
   winnerName(): string { return this.room.sortedByScore()[0]?.pseudo ?? 'Personne'; }
   cursedPlayer(): string { const players = this.room.sortedByScore(); return players[players.length - 1]?.pseudo ?? 'Benson'; }
   communityBrain(): string { return this.room.sortedByScore()[1]?.pseudo ?? this.winnerName(); }
-  worstTake(currentRoom: Room): string { return currentRoom.roundHistory.find((r) => r.summary.includes('downfall'))?.summary ?? 'Aucune take assez maudite, suspicious.'; }
+  worstTake(currentRoom: Room): string { return currentRoom.roundHistory.find((r) => r.summary.includes('effondrement'))?.summary ?? 'Score le plus bas de la partie.'; }
 
 
   /** Podium (top 3, ordre visuel 2-1-3 pour le rendu en marches) et le reste du classement, pour le Rift Report final. */

@@ -237,15 +237,15 @@
           <div class="awards">
             <article>
               <app-icon name="crown" [size]="20" />
-              <span>MVP</span><strong>{{ winnerName() }}</strong><small>{{ room.sortedByScore()[0]?.score ?? 0 }} pts</small>
+              <span>Meilleur joueur</span><strong>{{ winnerName() }}</strong><small>{{ room.sortedByScore()[0]?.score ?? 0 }} pts</small>
             </article>
             <article>
               <app-icon name="skull" [size]="20" />
-              <span>Worst Take</span><strong>{{ cursedPlayer() }}</strong><small>{{ worstTake(currentRoom) }}</small>
+              <span>Dernière place</span><strong>{{ cursedPlayer() }}</strong><small>{{ worstTake(currentRoom) }}</small>
             </article>
             <article>
               <app-icon name="sparkle" [size]="20" />
-              <span>Community Brain</span><strong>{{ communityBrain() }}</strong><small>Le plus régulier du lobby.</small>
+              <span>Deuxième place</span><strong>{{ communityBrain() }}</strong><small>Juste derrière le vainqueur.</small>
             </article>
           </div>
           <div class="recap-list">
