@@ -329,6 +329,18 @@
 				</div>
 			</section>
 		}
+	} @else if (currentEvent() && !simpleEventRevealDone() && !submitted() && !draft.results()) {
+		<!-- Mode simple (< 4 joueurs, pas de bracket) : annonce cinematique de
+		     l'event special avant d'entrer dans le pick, meme esprit que la
+		     banniere du tournoi mais sans decompte VS (pas de duel 1v1 ici). -->
+		<section class="simple-event-stage">
+			<div class="event-reveal" [class]="'event-' + currentEvent()">
+				<span class="event-reveal-tag">Événement spécial</span>
+				<strong>{{ eventLabel(currentEvent()!) }}</strong>
+				<span class="event-reveal-desc">{{ eventDescription(currentEvent()!) }}</span>
+			</div>
+			<button class="btn btn-primary" (click)="dismissSimpleEventReveal()">Commencer le draft</button>
+		</section>
 	} @else {
 		@if (draft.results(); as results) {
 			@if (!showFinalResults() && duelPlayerA() && duelPlayerB()) {
@@ -389,13 +401,13 @@
 				}
 				<div class="ready-progress">
 					<div class="ready-bar">
-						<span [style.width.%]="(draft.readyPlayerIds().size / room.players().length) * 100"></span>
+						<span [style.width.%]="(readyCount() / room.players().length) * 100"></span>
 					</div>
-					<p>{{ draft.readyPlayerIds().size }}/{{ room.players().length }} joueurs prets</p>
+					<p>{{ readyCount() }}/{{ room.players().length }} joueurs prets</p>
 				</div>
 				<div class="ready-avatars">
 					@for (p of room.players(); track p.id) {
-						<span class="ready-avatar" [class.done]="draft.readyPlayerIds().has(p.id)" [title]="p.pseudo">
+						<span class="ready-avatar" [class.done]="isPlayerReady(p.id)" [title]="p.pseudo">
 							{{ initialsOfPlayer(p.id) }}
 						</span>
 					}

@@ -1237,6 +1237,28 @@
 	color: var(--teal);
 	text-shadow: 0 0 18px rgba(10, 200, 185, 0.4);
 }
+
+/* ===== Annonce d'event en mode simple (< 4 joueurs, pas de bracket) : pas de popup VS existante, ecran plein a soi tout seul avant le pick. ===== */
+.simple-event-stage {
+	position: fixed;
+	inset: 0;
+	z-index: 50;
+	display: grid;
+	place-items: center;
+	gap: 1.6rem;
+	padding: 2rem;
+	background:
+		radial-gradient(circle at 50% 15%, rgba(200, 170, 110, 0.16), transparent 42%),
+		rgba(1, 8, 16, 0.92);
+	backdrop-filter: blur(6px);
+}
+.simple-event-stage .event-reveal {
+	width: min(520px, 100%);
+	padding: 1.4rem 1.8rem;
+}
+.simple-event-stage .event-reveal strong {
+	font-size: 1.7rem;
+}
 @keyframes event-reveal-sheen {
 	to {
 		transform: translateX(120%);

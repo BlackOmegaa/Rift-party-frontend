@@ -606,6 +606,30 @@ export class DraftBattleComponent implements OnDestroy {
 		});
 	}
 
+	/** Entree cinematique de l'annonce d'event en mode simple (voir simpleEventRevealDone). Meme punch+flash que la banniere d'event du tournoi (animateVsReveal), sans le decompte VS qui n'a pas de sens hors duel 1v1. */
+	private animateSimpleEventReveal(): void {
+		requestAnimationFrame(() => {
+			if (this.destroyed) return;
+			const banner = document.querySelector<HTMLElement>(".simple-event-stage .event-reveal");
+			if (!banner) return;
+			this.audio.play("whoosh", { volume: 0.6 });
+			gsap.set(banner, { y: -70, opacity: 0, scale: 0.85 });
+			const tl = this.track(gsap.timeline());
+			tl.to(banner, { y: 0, opacity: 1, scale: 1, duration: 0.5, ease: "back.out(2.2)" })
+				.call(() => this.audio.play("impact", { volume: 0.6 }), undefined, "-=0.15")
+				.to(
+					banner,
+					{ boxShadow: "0 0 60px rgba(255,255,255,.4)", duration: 0.3, yoyo: true, repeat: 1 },
+					"-=0.1",
+				);
+		});
+	}
+
+	/** Ferme l'annonce d'event en mode simple pour passer a l'ecran de pick. */
+	protected dismissSimpleEventReveal(): void {
+		this.simpleEventRevealDone.set(true);
+	}
+
 	totalSteps = computed(
 		() => this.roles.length + this.draft.strategyCategories().length,
 	);
@@ -623,6 +647,22 @@ export class DraftBattleComponent implements OnDestroy {
 		() => Object.values(this.picksByRole()).filter(Boolean) as Champion[],
 	);
 	spent = computed(() => this.picked().reduce((sum, c) => sum + c.cost, 0));
+	/**
+	 * Nombre de joueurs prets, mode simple (< 4 joueurs, sans bracket) :
+	 * `draft.readyPlayerIds()` peut rester momentanement en retard d'un
+	 * joueur (le PLAYER_READY du dernier soumissionnaire et le calcul des
+	 * RESULTS arrivent quasi simultanement, l'UI peut afficher "2/3" une
+	 * fraction de seconde). Des que `draft.results()` existe, TOUS les
+	 * joueurs ont forcement soumis (les resultats ne sont calcules qu'une
+	 * fois `allSubmitted()` vrai cote backend) : on peut donc garantir
+	 * l'affichage complet sans attendre le dernier evenement PLAYER_READY.
+	 */
+	protected readonly readyCount = computed(() =>
+		this.draft.results() ? this.room.players().length : this.draft.readyPlayerIds().size,
+	);
+	protected isPlayerReady(playerId: string): boolean {
+		return this.draft.results() ? true : this.draft.readyPlayerIds().has(playerId);
+	}
 	/**
 	 * Budget/event de CE duel precis : en tournoi, chaque match tire le sien
 	 * independamment (voir backend DraftMatchState/RoundMatchup — un event
@@ -701,6 +741,17 @@ export class DraftBattleComponent implements OnDestroy {
 	private finalRecapAnimated = false;
 	/** Idem finalRecapAnimated, mais pour le reveal du vainqueur en mode simple (< 4 joueurs, sans bracket). */
 	private simpleResultsAnimated = false;
+	/**
+	 * Mode simple (< 4 joueurs, pas de bracket) : contrairement au tournoi qui
+	 * a sa propre cinematique VS avec decompte + banniere d'event, le mode
+	 * simple filait direct a l'ecran de pick sans jamais annoncer un event
+	 * special autrement qu'une bannière statique en coin d'ecran. Ce signal
+	 * bloque l'ecran de pick tant que cette annonce n'a pas ete vue - ne
+	 * s'applique que si un event est actif (sinon on saute direct au pick,
+	 * pas la peine d'infliger un ecran vide).
+	 */
+	protected readonly simpleEventRevealDone = signal(false);
+	private simpleEventRevealAnimated = false;
 
 	isTournament = computed(() => !!this.draft.tournamentProgress());
 	myMatchKey = computed<string | null>(() => {
@@ -922,6 +973,21 @@ export class DraftBattleComponent implements OnDestroy {
 			if (this.showFinalRecap() && !this.finalRecapAnimated) {
 				this.finalRecapAnimated = true;
 				this.animateFinalRecap();
+			}
+		});
+
+		effect(() => {
+			// Annonce de l'event special en mode simple (< 4 joueurs, sans
+			// bracket) : meme esprit que la banniere d'event du tournoi (voir
+			// animateVsReveal), mais ce mode n'a pas de popup VS existante ou
+			// l'accrocher. Le template saute directement au pick si
+			// `currentEvent()` est vide (voir @if cote html), donc rien a faire
+			// ici dans ce cas - "flanc montant" classique sinon.
+			const isEventIntroOpen =
+				!this.isTournament() && !!this.currentEvent() && !this.simpleEventRevealDone();
+			if (isEventIntroOpen && !this.simpleEventRevealAnimated) {
+				this.simpleEventRevealAnimated = true;
+				this.animateSimpleEventReveal();
 			}
 		});
 

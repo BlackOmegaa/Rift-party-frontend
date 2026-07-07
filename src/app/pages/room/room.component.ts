@@ -155,7 +155,17 @@ export class RoomComponent implements OnDestroy {
             burstParticles(firstBlock as HTMLElement | null, { count: 30, colors: ['#c8aa6e', '#f0e6d2'] });
           }
           // Laisse la cinematique de victoire respirer avant de proposer l'offre.
-          setTimeout(() => this.supporterOffer.open(), 2600);
+          // Garde-fou : certains mini-jeux (ex Draft Battle en fin de tournoi)
+          // jouent encore LEUR PROPRE cinematique de resultats au moment ou la
+          // room passe a "finished" (les joueurs ne signalent pas tous
+          // party:segment-complete au meme rythme) - sans ce garde-fou, la
+          // popup pouvait surgir en pleine cinematique du mini-jeu plutot
+          // qu'apres le vrai ecran de recap final (Rift Report).
+          setTimeout(() => {
+            if (this.room.room()?.status === 'finished' && host.querySelector('.rift-report')) {
+              this.supporterOffer.open();
+            }
+          }, 2600);
         } else {
           this.audio.play('round-win', { volume: 0.7 });
           const leader = host.querySelector('.mix-resume .rank-card.leader') as HTMLElement | null;
