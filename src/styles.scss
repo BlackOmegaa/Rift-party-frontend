@@ -47,7 +47,13 @@ body {
 	min-height: 100%;
 	margin: 0;
 	font-family: "Inter", system-ui, sans-serif;
-	background:
+	/* Fond uni (pas de degrade lineaire etire sur toute la hauteur) : sur une
+	   page tres longue (ex. home avec sa vitrine de mini-jeux), un degrade a
+	   plusieurs arrets sur 2000px+ produit un bien visible "banding"/cassure
+	   nette a l'oeil - un fond plat evite totalement le probleme. Les halos
+	   radiaux restent, contenus pres du haut (positions negatives/nulles). */
+	background-color: #01070d;
+	background-image:
 		radial-gradient(
 			ellipse 900px 500px at 15% -10%,
 			rgba(200, 170, 110, 0.1),
@@ -57,8 +63,8 @@ body {
 			ellipse 900px 500px at 100% 0%,
 			rgba(10, 200, 185, 0.06),
 			transparent
-		),
-		linear-gradient(180deg, #01070d, #06121e 42%, #01070d);
+		);
+	background-repeat: no-repeat;
 	color: var(--text-primary);
 	-webkit-font-smoothing: antialiased;
 }
