@@ -2,13 +2,66 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8" />
-  <title>Rift Party</title>
+  <title>Rift Party — Mini-jeux multijoueurs League of Legends entre amis</title>
   <base href="/" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <!-- SEO -->
+  <meta name="description"
+    content="13 mini-jeux League of Legends en multijoueur : quiz champions, Loldle, dessin, undercover et plus. Crée un lobby gratuit et défie tes amis directement dans le navigateur, sans installation." />
+  <meta name="robots" content="index, follow" />
+  <link rel="canonical" href="https://riftparty.com/" />
+  <meta name="theme-color" content="#0ac8b9" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+
+  <!-- Open Graph (partage Discord, Facebook, etc.) -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="Rift Party" />
+  <meta property="og:title" content="Rift Party — Mini-jeux multijoueurs League of Legends" />
+  <meta property="og:description"
+    content="13 mini-jeux LoL à jouer entre amis dans le navigateur : quiz, Loldle, dessin, undercover… Gratuit, sans installation." />
+  <meta property="og:url" content="https://riftparty.com/" />
+  <meta property="og:locale" content="fr_FR" />
+
+  <!-- Twitter / X -->
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:title" content="Rift Party — Mini-jeux multijoueurs League of Legends" />
+  <meta name="twitter:description"
+    content="13 mini-jeux LoL à jouer entre amis dans le navigateur. Gratuit, sans installation." />
+
+  <!-- Performance : connexions anticipées vers le backend (API + WebSocket) -->
+  <link rel="preconnect" href="https://rift-party-backend-production.up.railway.app" />
+  <link rel="preconnect" href="https://pagead2.googlesyndication.com" crossorigin />
+
+  <!-- Données structurées : fiche application pour les résultats enrichis Google -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Rift Party",
+    "url": "https://riftparty.com/",
+    "description": "Plateforme de mini-jeux multijoueurs sur le thème de League of Legends : quiz champions, Loldle, dessin, undercover et plus, à jouer entre amis dans le navigateur.",
+    "applicationCategory": "GameApplication",
+    "operatingSystem": "Web",
+    "browserRequirements": "Requires JavaScript",
+    "inLanguage": "fr",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "EUR"
+    }
+  }
+  </script>
+
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2741267383918391"
     crossorigin="anonymous"></script>
 </head>
 <body>
   <app-root></app-root>
+  <noscript>
+    <h1>Rift Party — Mini-jeux multijoueurs League of Legends</h1>
+    <p>Rift Party propose 13 mini-jeux sur le thème de League of Legends à jouer entre amis dans le navigateur :
+      quiz champions, Loldle, dessin, undercover, draft battle et plus. Activez JavaScript pour jouer.</p>
+  </noscript>
 </body>
 </html>

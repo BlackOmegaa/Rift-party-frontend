@@ -19,7 +19,10 @@
             "tsConfig": "tsconfig.app.json",
             "assets": [
               { "glob": "**/*", "input": "src/assets", "output": "/assets" },
-              { "glob": "_redirects", "input": "src", "output": "/" }
+              { "glob": "_redirects", "input": "src", "output": "/" },
+              { "glob": "robots.txt", "input": "src", "output": "/" },
+              { "glob": "sitemap.xml", "input": "src", "output": "/" },
+              { "glob": "favicon.svg", "input": "src", "output": "/" }
             ],
             "styles": ["src/styles.scss"],
             "scripts": []

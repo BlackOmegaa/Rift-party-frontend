@@ -1,0 +1,6 @@
+User-agent: *
+Allow: /
+Disallow: /rp-console
+Disallow: /account
+
+Sitemap: https://riftparty.com/sitemap.xml

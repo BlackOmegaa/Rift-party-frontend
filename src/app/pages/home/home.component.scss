@@ -123,6 +123,38 @@ app-support-banner {
 	color: var(--gold);
 }
 
+.seo-info {
+	max-width: 640px;
+	margin: 0 auto;
+	padding: 3rem 2rem 4rem;
+	color: var(--text-secondary);
+	font-size: 0.9rem;
+	line-height: 1.7;
+}
+.seo-info h2 {
+	color: var(--gold-bright);
+	font-size: 1.15rem;
+	margin: 2rem 0 0.8rem;
+}
+.seo-info h2:first-child {
+	margin-top: 0;
+}
+.seo-info strong {
+	color: var(--text-primary);
+}
+.games-list,
+.steps {
+	margin: 0.8rem 0 0 1.2rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.35rem;
+}
+.disclaimer {
+	margin-top: 2.5rem;
+	font-size: 0.75rem;
+	color: var(--text-muted);
+}
+
 .hero-glow {
 	position: absolute;
 	inset: 0;
