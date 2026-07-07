@@ -35,11 +35,16 @@
 * {
 	box-sizing: border-box;
 }
-html,
-body {
+html {
 	height: 100%;
 }
 body {
+	/* min-height (pas height) : "height:100%" fige body a exactement 100vh
+	   quel que soit le contenu reel, et son fond (le degrade ci-dessous) est
+	   peint dans CETTE boite - tout contenu qui deborde de ce 100vh (ex: la
+	   home avec sa vitrine de mini-jeux) se retrouvait donc SANS fond du tout
+	   au-dela du premier ecran, d'ou la cassure nette observee au scroll. */
+	min-height: 100%;
 	margin: 0;
 	font-family: "Inter", system-ui, sans-serif;
 	background:
@@ -55,7 +60,6 @@ body {
 		),
 		linear-gradient(180deg, #01070d, #06121e 42%, #01070d);
 	color: var(--text-primary);
-	min-height: 100%;
 	-webkit-font-smoothing: antialiased;
 }
 body:before {

@@ -5,6 +5,12 @@
 		<h1>RIFT <span>PARTY</span></h1>
 		<p>Mini-jeux multijoueurs entre amis, dans le navigateur.</p>
 		<app-supporter-badge />
+		<a class="account-link" [routerLink]="playerAuth.isAuthenticated() ? '/account' : '/login'">
+			@if (playerAuth.profile()?.isSubscriber) {
+				<app-icon name="crown" [size]="12" />
+			}
+			{{ playerAuth.isAuthenticated() ? "Mon compte" : "Se connecter" }}
+		</a>
 	</div>
 
 	<div class="card panel">
@@ -67,12 +73,6 @@
 	}
 
 	<app-support-banner />
-	<a class="account-link" [routerLink]="playerAuth.isAuthenticated() ? '/account' : '/login'">
-		@if (playerAuth.profile()?.isSubscriber) {
-			<app-icon name="crown" [size]="12" />
-		}
-		{{ playerAuth.isAuthenticated() ? "Mon compte" : "Se connecter" }}
-	</a>
 
 	<a class="scroll-hint" href="#mini-jeux">
 		<span>Découvrir les 13 mini-jeux</span>
