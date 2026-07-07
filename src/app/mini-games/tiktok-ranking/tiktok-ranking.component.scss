@@ -140,6 +140,21 @@
 	color: var(--gold-bright);
 	text-shadow: 0 4px 24px rgba(0, 0, 0, 0.8), 0 0 50px var(--accent-glow);
 }
+.premium-tag {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35rem;
+	padding: 0.28rem 0.75rem;
+	border-radius: 999px;
+	background: linear-gradient(135deg, rgba(200, 170, 110, 0.22), rgba(1, 10, 19, 0.6));
+	border: 1px solid rgba(200, 170, 110, 0.5);
+	color: var(--gold-bright);
+	font-size: 0.72rem;
+	font-weight: 800;
+}
+.premium-tag app-icon {
+	color: var(--gold);
+}
 
 /* ===== Grille de tiers, immersive, occupe tout l'espace restant ===== */
 

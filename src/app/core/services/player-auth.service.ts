@@ -7,10 +7,28 @@ const TOKEN_KEY = "rift-party-player-token";
 const POLL_INTERVAL_MS = 2000;
 const POLL_MAX_ATTEMPTS = 8; // ~16s : le webhook Stripe arrive presque toujours en 1-3s, marge large.
 
+/**
+ * Lecture pure du token (meme cle que PlayerAuthService.getToken()), sans
+ * injection du service. A utiliser depuis un autre service qui a besoin du
+ * token SANS declarer de dependance sur PlayerAuthService : l'injecter
+ * creerait un cycle, PlayerAuthService declenchant lui-meme un appel HTTP a
+ * la construction (refreshProfile), qui repasse par playerAuthInterceptor,
+ * qui re-injecte PlayerAuthService pendant que sa propre construction est
+ * encore en cours (NG0200 des que PlayerAuthService n'a pas deja ete
+ * construit par un autre consommateur avant).
+ */
+export function getPlayerToken(): string | null {
+	return localStorage.getItem(TOKEN_KEY);
+}
+
 export interface PlayerProfile {
 	id: string;
 	email: string;
 	isSubscriber: boolean;
+	/** Date du tout premier abonnement (ISO 8601), null si jamais abonne. */
+	supporterSince: string | null;
+	/** Vrai si abonne avant le lancement des avantages en jeu. */
+	isDayOneSupporter: boolean;
 }
 
 /**
@@ -33,7 +51,7 @@ export class PlayerAuthService {
 	}
 
 	getToken(): string | null {
-		return localStorage.getItem(TOKEN_KEY);
+		return getPlayerToken();
 	}
 
 	async register(email: string, password: string): Promise<void> {

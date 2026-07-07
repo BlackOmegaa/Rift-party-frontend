@@ -47,4 +47,9 @@ export class AccountComponent {
 		this.playerAuth.logout();
 		this.router.navigate(["/"]);
 	}
+
+	/** Date lisible en heure locale (l'ISO brut est en UTC, un slice naif peut afficher la veille selon le fuseau). */
+	formatSupporterSince(iso: string): string {
+		return new Date(iso).toLocaleDateString("fr-FR", { year: "numeric", month: "long", day: "numeric" });
+	}
 }

@@ -71,7 +71,7 @@ const ROUNDS: RankingRound[] = [
 			"K'Sante",
 			"Sett",
 		],
-		premium: true,
+		premium: false,
 	},
 	{
 		question: "Je mets le paf à qui en premier ?",
@@ -87,7 +87,7 @@ const ROUNDS: RankingRound[] = [
 			"Teemo",
 			"Yuumi",
 		],
-		premium: true,
+		premium: false,
 	},
 	{
 		question: "Qui mérite un report ?",
@@ -103,7 +103,7 @@ const ROUNDS: RankingRound[] = [
 			"Draven",
 			"Riven",
 		],
-		premium: true,
+		premium: false,
 	},
 	{
 		question: "Qui est le plus gros puant ?",
@@ -135,7 +135,7 @@ const ROUNDS: RankingRound[] = [
 			"Jhin",
 			"Sylas",
 		],
-		premium: true,
+		premium: false,
 	},
 	{
 		question: "Je lui confie mon enfant (top 1 = oui) ?",
@@ -151,7 +151,7 @@ const ROUNDS: RankingRound[] = [
 			"Galio",
 			"Sejuani",
 		],
-		premium: true,
+		premium: false,
 	},
 	{
 		question: "Qui te sort “tkt je scale” à 0/7 ?",
@@ -167,7 +167,7 @@ const ROUNDS: RankingRound[] = [
 			"Master Yi",
 			"Smolder",
 		],
-		premium: true,
+		premium: false,
 	},
 	{
 		question: "Qui a le plus de flow ?",
@@ -199,7 +199,7 @@ const ROUNDS: RankingRound[] = [
 			"Yasuo",
 			"Yone",
 		],
-		premium: true,
+		premium: false,
 	},
 	{
 		question: "Qui a le plus de rizz ?",
@@ -215,7 +215,7 @@ const ROUNDS: RankingRound[] = [
 			"Ahri",
 			"Evelynn",
 		],
-		premium: true,
+		premium: false,
 	},
 	{
 		question: "Qui ferait le plus genant ?",
@@ -231,7 +231,7 @@ const ROUNDS: RankingRound[] = [
 			"Shaco",
 			"Twitch",
 		],
-		premium: true,
+		premium: false,
 	},
 	{
 		question: "Qui sent le plus le duoQ insupportable ?",
@@ -263,7 +263,7 @@ const ROUNDS: RankingRound[] = [
 			"Lux",
 			"Jhin",
 		],
-		premium: true,
+		premium: false,
 	},
 	{
 		question: "Qui est le plus probable de steal ton pentakill ?",
@@ -279,7 +279,7 @@ const ROUNDS: RankingRound[] = [
 			"Draven",
 			"Katarina",
 		],
-		premium: true,
+		premium: false,
 	},
 	{
 		question: "Qui a le plus d’aura ?",
@@ -295,7 +295,7 @@ const ROUNDS: RankingRound[] = [
 			"Zed",
 			"Pantheon",
 		],
-		premium: true,
+		premium: false,
 	},
 	{
 		question: "Qui est le plus chad ?",
@@ -327,7 +327,7 @@ const ROUNDS: RankingRound[] = [
 			"Teemo",
 			"Yuumi",
 		],
-		premium: true,
+		premium: false,
 	},
 	{
 		question: "Qui mérite un report même avant la game ?",
@@ -343,7 +343,7 @@ const ROUNDS: RankingRound[] = [
 			"Draven",
 			"Riven",
 		],
-		premium: true,
+		premium: false,
 	},
 	{
 		question: "Qui est le plus gros puant ?",
@@ -359,7 +359,7 @@ const ROUNDS: RankingRound[] = [
 			"Shaco",
 			"Draven",
 		],
-		premium: true,
+		premium: false,
 	},
 	{
 		question: "Qui est le plus gros red flag ?",
@@ -391,7 +391,7 @@ const ROUNDS: RankingRound[] = [
 			"Master Yi",
 			"Smolder",
 		],
-		premium: true,
+		premium: false,
 	},
 	{
 		question: "Qui fait le meilleur date ?",
@@ -407,7 +407,7 @@ const ROUNDS: RankingRound[] = [
 			"Akali",
 			"LeBlanc",
 		],
-		premium: true,
+		premium: false,
 	},
 	{
 		question: "Qui a le plus de vibes boss final ?",
@@ -423,7 +423,7 @@ const ROUNDS: RankingRound[] = [
 			"Ornn",
 			"Aatrox",
 		],
-		premium: true,
+		premium: false,
 	},
 	{
 		question: "Qui a le plus de rizz ?",
@@ -455,7 +455,7 @@ const ROUNDS: RankingRound[] = [
 			"Master Yi",
 			"Taric",
 		],
-		premium: true,
+		premium: false,
 	},
 	{
 		question: "Qui est le plus “il parle beaucoup mais carry jamais” ?",
@@ -471,7 +471,7 @@ const ROUNDS: RankingRound[] = [
 			"Lux",
 			"Jhin",
 		],
-		premium: true,
+		premium: false,
 	},
 	{
 		question: "Qui est le plus probable de steal ton pentakill ?",
@@ -487,7 +487,7 @@ const ROUNDS: RankingRound[] = [
 			"Draven",
 			"Katarina",
 		],
-		premium: true,
+		premium: false,
 	},
 	{
 		question: "Qui a le plus d’aura ?",
@@ -519,7 +519,7 @@ const ROUNDS: RankingRound[] = [
 			"K'Sante",
 			"Sett",
 		],
-		premium: true,
+		premium: false,
 	},
 	{
 		question: "Je mets le paf ? (édition femme)",
@@ -535,7 +535,7 @@ const ROUNDS: RankingRound[] = [
 			"Nidalee",
 			"Qiyana",
 		],
-		premium: true,
+		premium: false,
 	},
 	{
 		question: "Qui peut t'insulter avant même avant la game ?",
@@ -551,7 +551,7 @@ const ROUNDS: RankingRound[] = [
 			"Draven",
 			"Riven",
 		],
-		premium: true,
+		premium: false,
 	},
 	{
 		question: "Qui est le plus gros crasseux ?",
@@ -584,7 +584,7 @@ const ROUNDS: RankingRound[] = [
 			"Yone",
 			"Taric",
 		],
-		premium: true,
+		premium: false,
 	},
 	{
 		question: "Je mets le paf ? (édition WTF)",
@@ -600,7 +600,7 @@ const ROUNDS: RankingRound[] = [
 			"Raptor",
 			"Ancient Poro",
 		],
-		premium: true,
+		premium: false,
 	},
 	{
 		question: "Je mets le paf ? (édition funeste)",
@@ -616,7 +616,7 @@ const ROUNDS: RankingRound[] = [
 			"Gromp",
 			"Maokai",
 		],
-		premium: true,
+		premium: false,
 	},
 	{
 		question: "Qui est le plus gros red flag ?",
@@ -648,7 +648,7 @@ const ROUNDS: RankingRound[] = [
 			"Akali",
 			"Zed",
 		],
-		premium: true,
+		premium: false,
 	},
 	{
 		question: "Qui te sort “tkt je scale” à 0/7 ?",
@@ -664,7 +664,7 @@ const ROUNDS: RankingRound[] = [
 			"Master Yi",
 			"Smolder",
 		],
-		premium: true,
+		premium: false,
 	},
 	{
 		question: "Qui a le plus de vibes boss final ?",
@@ -680,7 +680,7 @@ const ROUNDS: RankingRound[] = [
 			"Ornn",
 			"Aatrox",
 		],
-		premium: true,
+		premium: false,
 	},
 	{
 		question: "Qui a la plus grosse énergie “je carry ou je dodge” ?",
@@ -712,7 +712,7 @@ const ROUNDS: RankingRound[] = [
 			"Ahri",
 			"Evelynn",
 		],
-		premium: true,
+		premium: false,
 	},
 	{
 		question: "Qui sent le plus le duoQ insupportable ?",
@@ -728,7 +728,7 @@ const ROUNDS: RankingRound[] = [
 			"Master Yi",
 			"Taric",
 		],
-		premium: true,
+		premium: false,
 	},
 	{
 		question: "Qui est le plus “il parle beaucoup mais carry jamais” ?",
@@ -744,7 +744,7 @@ const ROUNDS: RankingRound[] = [
 			"Lux",
 			"Jhin",
 		],
-		premium: true,
+		premium: false,
 	},
 	{
 		question: "Qui est le plus probable de steal ton pentakill ?",
@@ -777,7 +777,7 @@ const ROUNDS: RankingRound[] = [
 			"Zed",
 			"Pantheon",
 		],
-		premium: true,
+		premium: false,
 	},
 	{
 		question: "Qui est le plus chad ?",
@@ -793,7 +793,7 @@ const ROUNDS: RankingRound[] = [
 			"K'Sante",
 			"Sett",
 		],
-		premium: true,
+		premium: false,
 	},
 	{
 		question: "Je mets le paf ?",
@@ -809,7 +809,7 @@ const ROUNDS: RankingRound[] = [
 			"Teemo",
 			"Yuumi",
 		],
-		premium: true,
+		premium: false,
 	},
 	{
 		question: "Qui mérite un report même avant la game ? ",
@@ -841,7 +841,7 @@ const ROUNDS: RankingRound[] = [
 			"Shaco",
 			"Draven",
 		],
-		premium: true,
+		premium: false,
 	},
 	{
 		question: "Qui est le plus gros red flag ?",
@@ -857,7 +857,7 @@ const ROUNDS: RankingRound[] = [
 			"Jhin",
 			"Sylas",
 		],
-		premium: true,
+		premium: false,
 	},
 	{
 		question: "Qui a le plus de main character energy ?",
@@ -873,7 +873,7 @@ const ROUNDS: RankingRound[] = [
 			"Akali",
 			"Zed",
 		],
-		premium: true,
+		premium: false,
 	},
 	{
 		question: "Je lui confie mon gosse ?",
@@ -905,7 +905,7 @@ const ROUNDS: RankingRound[] = [
 			"Master Yi",
 			"Smolder",
 		],
-		premium: true,
+		premium: false,
 	},
 	{
 		question: "Qui a la plus grosse énergie “je carry ou je dodge” ?",
@@ -921,7 +921,7 @@ const ROUNDS: RankingRound[] = [
 			"Yasuo",
 			"Yone",
 		],
-		premium: true,
+		premium: false,
 	},
 	{
 		question: "Qui a le plus de rizz ?",
@@ -937,7 +937,7 @@ const ROUNDS: RankingRound[] = [
 			"Ahri",
 			"Evelynn",
 		],
-		premium: true,
+		premium: false,
 	},
 
 	{
@@ -970,7 +970,7 @@ const ROUNDS: RankingRound[] = [
 			"Lux",
 			"Jhin",
 		],
-		premium: true,
+		premium: false,
 	},
 	{
 		question: "Qui est le plus probable de steal ton pentakill ?",
@@ -986,7 +986,7 @@ const ROUNDS: RankingRound[] = [
 			"Draven",
 			"Katarina",
 		],
-		premium: true,
+		premium: false,
 	},
 	{
 		question: "Qui est l'OTP le plus instable ?",
@@ -1002,7 +1002,7 @@ const ROUNDS: RankingRound[] = [
 			"Twitch",
 			"Singed",
 		],
-		premium: true,
+		premium: false,
 	},
 	{
 		question: "Quel OTP int le plus ?",
@@ -1035,7 +1035,7 @@ const ROUNDS: RankingRound[] = [
 			"Udyr",
 			"Gragas",
 		],
-		premium: true,
+		premium: false,
 	},
 
 	{
@@ -1052,7 +1052,7 @@ const ROUNDS: RankingRound[] = [
 			"Zed",
 			"Twitch",
 		],
-		premium: true,
+		premium: false,
 	},
 
 	{
@@ -1069,7 +1069,7 @@ const ROUNDS: RankingRound[] = [
 			"Aphelios",
 			"Gangplank",
 		],
-		premium: true,
+		premium: false,
 	},
 
 	{
@@ -1103,7 +1103,7 @@ const ROUNDS: RankingRound[] = [
 			"Gangplank",
 			"Aphelios",
 		],
-		premium: true,
+		premium: false,
 	},
 
 	{
@@ -1121,7 +1121,7 @@ const ROUNDS: RankingRound[] = [
 			"Qiyana",
 			"Lee Sin",
 		],
-		premium: true,
+		premium: false,
 	},
 
 	{
@@ -1138,7 +1138,7 @@ const ROUNDS: RankingRound[] = [
 			"Braum",
 			"Rammus",
 		],
-		premium: true,
+		premium: false,
 	},
 
 	{
@@ -1171,7 +1171,7 @@ const ROUNDS: RankingRound[] = [
 			"Viego",
 			"Rakan",
 		],
-		premium: true,
+		premium: false,
 	},
 
 	{
@@ -1188,7 +1188,7 @@ const ROUNDS: RankingRound[] = [
 			"Twitch",
 			"Mundo",
 		],
-		premium: true,
+		premium: false,
 	},
 
 	{
@@ -1205,7 +1205,7 @@ const ROUNDS: RankingRound[] = [
 			"Trundle",
 			"Nasus",
 		],
-		premium: true,
+		premium: false,
 	},
 
 	{
@@ -1239,7 +1239,7 @@ const ROUNDS: RankingRound[] = [
 			"Aphelios",
 			"Kalista",
 		],
-		premium: true,
+		premium: false,
 	},
 
 	{
@@ -1256,7 +1256,7 @@ const ROUNDS: RankingRound[] = [
 			"Master Yi",
 			"Zed",
 		],
-		premium: true,
+		premium: false,
 	},
 
 	{
@@ -1273,7 +1273,7 @@ const ROUNDS: RankingRound[] = [
 			"Gragas",
 			"Mundo",
 		],
-		premium: true,
+		premium: false,
 	},
 
 	{
@@ -1308,7 +1308,7 @@ const ROUNDS: RankingRound[] = [
 			"Gangplank",
 			"Irelia",
 		],
-		premium: true,
+		premium: false,
 	},
 
 	{
@@ -1326,7 +1326,7 @@ const ROUNDS: RankingRound[] = [
 			"Lee Sin",
 			"Aphelios",
 		],
-		premium: true,
+		premium: false,
 	},
 	{
 		question: "Qui gagnerait un concours de skibidi sur la Rift ?",
@@ -2385,11 +2385,20 @@ export class TiktokRankingComponent implements OnDestroy {
 	protected readonly timer = new RoundTimer();
 	protected remainingSec = signal(0);
 	finished = computed(() => this.index() >= this.maxRounds());
+	/** Pseudo du premier abonne present dans la room, ou null - detremine l'acces aux questions premium ET credite qui les a debloquees pour le groupe. */
+	protected readonly premiumUnlockedBy = computed(
+		() => this.room.players().find((p) => p.isSubscriber)?.pseudo ?? null,
+	);
+	/** Pool filtre AVANT indexation (pas d'index hors-limites possible) : sans abonne dans la room, les questions `premium` sont simplement absentes du pool. */
+	private readonly roundPool = computed(() =>
+		this.premiumUnlockedBy() ? ROUNDS : ROUNDS.filter((r) => !r.premium),
+	);
 	round = computed(() => {
 		const roomCode = this.room.room()?.code ?? "default";
+		const pool = this.roundPool();
 		const seed = this.hashCode(roomCode);
-		const idx = (seed + this.index()) % ROUNDS.length;
-		return ROUNDS[idx];
+		const idx = (seed + this.index()) % pool.length;
+		return pool[idx];
 	});
 	locked = computed(() => this.submitted() && !this.results());
 	/** Ligne du classement de reference (consensus) actuellement revelee pendant le stagger. */

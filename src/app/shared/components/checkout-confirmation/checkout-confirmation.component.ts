@@ -1,7 +1,8 @@
-import { ChangeDetectionStrategy, Component, inject, signal } from "@angular/core";
+import { ChangeDetectionStrategy, Component, ElementRef, inject, signal } from "@angular/core";
 import { PlayerAuthService } from "../../../core/services/player-auth.service";
 import { TrackingService } from "../../../core/services/tracking.service";
 import { IconComponent } from "../icon/icon.component";
+import { burstParticles } from "../../cinematic/cinematic";
 
 type Status = "confirming" | "success" | "timeout" | "cancelled";
 
@@ -95,6 +96,7 @@ type Status = "confirming" | "success" | "timeout" | "cancelled";
 export class CheckoutConfirmationComponent {
 	private readonly playerAuth = inject(PlayerAuthService);
 	private readonly tracking = inject(TrackingService);
+	private readonly hostElement = inject(ElementRef<HTMLElement>);
 
 	protected readonly status = signal<Status | null>(null);
 
@@ -128,7 +130,16 @@ export class CheckoutConfirmationComponent {
 	private async confirm(): Promise<void> {
 		const success = await this.playerAuth.pollUntilSubscribed();
 		this.status.set(success ? "success" : "timeout");
-		if (success) setTimeout(() => this.dismiss(), 4000);
+		if (success) {
+			// Le "merci" devient un vrai moment plutot qu'une simple icone statique.
+			requestAnimationFrame(() => {
+				burstParticles(this.hostElement.nativeElement.querySelector(".toast"), {
+					count: 34,
+					colors: ["#c8aa6e", "#f0e6d2", "#0ac8b9"],
+				});
+			});
+			setTimeout(() => this.dismiss(), 4000);
+		}
 	}
 
 	/** Retire ?checkout=... de l'URL sans recharger (history API directe, evite tout souci de timing avec le Router), pour qu'un refresh ne relance pas la confirmation. */

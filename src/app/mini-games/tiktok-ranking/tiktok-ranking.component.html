@@ -261,6 +261,12 @@
 				<div class="question-hero">
 					<span class="stake">TIER LIST</span>
 					<h2>{{ round().question }}</h2>
+					@if (round().premium && premiumUnlockedBy(); as pseudo) {
+						<span class="premium-tag">
+							<app-icon name="crown" [size]="12" />
+							Débloqué grâce à {{ pseudo }}
+						</span>
+					}
 				</div>
 
 				<section class="tier-board">

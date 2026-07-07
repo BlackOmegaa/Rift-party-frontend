@@ -34,6 +34,28 @@
       font-weight:600;
       box-shadow:0 4px 16px rgba(0,0,0,.35);
     }
+    .supporter-toast{
+      position:fixed;
+      top:.75rem;
+      left:50%;
+      transform:translateX(-50%);
+      z-index:50;
+      display:flex;
+      align-items:center;
+      gap:.5rem;
+      padding:.55rem 1.1rem;
+      border-radius:999px;
+      background:linear-gradient(135deg,rgba(200,170,110,.94),rgba(120,90,40,.94));
+      color:#1a1206;
+      font-size:.82rem;
+      font-weight:800;
+      box-shadow:0 8px 24px rgba(0,0,0,.35),0 0 22px rgba(200,170,110,.35);
+      animation:supporter-toast-in .4s cubic-bezier(.34,1.56,.64,1) both,supporter-toast-out .5s ease-in 2.7s both;
+      pointer-events:none;
+    }
+    .supporter-toast strong{color:#1a1206;}
+    @keyframes supporter-toast-in{from{opacity:0;transform:translate(-50%,-10px) scale(.9);}to{opacity:1;transform:translate(-50%,0) scale(1);}}
+    @keyframes supporter-toast-out{from{opacity:1;}to{opacity:0;}}
     .layout{
       display:grid;
       grid-template-columns:285px 1fr;
@@ -426,6 +448,7 @@ button {
       margin:1rem 0 .5rem;
     }
     .podium-block{
+      position:relative;
       flex:1;
       max-width:180px;
       display:flex;
@@ -438,6 +461,7 @@ button {
       border-bottom:none;
       background:rgba(1,10,19,.55);
       backdrop-filter:blur(8px);
+      overflow:visible;
     }
     .podium-name{
       font-weight:900;

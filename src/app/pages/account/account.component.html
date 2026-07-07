@@ -16,7 +16,13 @@
 				<div class="supporter-badge">
 					<app-icon name="crown" [size]="22" />
 					<span>Rift Party Supporter</span>
+					@if (profile.isDayOneSupporter) {
+						<span class="day-one-tag">Day One</span>
+					}
 				</div>
+				@if (profile.supporterSince) {
+					<p class="supporter-since">Supporter depuis le {{ formatSupporterSince(profile.supporterSince) }}</p>
+				}
 			}
 
 			<div class="field">

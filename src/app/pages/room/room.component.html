@@ -25,6 +25,12 @@
   @if (room.reconnecting()) {
     <div class="reconnect-banner" role="status">Connexion perdue, reconnexion en cours...</div>
   }
+  @if (room.justJoinedSupporter(); as supporter) {
+    <div class="supporter-toast" role="status">
+      <app-icon name="crown" [size]="14" />
+      <span><strong>{{ supporter.pseudo }}</strong> a rejoint en Supporter</span>
+    </div>
+  }
   <div class="layout" [class.cinematic]="cinematicMode(currentRoom)">
     <aside class="sidebar">
       <div class="room-code card">

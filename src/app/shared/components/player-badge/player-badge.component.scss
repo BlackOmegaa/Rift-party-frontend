@@ -9,6 +9,34 @@
   animation: fade-in-up var(--transition-med);
 }
 .player-badge.me { border-color: var(--teal); }
+
+/*
+ * Aura Supporter : statut visible par TOUS les joueurs de la room, en
+ * continu pendant toute la partie (jusqu'a 12 badges affiches en meme temps,
+ * 10+ minutes de match) - deliberement STATIQUE (pas de keyframe en boucle,
+ * contrairement au badge du haut de page qui n'est vu qu'une fois) pour
+ * eviter la fatigue visuelle et le cout de repaint sur autant d'elements.
+ * Les moments animes ("ziiinzin") sont reserves aux evenements ponctuels :
+ * entree en room, victoire, confirmation d'abonnement.
+ */
+.player-badge.supporter {
+  border-color: rgba(200, 170, 110, 0.55);
+  background:
+    linear-gradient(160deg, rgba(200, 170, 110, 0.1), transparent 55%),
+    var(--bg-elevated);
+  box-shadow: 0 0 14px rgba(200, 170, 110, 0.12);
+}
+.player-badge.supporter .pseudo {
+  background: linear-gradient(90deg, var(--gold-bright), var(--gold) 55%, var(--gold-bright));
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+.supporter-crown {
+  color: var(--gold);
+  flex-shrink: 0;
+}
+
 .dot {
   width: 8px; height: 8px; border-radius: 50%;
   background: var(--success);

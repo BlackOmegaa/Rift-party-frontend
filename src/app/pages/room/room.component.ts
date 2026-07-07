@@ -78,6 +78,7 @@ export class RoomComponent implements OnDestroy {
   protected readonly countdownValue = signal(3);
   private introTimers: ReturnType<typeof setTimeout>[] = [];
   private introKey: string | null = null;
+  private supporterToastTimer: ReturnType<typeof setTimeout> | null = null;
   private readonly hostElement = inject(ElementRef<HTMLElement>);
   /** Detecte les transitions (pas juste la presence) des ecrans de resultats, pour ne jouer le fanfare/particles qu'une fois par apparition. */
   private lastRoomStatus: string | null = null;
@@ -142,10 +143,17 @@ export class RoomComponent implements OnDestroy {
           this.audio.play('fanfare');
           const scoreEl = host.querySelector('.rift-report [data-count-up]') as HTMLElement | null;
           if (scoreEl) countUp(scoreEl, Number(scoreEl.textContent?.trim() ?? 0), { duration: 1.3 });
-          punchIn(host.querySelector('.podium-top .podium-block.first'));
+          const firstBlock = host.querySelector('.podium-top .podium-block.first');
+          punchIn(firstBlock);
           slideUp(host.querySelector('.podium-top .podium-block.second'), { delay: 0.1 });
           slideUp(host.querySelector('.podium-top .podium-block.third'), { delay: 0.16 });
           burstParticles(host.querySelector('.rift-report'), { count: 46, colors: ['#c8aa6e', '#f0e6d2', '#3fd67a'] });
+          // "Victoire doree" : le vainqueur (1ere place) est abonne -> burst
+          // supplementaire cible sur son bloc de podium, visible par toute la
+          // room. Purement cosmetique, aucun impact sur le classement/score.
+          if (this.room.sortedByScore()[0]?.isSubscriber) {
+            burstParticles(firstBlock as HTMLElement | null, { count: 30, colors: ['#c8aa6e', '#f0e6d2'] });
+          }
           // Laisse la cinematique de victoire respirer avant de proposer l'offre.
           setTimeout(() => this.supporterOffer.open(), 2600);
         } else {
@@ -155,10 +163,27 @@ export class RoomComponent implements OnDestroy {
         }
       });
     });
+
+    // "Entree Supporter" : un abonne rejoint la room, burst dore + toast
+    // visibles par tout le monde (voir RoomService.justJoinedSupporter,
+    // alimente par l'event PLAYER_JOINED que le backend n'emet jamais a
+    // soi-meme - donc jamais declenche pour sa propre arrivee).
+    effect(() => {
+      const supporter = this.room.justJoinedSupporter();
+      if (!supporter) return;
+      const host = this.hostElement.nativeElement;
+      requestAnimationFrame(() => {
+        burstParticles(host.querySelector('.players'), { count: 22, colors: ['#c8aa6e', '#f0e6d2'] });
+        this.audio.play('reveal', { volume: 0.6 });
+      });
+      if (this.supporterToastTimer) clearTimeout(this.supporterToastTimer);
+      this.supporterToastTimer = setTimeout(() => this.room.clearJustJoinedSupporter(), 3200);
+    });
   }
 
   ngOnDestroy(): void {
     this.clearIntroTimers();
+    if (this.supporterToastTimer) clearTimeout(this.supporterToastTimer);
     this.audio.stopMusic();
   }
 

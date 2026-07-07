@@ -79,6 +79,22 @@ app-ad-slot {
 .supporter-badge app-icon {
 	color: var(--gold);
 }
+.day-one-tag {
+	padding: 0.15rem 0.5rem;
+	border-radius: 999px;
+	background: rgba(10, 200, 185, 0.15);
+	border: 1px solid rgba(10, 200, 185, 0.45);
+	color: var(--teal);
+	font-size: 0.65rem;
+	font-weight: 900;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+}
+.supporter-since {
+	margin-top: -0.4rem;
+	font-size: 0.78rem;
+	color: var(--text-muted);
+}
 
 .field {
 	display: flex;
