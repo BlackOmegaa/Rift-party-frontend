@@ -63,6 +63,9 @@
 
 	<app-support-banner />
 	<a class="account-link" [routerLink]="playerAuth.isAuthenticated() ? '/account' : '/login'">
+		@if (playerAuth.profile()?.isSubscriber) {
+			<app-icon name="crown" [size]="12" />
+		}
 		{{ playerAuth.isAuthenticated() ? "Mon compte" : "Se connecter" }}
 	</a>
 </div>

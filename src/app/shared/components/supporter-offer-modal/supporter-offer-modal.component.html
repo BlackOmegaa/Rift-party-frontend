@@ -1,0 +1,70 @@
+@if (offer.isOpen() && !playerAuth.profile()?.isSubscriber) {
+	<div class="backdrop" (click)="close()">
+		<div class="modal" (click)="$event.stopPropagation()">
+			<button class="close-btn" (click)="close()">
+				<app-icon name="close" [size]="16" />
+			</button>
+
+			@if (step() === "offer") {
+				<div class="crown-badge">
+					<app-icon name="crown" [size]="30" />
+				</div>
+				<span class="eyebrow">Offre limitée à ton lobby</span>
+				<h2>Rift Party <span>Supporter</span></h2>
+				<p class="price"><strong>3€</strong> <small>/ mois</small></p>
+
+				<ul class="benefits">
+					@for (benefit of benefits; track benefit.text) {
+						<li>
+							<app-icon [name]="benefit.icon" [size]="18" />
+							<span>{{ benefit.text }}</span>
+						</li>
+					}
+				</ul>
+
+				<button class="btn btn-gold cta" (click)="onCtaClick()">
+					<app-icon name="crown" [size]="18" />
+					Devenir Supporter
+				</button>
+				<p class="fine-print">Sans engagement, annulable à tout moment.</p>
+				<button class="later-link" (click)="close()">Plus tard</button>
+			} @else {
+				<span class="eyebrow">Encore une étape</span>
+				<h2>{{ authMode() === "register" ? "Crée ton compte" : "Connexion" }}</h2>
+				<p class="sub">Juste de quoi retrouver ton abonnement d'une session à l'autre.</p>
+
+				<div class="tabs">
+					<button class="tab" [class.active]="authMode() === 'register'" (click)="authMode.set('register')">
+						Créer un compte
+					</button>
+					<button class="tab" [class.active]="authMode() === 'login'" (click)="authMode.set('login')">
+						Connexion
+					</button>
+				</div>
+
+				<input
+					class="input"
+					type="email"
+					[(ngModel)]="emailValue"
+					placeholder="toi@example.com"
+					(keyup.enter)="submitAuth()"
+				/>
+				<input
+					class="input"
+					type="password"
+					[(ngModel)]="passwordValue"
+					placeholder="Mot de passe"
+					(keyup.enter)="submitAuth()"
+				/>
+
+				@if (error(); as err) {
+					<p class="error">{{ err }}</p>
+				}
+
+				<button class="btn btn-gold cta" [disabled]="loading()" (click)="submitAuth()">
+					{{ loading() ? "..." : "Continuer vers le paiement" }}
+				</button>
+			}
+		</div>
+	</div>
+}

@@ -15,6 +15,7 @@ import { MixRuntimeService } from '../../core/services/mix-runtime.service';
 import { AudioService } from '../../core/services/audio.service';
 import { SoundToggleComponent } from '../../shared/components/sound-toggle/sound-toggle.component';
 import { SupportBannerComponent } from '../../shared/components/support-banner/support-banner.component';
+import { SupporterOfferService } from '../../core/services/supporter-offer.service';
 import { burstParticles, countUp, punchIn, slideUp } from '../../shared/cinematic/cinematic';
 
 interface GameSettings {
@@ -87,6 +88,7 @@ export class RoomComponent implements OnDestroy {
     protected readonly mix: MixRuntimeService,
     protected readonly audio: AudioService,
     protected readonly playerAuth: PlayerAuthService,
+    private readonly supporterOffer: SupporterOfferService,
   ) {
     this.gamesService.list().subscribe((games) => this.games.set(games));
 
@@ -143,6 +145,8 @@ export class RoomComponent implements OnDestroy {
           slideUp(host.querySelector('.podium-top .podium-block.second'), { delay: 0.1 });
           slideUp(host.querySelector('.podium-top .podium-block.third'), { delay: 0.16 });
           burstParticles(host.querySelector('.rift-report'), { count: 46, colors: ['#c8aa6e', '#f0e6d2', '#3fd67a'] });
+          // Laisse la cinematique de victoire respirer avant de proposer l'offre.
+          setTimeout(() => this.supporterOffer.open(), 2600);
         } else {
           this.audio.play('round-win', { volume: 0.7 });
           const leader = host.querySelector('.mix-resume .rank-card.leader') as HTMLElement | null;

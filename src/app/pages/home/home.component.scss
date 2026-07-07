@@ -107,11 +107,17 @@ app-support-banner {
 
 .account-link {
 	z-index: 1;
+	display: flex;
+	align-items: center;
+	gap: 0.3rem;
 	font-size: 0.8rem;
 	color: var(--text-muted);
 	text-decoration: none;
 	letter-spacing: 0.03em;
 	transition: color var(--transition-fast);
+}
+.account-link app-icon {
+	color: var(--gold);
 }
 .account-link:hover {
 	color: var(--gold);

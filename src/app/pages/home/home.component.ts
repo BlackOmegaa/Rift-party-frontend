@@ -9,13 +9,14 @@ import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { RoomService } from "../../core/services/room.service";
 import { SupportBannerComponent } from "../../shared/components/support-banner/support-banner.component";
 import { PlayerAuthService } from "../../core/services/player-auth.service";
+import { IconComponent } from "../../shared/components/icon/icon.component";
 
 type Mode = "create" | "join";
 
 @Component({
 	selector: "app-home",
 	standalone: true,
-	imports: [FormsModule, SupportBannerComponent, RouterLink],
+	imports: [FormsModule, SupportBannerComponent, RouterLink, IconComponent],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	templateUrl: "./home.component.html",
 	styleUrl: "./home.component.scss",

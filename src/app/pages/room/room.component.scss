@@ -206,12 +206,18 @@ button {
 }
 
 .account-link {
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: .3rem;
   font-size: .78rem;
   color: var(--text-muted);
   text-decoration: none;
   letter-spacing: .03em;
   transition: color var(--transition-fast);
+}
+.account-link app-icon {
+  color: var(--gold);
 }
 .account-link:hover {
   color: var(--gold);
