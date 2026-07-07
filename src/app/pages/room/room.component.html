@@ -316,6 +316,9 @@
               <article class="game-wrap" [style.animation-delay.ms]="i * 65">
                 <button class="game-card" [attr.data-game]="game.id" [class.locked]="currentRoom.players.length < game.minPlayers" [disabled]="currentRoom.players.length < game.minPlayers" (click)="launchGame(game.id)">
                   <div class="game-bg"><app-icon [name]="iconFor(game.id)" [size]="22" /></div>
+                  @if (game.beta) {
+                    <span class="beta-tag">Accès anticipé</span>
+                  }
                   <h2>{{ game.label }}</h2>
                   <p>{{ game.description }}</p>
                   <div class="meta-line"><span>{{ game.minPlayers }}-{{ game.maxPlayers }} joueurs</span><span>{{ gameSettings.roundTimeSec() }}s</span></div>

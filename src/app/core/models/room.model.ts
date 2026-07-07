@@ -47,4 +47,6 @@ export interface MiniGame {
   minPlayers: number;
   maxPlayers: number;
   activeMix?: ActiveMix | null;
+  /** Mode en acces anticipe : visible uniquement si un abonne Supporter est present dans la room, voir RoomComponent.secondaryGames(). */
+  beta?: boolean;
 }

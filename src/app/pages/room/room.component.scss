@@ -34,6 +34,23 @@
       font-weight:600;
       box-shadow:0 4px 16px rgba(0,0,0,.35);
     }
+    .beta-tag{
+      align-self:flex-start;
+      position:relative;
+      z-index:2;
+      display:inline-flex;
+      align-items:center;
+      padding:.2rem .55rem;
+      margin-bottom:.2rem;
+      border-radius:999px;
+      background:linear-gradient(135deg,rgba(10,200,185,.22),rgba(200,170,110,.18));
+      border:1px solid rgba(10,200,185,.5);
+      color:var(--teal);
+      font-size:.62rem;
+      font-weight:900;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+    }
     .supporter-toast{
       position:fixed;
       top:.75rem;

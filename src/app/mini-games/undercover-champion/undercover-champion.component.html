@@ -68,7 +68,7 @@
 				>
 					{{ activePlayer() ? initials(activePlayer()!.pseudo) : "?" }}
 				</span>
-				<h2 class="spotlight-name">
+				<h2 class="spotlight-name" [class.supporter-name]="!isMyTurn() && activePlayer() && isSupporterPlayer(activePlayer()!.id)">
 					{{ isMyTurn() ? "C'est ton tour" : activePlayerPseudo() }}
 				</h2>
 				<p class="spotlight-hint">
@@ -114,13 +114,13 @@
 			<div class="word-feed-strip">
 				@for (entry of wordsRound1(); track entry.playerId) {
 					<span class="feed-chip" [class.me]="entry.playerId === room.myId()">
-						<b>{{ entry.pseudo }}</b>
+						<b [class.supporter-name]="isSupporterPlayer(entry.playerId)">{{ entry.pseudo }}</b>
 						{{ entry.timedOut ? "⏱" : entry.word }}
 					</span>
 				}
 				@for (entry of wordsRound2(); track entry.playerId) {
 					<span class="feed-chip round2" [class.me]="entry.playerId === room.myId()">
-						<b>{{ entry.pseudo }}</b>
+						<b [class.supporter-name]="isSupporterPlayer(entry.playerId)">{{ entry.pseudo }}</b>
 						{{ entry.timedOut ? "⏱" : entry.word }}
 					</span>
 				}
@@ -217,7 +217,7 @@
 							<span class="avatar" [style.background]="avatarColor(player.id)">{{
 								initials(player.pseudo)
 							}}</span>
-							<span class="vote-name">{{ player.pseudo }}</span>
+							<span class="vote-name" [class.supporter-name]="isSupporterPlayer(player.id)">{{ player.pseudo }}</span>
 							<div class="tally-bar">
 								<div class="tally-fill" [style.width.%]="voteTallyPct(player.id)"></div>
 							</div>

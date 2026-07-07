@@ -12,29 +12,59 @@
 
 /*
  * Aura Supporter : statut visible par TOUS les joueurs de la room, en
- * continu pendant toute la partie (jusqu'a 12 badges affiches en meme temps,
- * 10+ minutes de match) - deliberement STATIQUE (pas de keyframe en boucle,
- * contrairement au badge du haut de page qui n'est vu qu'une fois) pour
- * eviter la fatigue visuelle et le cout de repaint sur autant d'elements.
- * Les moments animes ("ziiinzin") sont reserves aux evenements ponctuels :
- * entree en room, victoire, confirmation d'abonnement.
+ * continu pendant toute la partie. Mouvement volontairement DISCRET (reflet
+ * qui balaie de temps en temps, pas un clignotement/pulse permanent) : reste
+ * "clean" sur 10+ minutes de match sans fatiguer l'oeil ni coincer le
+ * rendu, meme si plusieurs badges abonnes sont affiches en meme temps.
  */
 .player-badge.supporter {
+  position: relative;
+  overflow: hidden;
   border-color: rgba(200, 170, 110, 0.55);
   background:
     linear-gradient(160deg, rgba(200, 170, 110, 0.1), transparent 55%),
     var(--bg-elevated);
   box-shadow: 0 0 14px rgba(200, 170, 110, 0.12);
 }
+/* Reflet qui balaie le badge en boucle, avec une longue pause entre deux passages. */
+.player-badge.supporter::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, transparent 35%, rgba(240, 230, 210, 0.16) 50%, transparent 65%);
+  transform: translateX(-130%);
+  animation: player-badge-shine 4.5s ease-in-out infinite;
+  pointer-events: none;
+}
 .player-badge.supporter .pseudo {
+  position: relative;
+  z-index: 1;
   background: linear-gradient(90deg, var(--gold-bright), var(--gold) 55%, var(--gold-bright));
+  background-size: 200% auto;
   background-clip: text;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
+  animation: player-badge-text-shift 5s ease-in-out infinite;
 }
 .supporter-crown {
+  position: relative;
+  z-index: 1;
   color: var(--gold);
   flex-shrink: 0;
+  animation: player-badge-crown-tilt 4.5s ease-in-out infinite;
+}
+@keyframes player-badge-shine {
+  0%, 55% { transform: translateX(-130%); }
+  85%, 100% { transform: translateX(130%); }
+}
+@keyframes player-badge-text-shift {
+  0%, 100% { background-position: 0% center; }
+  50% { background-position: 100% center; }
+}
+@keyframes player-badge-crown-tilt {
+  0%, 80%, 100% { transform: rotate(0); }
+  85% { transform: rotate(-8deg); }
+  92% { transform: rotate(6deg); }
 }
 
 .dot {

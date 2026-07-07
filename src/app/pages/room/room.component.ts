@@ -262,7 +262,16 @@ export class RoomComponent implements OnDestroy {
   }
 
   partyMix() { return this.games().find((g) => g.id === 'party-mix'); }
-  secondaryGames() { return this.games().filter((g) => g.id !== 'party-mix'); }
+  /**
+   * Filtre aussi les modes `beta` (acces anticipe) tant qu'aucun abonne
+   * Supporter n'est present dans la room - meme logique communautaire que le
+   * contenu premium TikTok Ranking : un abonne "debloque" pour tout le
+   * groupe, il ne joue jamais seul dans son coin.
+   */
+  secondaryGames() {
+    const hasSupporter = this.room.players().some((p) => p.isSubscriber);
+    return this.games().filter((g) => g.id !== 'party-mix' && (!g.beta || hasSupporter));
+  }
   componentFor(gameId: string) { return MINI_GAME_COMPONENTS[gameId] ?? null; }
   iconFor(gameId: string): IconName { return ({ 'party-mix': 'sparkle', 'draft-battle': 'sword', 'guess-champion': 'question', 'fusion-champions': 'flask', 'turret-tank': 'tower', 'tiktok-ranking': 'list', 'whos-inting': 'skull', 'undercover-champion': 'mask', 'brume': 'fog', 'loldle': 'letters', 'intrus': 'search', 'vote-party': 'scale', 'last-survivor': 'crown', 'qui-suis-je': 'eye', 'croquis': 'brush' } as Record<string, IconName>)[gameId] ?? 'sparkle'; }
   accentFor(gameId?: string | null): string { return ({ 'party-mix': '#c8aa6e', 'draft-battle': '#c8aa6e', 'guess-champion': '#0ac8b9', 'fusion-champions': '#b673ff', 'turret-tank': '#ffb347', 'tiktok-ranking': '#ff4fd8', 'whos-inting': '#c13c4d', 'undercover-champion': '#6c5ce7', 'brume': '#c13c4d', 'loldle': '#3fd67a', 'intrus': '#e0a94a', 'vote-party': '#ff4fd8', 'last-survivor': '#c13c4d', 'qui-suis-je': '#0ac8b9', 'croquis': '#b673ff' } as Record<string, string>)[gameId ?? ''] ?? '#c8aa6e'; }

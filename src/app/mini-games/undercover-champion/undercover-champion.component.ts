@@ -233,6 +233,15 @@ export class UndercoverChampionComponent {
 		return pseudo.trim().slice(0, 2).toUpperCase();
 	}
 
+	/**
+	 * Skin Supporter sur le pseudo (feed de mots, votes, spotlight) : resolu
+	 * cote frontend via RoomService.players() (deja porteur d'isSubscriber),
+	 * aucun changement backend necessaire.
+	 */
+	protected isSupporterPlayer(playerId: string): boolean {
+		return this.room.players().find((p) => p.id === playerId)?.isSubscriber ?? false;
+	}
+
 	acknowledgeReveal(): void {
 		this.uc.acknowledgeReveal();
 		this.audio.play("ui-click", { volume: 0.6 });

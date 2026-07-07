@@ -39,8 +39,9 @@ export class SupporterOfferModalComponent {
 	protected readonly error = signal<string | null>(null);
 
 	protected readonly benefits = [
-		{ icon: "crown" as const, text: "Badge Supporter sur ton compte" },
-		{ icon: "sparkle" as const, text: "Accès prioritaire aux futurs avantages (rooms XXL, cosmétiques...)" },
+		{ icon: "crown" as const, text: "Aura dorée visible par tous tes potes en room" },
+		{ icon: "sparkle" as const, text: "Débloque du contenu exclusif pour tout le groupe" },
+		{ icon: "eye" as const, text: "Accès anticipé aux nouveaux modes avant tout le monde" },
 		{ icon: "handshake" as const, text: "Tu soutiens direct le développement du jeu" },
 	];
 
