@@ -1,0 +1,145 @@
+<div class="page">
+	<div class="hero-glow"></div>
+
+	<a class="back-link" routerLink="/">
+		<app-icon name="back" [size]="14" />
+		<span>Retour à l'accueil</span>
+	</a>
+
+	<div class="brand">
+		<h1>À <span>PROPOS</span></h1>
+		<p>Tout ce qu'il faut savoir sur Rift Party : le projet, le légal, tes données.</p>
+	</div>
+
+	<nav class="toc card">
+		<a href="#a-propos">À propos</a>
+		<a href="#mentions-legales">Mentions légales</a>
+		<a href="#confidentialite">Confidentialité</a>
+		<a href="#cgv">CGV</a>
+		<a href="#contact">Contact</a>
+	</nav>
+
+	<section id="a-propos" class="card section">
+		<h2><app-icon name="sparkle" [size]="18" /> À propos de Rift Party</h2>
+		<p>
+			Rift Party est un party game web sur le thème de League of Legends : des mini-jeux
+			multijoueurs à lancer entre amis, directement dans le navigateur, sans installation.
+			Le site est gratuit et développé par un développeur indépendant, sur son temps libre.
+		</p>
+		<p>
+			Un abonnement optionnel « Supporter » permet de soutenir le projet ; il n'est
+			nécessaire ni pour jouer, ni pour inviter des amis.
+		</p>
+		<div class="riot-disclaimer">
+			<p>
+				Rift Party est un projet de fan. Rift Party n'est pas approuvé par Riot Games et
+				ne reflète pas les opinions de Riot Games ou de quiconque participe officiellement
+				à la production de League of Legends. League of Legends et Riot Games sont des
+				marques déposées de Riot Games, Inc.
+			</p>
+		</div>
+	</section>
+
+	<section id="mentions-legales" class="card section">
+		<h2><app-icon name="scale" [size]="18" /> Mentions légales</h2>
+		<h3>Éditeur</h3>
+		<p>
+			Le site riftparty.com est édité à titre personnel par un développeur indépendant
+			(pas de société). Pour toute question, vous pouvez le contacter par email à
+			<a class="link" href="mailto:blackomegadu42@gmail.com">blackomegadu42&#64;gmail.com</a>.
+		</p>
+		<h3>Directeur de publication</h3>
+		<p>L'éditeur du site, joignable à la même adresse email.</p>
+		<h3>Hébergement</h3>
+		<ul>
+			<li>Site (frontend) : Netlify, Inc. — San Francisco, Californie, États-Unis (netlify.com).</li>
+			<li>Serveur et base de données : Railway Corp. — San Francisco, Californie, États-Unis (railway.com).</li>
+		</ul>
+		<h3>Paiements</h3>
+		<p>Les paiements sont opérés par Stripe (stripe.com), prestataire de paiement sécurisé.</p>
+	</section>
+
+	<section id="confidentialite" class="card section">
+		<h2><app-icon name="shield" [size]="18" /> Politique de confidentialité</h2>
+		<p>
+			Rift Party collecte le strict minimum, ne revend aucune donnée et ne fait pas de
+			profilage. Voici, en clair, ce qui est collecté et pourquoi.
+		</p>
+
+		<h3>Données collectées</h3>
+		<ul>
+			<li>
+				<strong>Pseudo de partie</strong> — le pseudo que tu choisis en rejoignant un salon
+				est éphémère : il n'est lié à aucune identité réelle et disparaît avec la partie.
+			</li>
+			<li>
+				<strong>Compte joueur (optionnel)</strong> — si tu crées un compte : ton adresse
+				email et ton mot de passe, stocké uniquement sous forme hashée (illisible, même
+				pour nous). Ces données servent à te connecter et à gérer ton abonnement, et sont
+				conservées tant que ton compte existe.
+			</li>
+			<li>
+				<strong>Mesure d'audience</strong> — une mesure d'audience interne repose sur un
+				identifiant aléatoire anonyme stocké dans le localStorage de ton navigateur. Il ne
+				permet pas de t'identifier et ne sert qu'à des statistiques globales (nombre de
+				visites, parties jouées).
+			</li>
+		</ul>
+
+		<h3>Paiements</h3>
+		<p>
+			Les paiements de l'abonnement Supporter sont entièrement traités par Stripe : ton
+			numéro de carte ne transite jamais par nos serveurs et nous n'y avons jamais accès.
+		</p>
+
+		<h3>Publicités</h3>
+		<p>
+			Le site affiche des publicités via Google AdSense. Google et ses partenaires peuvent
+			déposer des cookies publicitaires ; tu peux gérer ton consentement via la bannière
+			affichée par Google. Pour en savoir plus sur l'utilisation de ces données :
+			<a class="link" href="https://policies.google.com/technologies/partner-sites" target="_blank" rel="noopener noreferrer">policies.google.com/technologies/partner-sites</a>.
+		</p>
+
+		<h3>Tes droits (RGPD)</h3>
+		<p>
+			Conformément au RGPD, tu disposes d'un droit d'accès, de rectification et de
+			suppression de tes données. Pour l'exercer, écris simplement à
+			<a class="link" href="mailto:blackomegadu42@gmail.com">blackomegadu42&#64;gmail.com</a> —
+			la demande sera traitée dans les meilleurs délais.
+		</p>
+	</section>
+
+	<section id="cgv" class="card section">
+		<h2><app-icon name="crown" [size]="18" /> Conditions générales de vente — abonnement Supporter</h2>
+		<ul>
+			<li>
+				<strong>Prix et durée</strong> — l'abonnement Supporter coûte 3&nbsp;€ par mois,
+				sans engagement. Le paiement est effectué via Stripe.
+			</li>
+			<li>
+				<strong>Résiliation</strong> — tu peux résilier à tout moment depuis la page
+				Compte (via le portail Stripe). La résiliation prend effet à la fin de la période
+				en cours, sans frais.
+			</li>
+			<li>
+				<strong>Droit de rétractation</strong> — tu disposes de 14 jours après la
+				souscription pour te rétracter : le remboursement se fait sur simple demande par
+				email à
+				<a class="link" href="mailto:blackomegadu42@gmail.com">blackomegadu42&#64;gmail.com</a>.
+			</li>
+			<li>
+				<strong>Avantages</strong> — les avantages Supporter sont décrits sur la page
+				Compte et peuvent évoluer au fil des mises à jour du site.
+			</li>
+		</ul>
+	</section>
+
+	<section id="contact" class="card section">
+		<h2><app-icon name="send" [size]="18" /> Contact</h2>
+		<p>
+			Une question, un bug, une demande liée à tes données ou à ton abonnement ?
+			Écris-nous à
+			<a class="link" href="mailto:blackomegadu42@gmail.com">blackomegadu42&#64;gmail.com</a>.
+		</p>
+	</section>
+</div>

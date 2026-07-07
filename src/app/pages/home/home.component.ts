@@ -51,6 +51,8 @@ export class HomeComponent {
 	mode = signal<Mode>("create");
 	pseudo = "";
 	code = "";
+	/** Garde anti double-clic : un room:create/room:join est deja en vol, on attend la reponse (room:state -> navigation, ou room:error) avant d'autoriser un nouvel envoi. */
+	protected readonly busy = signal(false);
 	/** Code exact pre-rempli depuis un lien ?join=CODE, pour detecter si le joueur l'a modifie a la main avant de soumettre (auquel cas ce n'est plus une arrivee par invitation). Voir RoomService.joinRoom. */
 	private readonly prefilledInviteCode: string | null = null;
 
@@ -63,6 +65,12 @@ export class HomeComponent {
 		effect(() => {
 			const room = this.roomService.room();
 			if (room) this.router.navigate(["/room", room.code]);
+		});
+
+		// Le serveur a repondu par une erreur (pseudo pris, room introuvable...) :
+		// on relache la garde anti double-clic pour laisser retenter.
+		effect(() => {
+			if (this.roomService.error()) this.busy.set(false);
 		});
 
 		// Lien d'invitation (?join=CODE, voir copyInviteLink dans RoomComponent) :
@@ -82,6 +90,11 @@ export class HomeComponent {
 	}
 
 	submit(): void {
+		if (this.busy()) return;
+		this.busy.set(true);
+		// Filet de securite : si le serveur ne repond ni room:state ni room:error
+		// (backend injoignable), le bouton ne doit pas rester bloque indefiniment.
+		window.setTimeout(() => this.busy.set(false), 5000);
 		if (this.mode() === "create") {
 			this.roomService.createRoom(this.pseudo.trim());
 		} else {

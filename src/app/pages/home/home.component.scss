@@ -298,6 +298,26 @@ app-ad-slot {
 	color: var(--text-muted);
 }
 
+.legal-links {
+	margin-top: 0.75rem;
+	padding-bottom: 1.5rem;
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 0.35rem 1.1rem;
+	font-size: 0.72rem;
+
+	a {
+		color: var(--text-muted);
+		text-decoration: none;
+
+		&:hover {
+			color: var(--gold);
+			text-decoration: underline;
+		}
+	}
+}
+
 .hero-glow {
 	position: absolute;
 	inset: 0;

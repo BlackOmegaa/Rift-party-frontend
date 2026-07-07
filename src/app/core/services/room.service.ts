@@ -35,6 +35,10 @@ const PARTY_EVENTS = {
  */
 const SESSION_KEY = "rift-party-session";
 
+/** Retry du re-join automatique post-reconnexion (voir constructor) : apres une micro-coupure, l'ancien socket n'a pas encore timeout cote serveur (~20-45s) et le join repond "pseudo deja pris". Cadence 3s, abandon apres 90s (large marge sur le timeout serveur). */
+const AUTO_REJOIN_RETRY_MS = 3000;
+const AUTO_REJOIN_MAX_MS = 90_000;
+
 @Injectable({ providedIn: "root" })
 export class RoomService {
 	private readonly _room = signal<Room | null>(null);
@@ -48,11 +52,17 @@ export class RoomService {
 	private pendingPseudo: string | null = null;
 	private errorAutoClearTimer: ReturnType<typeof setTimeout> | null = null;
 
+	/** Etat du retry de re-join automatique post-reconnexion (voir startAutoRejoin) : session a re-tenter, timer du prochain essai, date limite d'abandon. Null/false = aucun retry en cours (cas nominal, y compris pour un join manuel depuis la home). */
+	private autoRejoinSession: { code: string; pseudo: string } | null = null;
+	private autoRejoinTimer: ReturnType<typeof setTimeout> | null = null;
+	private autoRejoinDeadline: number | null = null;
+	private readonly _autoRejoining = signal(false);
+
 	readonly room = this._room.asReadonly();
 	readonly error = this._error.asReadonly();
 	readonly lastGameStarted = this._lastGameStarted.asReadonly();
-	/** True si le transport socket est tombe alors qu'on etait dans une room : la reco est automatique (socket.io), mais le joueur a besoin d'un feedback le temps qu'on rejoigne. */
-	readonly reconnecting = computed(() => !this.socket.connected() && !!this._room());
+	/** True si on a besoin d'un feedback "reconnexion..." : transport socket tombe alors qu'on etait dans une room (la reco est automatique via socket.io), OU re-join automatique encore en cours apres la reco (retry "pseudo deja pris", voir startAutoRejoin). */
+	readonly reconnecting = computed(() => (!this.socket.connected() || this._autoRejoining()) && !!this._room());
 	/**
 	 * True si on a rejoint la room alors qu'une manche tournait deja : le
 	 * mini-jeu en cours n'a jamais recu notre etat initial (pool de
@@ -62,10 +72,12 @@ export class RoomService {
 	readonly joinedMidGame = this._joinedMidGame.asReadonly();
 	readonly justJoinedSupporter = this._justJoinedSupporter.asReadonly();
 
-	readonly myId = computed(() => this.socket.id);
+	// `socket.id` est un signal (mis a jour a chaque 'connect') : ces computed
+	// sont donc bien recalcules apres une reconnexion (nouveau socket.id).
+	readonly myId = computed(() => this.socket.id());
 	readonly isHost = computed(() => {
 		const room = this._room();
-		return !!room && room.hostId === this.socket.id;
+		return !!room && room.hostId === this.socket.id();
 	});
 	readonly players = computed<Player[]>(() => this._room()?.players ?? []);
 	readonly sortedByScore = computed<Player[]>(() =>
@@ -74,6 +86,8 @@ export class RoomService {
 
 	constructor(private readonly socket: SocketService) {
 		this.socket.on<Room>(ROOM_EVENTS.STATE, (room) => {
+			// Un state recu = on est bien dans la room : le re-join automatique (s'il tournait) a abouti.
+			this.stopAutoRejoin();
 			if (!this.hasReceivedFirstState) {
 				this.hasReceivedFirstState = true;
 				this._joinedMidGame.set(room.status === "in-game");
@@ -84,11 +98,16 @@ export class RoomService {
 			}
 		});
 		this.socket.on<{ message: string }>(ROOM_EVENTS.ERROR, (payload) => {
-			this._error.set(payload.message);
-			// Auto-dismiss : evite un message d'erreur (ex: "Room introuvable")
-			// qui reste affiche indefiniment si le joueur ne retente pas tout de suite.
-			if (this.errorAutoClearTimer) clearTimeout(this.errorAutoClearTimer);
-			this.errorAutoClearTimer = setTimeout(() => this._error.set(null), 6000);
+			// Re-join automatique post-reconnexion en cours : "pseudo deja pris"
+			// veut juste dire que l'ancien socket n'a pas encore timeout cote
+			// serveur. On retente en silence (pas de toast a chaque tentative)
+			// au lieu de laisser une UI zombie. Un join MANUEL depuis la home
+			// n'est jamais concerne (autoRejoinSession est null dans ce cas).
+			if (this.autoRejoinSession && /pseudo/i.test(payload.message) && /pris/i.test(payload.message)) {
+				this.scheduleAutoRejoinRetry();
+				return;
+			}
+			this.showError(payload.message);
 		});
 		this.socket.on<{ gameId: string }>(ROOM_EVENTS.GAME_STARTED, (payload) => {
 			this._lastGameStarted.set(payload.gameId);
@@ -111,12 +130,68 @@ export class RoomService {
 			try {
 				const session = JSON.parse(raw) as { code: string; pseudo: string };
 				if (session.code?.toUpperCase() === room.code.toUpperCase()) {
-					this.joinRoom(room.code, session.pseudo);
+					this.startAutoRejoin({ code: room.code, pseudo: session.pseudo });
 				}
 			} catch {
 				/* session corrompue, on abandonne la reco silencieusement */
 			}
 		});
+	}
+
+	/** Affiche une erreur serveur avec auto-dismiss : evite un message (ex: "Room introuvable") qui reste affiche indefiniment si le joueur ne retente pas tout de suite. */
+	private showError(message: string): void {
+		this._error.set(message);
+		if (this.errorAutoClearTimer) clearTimeout(this.errorAutoClearTimer);
+		this.errorAutoClearTimer = setTimeout(() => this._error.set(null), 6000);
+	}
+
+	/**
+	 * Lance (ou relance apres une nouvelle reco) le re-join automatique
+	 * post-reconnexion. Tant qu'il est actif, les erreurs "pseudo deja pris"
+	 * sont interceptees et le join est retente toutes les AUTO_REJOIN_RETRY_MS
+	 * (voir le handler ERROR du constructor), jusqu'a reception d'un
+	 * room:state, un leaveRoom, ou l'expiration de AUTO_REJOIN_MAX_MS.
+	 */
+	private startAutoRejoin(session: { code: string; pseudo: string }): void {
+		// Deadline conservee si un retry tourne deja (reconnexions en rafale) :
+		// on ne repousse pas l'abandon indefiniment.
+		if (!this.autoRejoinSession) this.autoRejoinDeadline = Date.now() + AUTO_REJOIN_MAX_MS;
+		this.autoRejoinSession = session;
+		this._autoRejoining.set(true);
+		this.joinRoom(session.code, session.pseudo);
+	}
+
+	/** Programme la prochaine tentative du re-join automatique, ou abandonne (avec une erreur visible) si la deadline est depassee. */
+	private scheduleAutoRejoinRetry(): void {
+		if (this.autoRejoinTimer) clearTimeout(this.autoRejoinTimer);
+		this.autoRejoinTimer = null;
+		if (!this.autoRejoinSession || !this.autoRejoinDeadline || Date.now() >= this.autoRejoinDeadline) {
+			this.stopAutoRejoin();
+			this.showError("Reconnexion a la room impossible. Recharge la page pour reessayer.");
+			return;
+		}
+		this.autoRejoinTimer = setTimeout(() => {
+			this.autoRejoinTimer = null;
+			const session = this.autoRejoinSession;
+			if (!session) return;
+			// Transport retombe entre-temps : on attend le prochain 'connect'
+			// (qui re-emettra le join) plutot que d'empiler des emits que
+			// socket.io bufferiserait puis enverrait en rafale.
+			if (!this.socket.connected()) {
+				this.scheduleAutoRejoinRetry();
+				return;
+			}
+			this.joinRoom(session.code, session.pseudo);
+		}, AUTO_REJOIN_RETRY_MS);
+	}
+
+	/** Coupe le re-join automatique : join abouti (room:state), room quittee, ou abandon apres deadline. */
+	private stopAutoRejoin(): void {
+		if (this.autoRejoinTimer) clearTimeout(this.autoRejoinTimer);
+		this.autoRejoinTimer = null;
+		this.autoRejoinSession = null;
+		this.autoRejoinDeadline = null;
+		this._autoRejoining.set(false);
 	}
 
 	createRoom(pseudo: string): void {
@@ -142,6 +217,7 @@ export class RoomService {
 	}
 
 	leaveRoom(): void {
+		this.stopAutoRejoin();
 		this.socket.emit(ROOM_EVENTS.LEAVE);
 		this._room.set(null);
 		this._joinedMidGame.set(false);

@@ -25,6 +25,11 @@ export const routes: Routes = [
     canActivate: [playerAuthGuard],
   },
   {
+    path: 'a-propos',
+    title: 'À propos & mentions légales — Rift Party',
+    loadComponent: () => import('./pages/a-propos/a-propos.component').then((m) => m.AProposComponent),
+  },
+  {
     path: 'rp-console',
     title: 'Console — Rift Party',
     loadComponent: () => import('./pages/admin-login/admin-login.component').then((m) => m.AdminLoginComponent),

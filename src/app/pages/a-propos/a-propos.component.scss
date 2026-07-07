@@ -1,0 +1,176 @@
+.page {
+	min-height: 100vh;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 1.4rem;
+	padding: 5rem 1.2rem 3rem;
+	position: relative;
+	overflow: hidden;
+}
+
+.hero-glow {
+	position: absolute;
+	inset: 0;
+	background: radial-gradient(
+		circle 500px at 50% 0%,
+		rgba(10, 200, 185, 0.1),
+		transparent 70%
+	);
+	pointer-events: none;
+}
+
+.back-link {
+	position: absolute;
+	top: 1.2rem;
+	left: 1.4rem;
+	z-index: 1;
+	display: flex;
+	align-items: center;
+	gap: 0.4rem;
+	font-size: 0.8rem;
+	color: var(--text-muted);
+	text-decoration: none;
+	transition: color var(--transition-fast);
+}
+.back-link:hover {
+	color: var(--gold);
+}
+
+.brand {
+	text-align: center;
+	z-index: 1;
+	max-width: 620px;
+}
+.brand h1 {
+	font-size: 2.6rem;
+	color: var(--gold-bright);
+	text-shadow: 0 0 30px rgba(200, 170, 110, 0.25);
+}
+.brand h1 span {
+	color: var(--teal);
+	text-shadow: 0 0 30px var(--teal-glow);
+}
+.brand p {
+	margin-top: 0.5rem;
+	font-size: 1rem;
+}
+
+/* Sommaire ancré */
+.toc {
+	z-index: 1;
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 0.3rem;
+	padding: 0.6rem;
+	animation: fade-in-up var(--transition-med);
+}
+.toc a {
+	padding: 0.45rem 0.85rem;
+	border-radius: var(--radius-md);
+	font-size: 0.82rem;
+	font-weight: 700;
+	color: var(--text-secondary);
+	text-decoration: none;
+	transition:
+		color var(--transition-fast),
+		background var(--transition-fast);
+}
+.toc a:hover {
+	color: var(--gold-bright);
+	background: var(--bg-elevated-hover);
+}
+
+.section {
+	width: 100%;
+	max-width: 760px;
+	padding: 1.8rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.9rem;
+	z-index: 1;
+	animation: fade-in-up var(--transition-med);
+	/* Laisse l'ancre respirer sous le bord haut de la fenêtre */
+	scroll-margin-top: 1.4rem;
+}
+.section h2 {
+	display: flex;
+	align-items: center;
+	gap: 0.6rem;
+	font-size: 1.25rem;
+	color: var(--gold-bright);
+}
+.section h2 app-icon {
+	color: var(--teal);
+	flex-shrink: 0;
+}
+.section h3 {
+	margin-top: 0.4rem;
+	font-size: 0.95rem;
+	font-weight: 800;
+	color: var(--gold);
+	letter-spacing: 0.02em;
+}
+.section p {
+	line-height: 1.65;
+	font-size: 0.92rem;
+}
+.section ul {
+	margin: 0;
+	padding-left: 1.2rem;
+	display: flex;
+	flex-direction: column;
+	gap: 0.6rem;
+}
+.section li {
+	color: var(--text-secondary);
+	line-height: 1.65;
+	font-size: 0.92rem;
+}
+.section li::marker {
+	color: var(--gold-dim);
+}
+.section strong {
+	color: var(--text-primary);
+}
+
+.link {
+	color: var(--teal);
+	text-decoration: none;
+	border-bottom: 1px solid rgba(10, 200, 185, 0.35);
+	transition: border-color var(--transition-fast);
+	overflow-wrap: anywhere;
+}
+.link:hover {
+	border-bottom-color: var(--teal);
+}
+
+/* Mention Riot "Legal Jibber Jabber" : mise en avant discrète */
+.riot-disclaimer {
+	margin-top: 0.3rem;
+	padding: 0.9rem 1.1rem;
+	border-left: 3px solid var(--gold-dim);
+	border-radius: var(--radius-sm);
+	background: rgba(200, 170, 110, 0.06);
+}
+.riot-disclaimer p {
+	font-size: 0.82rem;
+	color: var(--text-muted);
+	line-height: 1.6;
+}
+
+@media (max-width: 600px) {
+	.page {
+		padding: 4.4rem 0.8rem 2.4rem;
+	}
+	.brand h1 {
+		font-size: 2.1rem;
+	}
+	.section {
+		padding: 1.3rem 1.1rem;
+	}
+	.section h2 {
+		font-size: 1.1rem;
+	}
+}

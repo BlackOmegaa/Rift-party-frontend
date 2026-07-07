@@ -34,6 +34,28 @@
       font-weight:600;
       box-shadow:0 4px 16px rgba(0,0,0,.35);
     }
+    /* Toast des erreurs serveur en partie (voir room.component.html) : meme
+       design que le bandeau reconnexion, mais en bas pour ne pas se superposer
+       a lui ni au supporter-toast, et ne pas gener le gameplay. */
+    .error-toast{
+      position:fixed;
+      bottom:1.25rem;
+      left:50%;
+      transform:translateX(-50%);
+      z-index:60;
+      max-width:min(92vw,480px);
+      padding:.5rem 1rem;
+      border-radius:.5rem;
+      background:rgba(193,60,77,.92);
+      color:#fff;
+      font-size:.85rem;
+      font-weight:600;
+      text-align:center;
+      box-shadow:0 4px 16px rgba(0,0,0,.35);
+      animation:error-toast-in .25s ease-out both;
+      pointer-events:none;
+    }
+    @keyframes error-toast-in{from{opacity:0;transform:translate(-50%,8px);}to{opacity:1;transform:translate(-50%,0);}}
     .beta-tag{
       align-self:flex-start;
       position:relative;

@@ -61,10 +61,10 @@
 
 		<button
 			class="btn btn-primary submit"
-			[disabled]="!canSubmit()"
+			[disabled]="!canSubmit() || busy()"
 			(click)="submit()"
 		>
-			{{ mode() === "create" ? "Creer le lobby" : "Rejoindre le lobby" }}
+			{{ busy() ? "Connexion..." : mode() === "create" ? "Creer le lobby" : "Rejoindre le lobby" }}
 		</button>
 	</div>
 
@@ -129,4 +129,11 @@
 		Rift Party est un projet de fans, non affilié à Riot Games. League of Legends est une
 		marque déposée de Riot Games, Inc.
 	</p>
+	<nav class="legal-links" aria-label="Liens légaux">
+		<a routerLink="/a-propos">À propos</a>
+		<a routerLink="/a-propos" fragment="mentions-legales">Mentions légales</a>
+		<a routerLink="/a-propos" fragment="confidentialite">Confidentialité</a>
+		<a routerLink="/a-propos" fragment="cgv">CGV</a>
+		<a routerLink="/a-propos" fragment="contact">Contact</a>
+	</nav>
 </section>

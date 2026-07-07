@@ -32,13 +32,22 @@ export class SocketService {
 	private readonly _connected = signal(this.socket.connected);
 	readonly connected = this._connected.asReadonly();
 
-	constructor() {
-		this.socket.on("connect", () => this._connected.set(true));
-		this.socket.on("disconnect", () => this._connected.set(false));
-	}
+	/**
+	 * socket.id courant, expose en signal : socket.io genere un NOUVEL id a
+	 * chaque reconnexion, un simple getter fige donc tous les computed qui en
+	 * dependent (myId, isHost, isMyTurn...). On garde volontairement l'ancien
+	 * id pendant une deconnexion : l'etat de room encore affiche le reference,
+	 * le vider casserait les comparaisons (badge "moi", scores) le temps de la reco.
+	 */
+	private readonly _id = signal<string | undefined>(this.socket.id);
+	readonly id = this._id.asReadonly();
 
-	get id(): string | undefined {
-		return this.socket.id;
+	constructor() {
+		this.socket.on("connect", () => {
+			this._connected.set(true);
+			this._id.set(this.socket.id);
+		});
+		this.socket.on("disconnect", () => this._connected.set(false));
 	}
 
 	emit<T = unknown>(event: string, payload?: T): void {

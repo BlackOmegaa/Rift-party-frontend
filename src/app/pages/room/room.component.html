@@ -1,3 +1,9 @@
+<!-- Erreurs serveur emises en partie (mot refuse, vote invalide...) : sans ce toast,
+     seules celles de la home etaient visibles. Pendant le retry du re-join automatique,
+     "pseudo deja pris" est intercepte par RoomService et n'arrive jamais ici. -->
+@if (room.error(); as roomError) {
+  <div class="error-toast" role="alert">{{ roomError }}</div>
+}
 @if (room.room(); as currentRoom) {
   @if (roundIntro(); as intro) {
     <div class="round-intro" [class.phase-countdown]="intro.phase === 'countdown'" [class.small]="intro.isSmall" [style.--accent]="intro.accent">
