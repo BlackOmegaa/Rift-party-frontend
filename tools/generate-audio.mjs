@@ -241,75 +241,78 @@ const MR = 22050;
 console.log('Musiques :');
 
 /**
- * Boucle "tension" pour les manches : ostinato mineur 100 BPM, 8 mesures (19.2s).
- * Basse pulsée + arpège filtré + pad, pensé pour tourner bas en volume sous le jeu.
+ * Boucle "tension" pour les manches : ambiance discrete et feutree, pensee pour
+ * tourner tres bas sous le jeu sans jamais agresser. Que des sinus/triangles a
+ * attaque douce : sub-basse posee, nappe qui respire, motif plucke espace et
+ * un souffle d'air leger. 84 BPM, 8 mesures (~22.9s), boucle propre.
  */
 {
-  const BPM = 100, beats = 32, spb = 60 / BPM, dur = beats * spb;
+  const BPM = 84, spb = 60 / BPM, dur = 32 * spb;
   const L = buf(dur, MR), R = buf(dur, MR);
-  // Progression : Em - Em - C - D (2 mesures chacune... en fait 1 mesure chacune x2)
-  const roots = [52, 52, 48, 50, 52, 52, 48, 50]; // E2 E2 C2 D2 ...
-  const arpPattern = [0, 7, 12, 15, 12, 7]; // fondamentale, quinte, octave, tierce mineure haute
+  // Em - C - G - D : progression familiere, jouee tres bas
+  const roots = [52, 52, 48, 48, 43, 43, 50, 50]; // E2 E2 C2 C2 G1... (midi)
+  const chordOf = (root) => [root + 12, root + 19, root + 24, root + 27]; // fond., quinte, octave, tierce min haute
   for (let bar = 0; bar < 8; bar++) {
     const root = roots[bar];
     const barStart = bar * 4 * spb;
-    // Basse : croches pulsées
-    for (let e = 0; e < 8; e++) {
-      const amp = e % 2 === 0 ? 0.4 : 0.22;
-      addTone(L, MR, { freq: NOTE(root - 12), dur: spb * 0.45, start: barStart + e * spb * 0.5, amp, attack: 0.008, shape: 'triangle' });
-      addTone(R, MR, { freq: NOTE(root - 12), dur: spb * 0.45, start: barStart + e * spb * 0.5, amp, attack: 0.008, shape: 'triangle' });
+    // Sub-basse : une note posee par mesure, ronde et discrete
+    for (const [ch] of [[L], [R]]) {
+      addTone(ch, MR, { freq: NOTE(root - 12), dur: 3.6 * spb, start: barStart, amp: 0.3, attack: 0.06, decay: 3.4 * spb, shape: 'sine' });
     }
-    // Arpège : double-croches, ping-pong stéréo
-    for (let s = 0; s < 16; s++) {
-      const m = root + 12 + arpPattern[s % arpPattern.length];
-      const t = barStart + s * spb * 0.25;
-      const target = s % 2 === 0 ? L : R;
-      const other = s % 2 === 0 ? R : L;
-      addTone(target, MR, { freq: NOTE(m), dur: spb * 0.22, start: t, amp: 0.16, attack: 0.004, shape: 'triangle' });
-      addTone(other, MR, { freq: NOTE(m), dur: spb * 0.22, start: t, amp: 0.07, attack: 0.004, shape: 'triangle' });
+    // Nappe : accord tenu, attaque tres lente, leger chorus stereo
+    for (const m of chordOf(root)) {
+      addTone(L, MR, { freq: NOTE(m), dur: 4.4 * spb, start: barStart, amp: 0.045, attack: 1.4, decay: 4.2 * spb, shape: 'triangle', detune: 0.0025 });
+      addTone(R, MR, { freq: NOTE(m), dur: 4.4 * spb, start: barStart, amp: 0.045, attack: 1.4, decay: 4.2 * spb, shape: 'triangle', detune: -0.0025 });
     }
-    // Pad : accord tenu sur la mesure
-    for (const iv of [0, 3, 7]) {
-      for (const [ch, dt] of [[L, 0.002], [R, -0.002]]) {
-        addTone(ch, MR, { freq: NOTE(root + 12 + iv), dur: 4 * spb, start: barStart, amp: 0.05, attack: 0.8, decay: 4 * spb, shape: 'saw', detune: dt });
-      }
+    // Motif plucke : 2-3 notes espacees par mesure, jamais un arpege mitraillette
+    const motif = [
+      [0, root + 24], [1.5, root + 31], [3, root + 27],
+    ];
+    for (const [beat, m] of motif) {
+      const t = barStart + beat * spb;
+      const side = (bar + beat) % 2 === 0 ? L : R;
+      const other = side === L ? R : L;
+      addTone(side, MR, { freq: NOTE(m), dur: spb * 1.1, start: t, amp: 0.09, attack: 0.012, shape: 'sine' });
+      addTone(other, MR, { freq: NOTE(m), dur: spb * 1.1, start: t, amp: 0.045, attack: 0.012, shape: 'sine' });
     }
-    // Percussion : tick sur les temps 2 et 4
-    for (const beat of [1, 3]) {
-      addNoise(L, MR, { start: barStart + beat * spb, dur: 0.05, amp: 0.12, lpStart: 0.7, lpEnd: 0.2 });
-      addNoise(R, MR, { start: barStart + beat * spb, dur: 0.05, amp: 0.12, lpStart: 0.7, lpEnd: 0.2 });
+    // Souffle d'air : leger swell de bruit filtre sombre en fin de mesure paire
+    if (bar % 2 === 1) {
+      addNoise(L, MR, { start: barStart + 2 * spb, dur: 2 * spb, amp: 0.03, attack: spb, decay: spb, lpStart: 0.03, lpEnd: 0.08 });
+      addNoise(R, MR, { start: barStart + 2 * spb, dur: 2 * spb, amp: 0.03, attack: spb, decay: spb, lpStart: 0.03, lpEnd: 0.08 });
     }
   }
-  addEcho(L, MR, spb * 0.75, 0.25, 0.3);
-  addEcho(R, MR, spb * 0.5, 0.25, 0.3);
-  normalize(L, 0.75); normalize(R, 0.75);
+  addEcho(L, MR, spb * 0.75, 0.32, 0.4);
+  addEcho(R, MR, spb * 1.0, 0.32, 0.4);
+  normalize(L, 0.55); normalize(R, 0.55);
   writeWav('music-tension.wav', [L, R], MR);
 }
 
 /**
- * Boucle "ambient" pour lobby / écrans de scores : nappe lente et majestueuse,
- * 4 accords de 4.8s (19.2s), très douce.
+ * Boucle "ambient" pour lobby / ecrans de scores : nappe chaude et calme,
+ * sinus purs superposes avec chorus stereo lent, cloches rares et lointaines.
+ * 4 accords de 6s (24s), tres douce.
  */
 {
-  const dur = 19.2;
+  const chordDur = 6, dur = 4 * chordDur;
   const L = buf(dur, MR), R = buf(dur, MR);
-  const chords = [[48, 55, 60, 64], [45, 52, 57, 60], [50, 57, 62, 65], [43, 50, 59, 62]]; // C - Am - Dm - G
+  const chords = [[48, 55, 60, 64], [45, 52, 57, 64], [41, 48, 55, 60], [43, 50, 55, 62]]; // Cmaj - Am7 - Fmaj - G
   chords.forEach((chord, ci) => {
-    const start = ci * 4.8;
+    const start = ci * chordDur;
     chord.forEach((m, ni) => {
-      for (const [ch, dt] of [[L, 0.003], [R, -0.003]]) {
-        addTone(ch, MR, { freq: NOTE(m + 12), dur: 5.4, start, amp: 0.09, attack: 1.6, decay: 5.2, shape: 'saw', detune: dt });
-        addTone(ch, MR, { freq: NOTE(m), dur: 5.4, start, amp: 0.05, attack: 1.8, decay: 5.2, shape: 'sine' });
-      }
-      // petites cloches éparses
+      // Deux couches de sinus legerement desaccordees = chorus naturel, zero agressivite
+      addTone(L, MR, { freq: NOTE(m + 12), dur: chordDur + 1.2, start, amp: 0.07, attack: 2.2, decay: chordDur, shape: 'sine', detune: 0.002 });
+      addTone(R, MR, { freq: NOTE(m + 12), dur: chordDur + 1.2, start, amp: 0.07, attack: 2.2, decay: chordDur, shape: 'sine', detune: -0.002 });
+      addTone(L, MR, { freq: NOTE(m), dur: chordDur + 1.2, start, amp: 0.05, attack: 2.6, decay: chordDur, shape: 'triangle', detune: -0.0015 });
+      addTone(R, MR, { freq: NOTE(m), dur: chordDur + 1.2, start, amp: 0.05, attack: 2.6, decay: chordDur, shape: 'triangle', detune: 0.0015 });
+      // Une seule cloche lointaine par accord, sur la note la plus haute
       if (ni === chord.length - 1) {
-        addTone(ci % 2 ? L : R, MR, { freq: NOTE(m + 24), dur: 1.4, start: start + 1.2 + ni * 0.3, amp: 0.06, attack: 0.01 });
+        addTone(ci % 2 ? L : R, MR, { freq: NOTE(m + 24), dur: 2.6, start: start + 2.4, amp: 0.035, attack: 0.02, shape: 'sine' });
       }
     });
   });
-  addEcho(L, MR, 0.31, 0.35, 0.4);
-  addEcho(R, MR, 0.43, 0.35, 0.4);
-  normalize(L, 0.6); normalize(R, 0.6);
+  addEcho(L, MR, 0.37, 0.4, 0.45);
+  addEcho(R, MR, 0.53, 0.4, 0.45);
+  normalize(L, 0.5); normalize(R, 0.5);
   writeWav('music-ambient.wav', [L, R], MR);
 }
 

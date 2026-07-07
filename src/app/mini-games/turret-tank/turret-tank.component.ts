@@ -872,6 +872,13 @@ export class TurretTankComponent implements OnDestroy {
 	/** Resultat du round en cours, pilote l'overlay de verdict cinematique. */
 	protected verdict = signal<"correct" | "wrong" | "timeout" | null>(null);
 	private autoNextTimer?: ReturnType<typeof setTimeout>;
+	/**
+	 * Vrai apres ngOnDestroy : le handler socket de onGameRestarted n'est jamais
+	 * desinscrit, un GAME_RESTARTED tardif relancerait donc restart() (et son
+	 * RoundTimer) sur une instance morte — timer fantome qui peut appeler
+	 * submitMixSegment pendant le jeu suivant du Party Mix.
+	 */
+	private destroyed = false;
 	protected readonly timer = new RoundTimer();
 	protected remainingSec = signal(0);
 	private scenarios = this.shuffleScenarios();
@@ -907,6 +914,7 @@ export class TurretTankComponent implements OnDestroy {
 	) {
 		this.startRoundTimer();
 		this.room.onGameRestarted((payload) => {
+			if (this.destroyed) return;
 			if (payload.gameId === "turret-tank") this.restart();
 		});
 		effect(() => {
@@ -940,6 +948,7 @@ export class TurretTankComponent implements OnDestroy {
 		});
 	}
 	ngOnDestroy(): void {
+		this.destroyed = true;
 		this.timer.stop();
 		clearTimeout(this.autoNextTimer);
 	}

@@ -13,6 +13,8 @@
 	font-weight: 900;
 }
 .end-screen {
+	--end-accent: #0ac8b9;
+
 	position: relative;
 	overflow: hidden;
 	background:
@@ -60,10 +62,16 @@
 	object-position: 50% 15%;
 	filter: grayscale(100%) brightness(0.5) contrast(140%) blur(22px);
 	transform: scale(1.18);
-	transition: filter 0.9s ease, transform 6s cubic-bezier(0.2, 0.6, 0.3, 1);
+	transition: filter 0.9s ease, transform 6s cubic-bezier(0.2, 0.6, 0.3, 1), opacity 0.35s ease;
 	user-select: none;
 	pointer-events: none;
 	z-index: 0;
+}
+/* Changement de round : image masquee net (aucune transition) tant que la
+ * nouvelle n'a pas charge, pour ne jamais laisser voir la reponse en clair. */
+.cine-stage.swapping .stage-splash {
+	opacity: 0;
+	transition: none;
 }
 .cine-stage.locked .stage-splash {
 	/* Reveal + lent Ken Burns pour le cote cinema */
@@ -268,15 +276,16 @@
 	margin-top: -3vh;
 }
 .verdict-stamp {
-	font-size: clamp(3rem, 8vw, 5.5rem);
+	display: grid;
+	place-items: center;
 	line-height: 1;
 	color: #ff8a9a;
-	text-shadow: 0 0 40px rgba(193, 60, 77, 0.6);
+	filter: drop-shadow(0 0 20px rgba(193, 60, 77, 0.6));
 	animation: stamp-slam 0.5s cubic-bezier(0.16, 1.3, 0.3, 1) both;
 }
 .verdict.win .verdict-stamp {
 	color: #7dffb0;
-	text-shadow: 0 0 40px rgba(63, 214, 122, 0.6);
+	filter: drop-shadow(0 0 20px rgba(63, 214, 122, 0.6));
 }
 .verdict-name {
 	font-size: clamp(2.6rem, 8vw, 6rem);

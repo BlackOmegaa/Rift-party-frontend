@@ -13,6 +13,8 @@
 	font-weight: 900;
 }
 .end-screen {
+	--end-accent: #ffb347;
+
 	position: relative;
 	overflow: hidden;
 	background:
@@ -38,6 +40,10 @@
 	flex-direction: column;
 	align-items: center;
 	justify-content: center;
+	/* Tout est empile en flux normal (enigme -> chips -> tuiles) : le panneau de
+	   reponses ne peut structurellement plus recouvrir les stats, meme sur petit
+	   ecran. Seul le HUD du haut reste en absolu (fin, jamais genant). */
+	padding: 76px 1.2rem 1.2rem;
 	isolation: isolate;
 	transition: border-color 0.4s ease, box-shadow 0.4s ease;
 }
@@ -198,11 +204,12 @@
 	z-index: 5;
 	text-align: center;
 	max-width: min(880px, 88%);
-	margin-top: -8vh;
 	display: flex;
 	flex-direction: column;
 	gap: 0.5rem;
 	align-items: center;
+	/* Centre le bloc enigme+chips dans l'espace libre au-dessus des tuiles */
+	margin-top: auto;
 }
 .enigma .stake {
 	font-size: 0.74rem;
@@ -230,17 +237,18 @@
 
 /* ===== Stats en chips ===== */
 
+/* En flux normal, juste sous l'enigme : toujours visibles, jamais recouvertes
+   par la barre d'action (elles poussaient dessous en absolu pres du bas). */
 .stat-chips {
-	position: absolute;
-	bottom: 168px;
-	left: 50%;
-	transform: translateX(-50%);
+	position: relative;
 	z-index: 6;
+	margin-top: 1.3rem;
+	margin-bottom: auto;
 	display: flex;
 	flex-wrap: wrap;
 	justify-content: center;
 	gap: 0.55rem;
-	width: min(860px, 92%);
+	width: min(860px, 100%);
 }
 .chip {
 	display: inline-flex;
@@ -281,19 +289,21 @@
 	align-items: center;
 	gap: 0.4rem;
 	text-align: center;
-	margin-top: -4vh;
 	max-width: min(720px, 90%);
+	margin-top: auto;
+	margin-bottom: auto;
 }
 .verdict-stamp {
-	font-size: clamp(3rem, 8vw, 5.5rem);
+	display: grid;
+	place-items: center;
 	line-height: 1;
 	color: #ff8a9a;
-	text-shadow: 0 0 40px rgba(193, 60, 77, 0.6);
+	filter: drop-shadow(0 0 20px rgba(193, 60, 77, 0.6));
 	animation: stamp-slam 0.5s cubic-bezier(0.16, 1.3, 0.3, 1) both;
 }
 .verdict.win .verdict-stamp {
 	color: #7dffb0;
-	text-shadow: 0 0 40px rgba(63, 214, 122, 0.6);
+	filter: drop-shadow(0 0 20px rgba(63, 214, 122, 0.6));
 }
 .verdict-name {
 	font-size: clamp(2.6rem, 8vw, 5.4rem);
@@ -338,16 +348,17 @@
 /* ===== Barre d'action : QCM en tuiles ===== */
 
 .action-bar {
-	position: absolute;
-	bottom: 1.4rem;
-	left: 50%;
-	transform: translateX(-50%);
+	/* En flux normal (plus d'absolu ancre en bas) : impossible de recouvrir les
+	   chips de stats. Les marges auto sur enigme/chips centrent le contenu dans
+	   l'espace restant. */
+	position: relative;
 	z-index: 10;
 	display: flex;
 	flex-direction: column;
 	gap: 0.6rem;
 	align-items: center;
 	width: min(760px, 94%);
+	margin-top: 1.4rem;
 	padding: 0.85rem;
 	border-radius: 22px;
 	border: 1px solid rgba(255, 179, 71, 0.22);
@@ -534,8 +545,8 @@
 }
 
 @media (max-width: 860px) {
-	.action-bar {
-		bottom: 0.8rem;
+	.cine-stage {
+		padding: 72px 0.8rem 170px;
 	}
 	.choices {
 		grid-template-columns: repeat(5, 1fr);
@@ -546,10 +557,12 @@
 		font-size: 1.2rem;
 	}
 	.stat-chips {
-		bottom: 224px;
+		margin-top: 1rem;
+		gap: 0.45rem;
 	}
-	.enigma {
-		margin-top: -16vh;
+	.chip {
+		font-size: 0.82rem;
+		padding: 0.45rem 0.8rem;
 	}
 	.enigma h2 {
 		font-size: clamp(1.7rem, 7vw, 2.6rem);

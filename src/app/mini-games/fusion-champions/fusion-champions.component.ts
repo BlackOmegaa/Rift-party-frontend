@@ -227,7 +227,21 @@ export class FusionChampionsComponent implements OnDestroy {
 	firstOk = signal(false);
 	secondOk = signal(false);
 	lastGain = signal(0);
+	/**
+	 * Vrai pendant le changement de round : masque les deux splashs instantanement
+	 * (transition CSS coupee) jusqu'au `load` des nouvelles images. Sans ca, la
+	 * nouvelle paire apparait en clair ~1s le temps que le deflou du round
+	 * precedent se re-applique en sens inverse.
+	 */
+	splashesPending = signal(0);
 	private autoNextTimer?: ReturnType<typeof setTimeout>;
+	/**
+	 * Vrai apres ngOnDestroy : le handler socket de onGameRestarted n'est jamais
+	 * desinscrit, un GAME_RESTARTED tardif relancerait donc restart() (et son
+	 * RoundTimer) sur une instance morte — timer fantome qui peut appeler
+	 * submitMixSegment pendant le jeu suivant du Party Mix.
+	 */
+	private destroyed = false;
 	protected readonly timer = new RoundTimer();
 	protected remainingSec = signal(0);
 	first = "";
@@ -263,6 +277,7 @@ export class FusionChampionsComponent implements OnDestroy {
 		this.shuffleFusions();
 		this.startRoundTimer();
 		this.room.onGameRestarted((payload) => {
+			if (this.destroyed) return;
 			if (payload.gameId === "fusion-champions") this.restart();
 		});
 		effect(() => {
@@ -296,6 +311,7 @@ export class FusionChampionsComponent implements OnDestroy {
 		});
 	}
 	ngOnDestroy(): void {
+		this.destroyed = true;
 		this.timer.stop();
 		clearTimeout(this.autoNextTimer);
 	}
@@ -324,6 +340,9 @@ export class FusionChampionsComponent implements OnDestroy {
 	}
 	splash(name: string) {
 		return championSplashUrl(name);
+	}
+	onSplashLoaded() {
+		this.splashesPending.update((n) => Math.max(0, n - 1));
 	}
 	validate() {
 		if (this.locked()) return;
@@ -369,6 +388,7 @@ export class FusionChampionsComponent implements OnDestroy {
 		if (!this.locked()) return;
 		clearTimeout(this.autoNextTimer);
 		this.audio.play("swap", { volume: 0.7 });
+		this.splashesPending.set(2);
 		this.index.update((i) => i + 1);
 		if (this.finished()) {
 			this.timer.stop();
@@ -398,6 +418,7 @@ export class FusionChampionsComponent implements OnDestroy {
 	restart() {
 		this.shuffleFusions();
 		clearTimeout(this.autoNextTimer);
+		this.splashesPending.set(2);
 		this.submittedToMix.set(false);
 		this.index.set(0);
 		this.score.set(0);

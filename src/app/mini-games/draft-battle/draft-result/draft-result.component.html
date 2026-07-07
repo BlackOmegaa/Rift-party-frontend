@@ -2,9 +2,16 @@
 	<div class="header">
 		<span class="pseudo">{{ pseudoOf(result().playerId) }}</span>
 		@if (result().isWinner) {
-			<span class="badge badge-gold">Vainqueur</span>
+			<span class="badge badge-gold"
+				><app-icon name="check-circle" [size]="14" /> Vainqueur</span
+			>
 		}
-		<span class="total">{{ result().totalScore }} pts</span>
+		<span class="total"
+			><i class="total-num" [attr.data-target]="result().totalScore">{{
+				result().totalScore
+			}}</i>
+			pts</span
+		>
 	</div>
 	<div class="draft-icons">
 		@for (id of result().championIds; track id) {

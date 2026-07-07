@@ -14,6 +14,7 @@ import { MixRuntimeService } from "../../core/services/mix-runtime.service";
 import { UndercoverService } from "../../core/services/undercover.service";
 import { IconComponent } from "../../shared/components/icon/icon.component";
 import { AudioService } from "../../core/services/audio.service";
+import { animateEndScreen } from "../../shared/end-screen-animate";
 import {
 	burstParticles,
 	pulse,
@@ -122,15 +123,24 @@ export class UndercoverChampionComponent {
 
 	private readonly hostElement = inject(ElementRef<HTMLElement>);
 
+	/** Timers de mise en scene : suivis en champ pour etre annules a chaque relance ET a la destruction (sinon un son/flip peut se jouer apres la fin de la manche en Party Mix). */
+	private flipTimer?: ReturnType<typeof setTimeout>;
+	private flipSfxTimer?: ReturnType<typeof setTimeout>;
+	private revealTimer?: ReturnType<typeof setTimeout>;
+
 	constructor(
 		protected readonly room: RoomService,
 		protected readonly mix: MixRuntimeService,
 		protected readonly uc: UndercoverService,
 		private readonly audio: AudioService,
 	) {
-		const destroyRef = inject(DestroyRef);
 		const ticker = setInterval(() => this.now.set(Date.now()), 250);
-		destroyRef.onDestroy(() => clearInterval(ticker));
+		inject(DestroyRef).onDestroy(() => {
+			clearInterval(ticker);
+			clearTimeout(this.flipTimer);
+			clearTimeout(this.flipSfxTimer);
+			clearTimeout(this.revealTimer);
+		});
 		// Toujours se resynchroniser au montage : les events one-shot (START,
 		// REVEAL...) peuvent avoir ete emis par le serveur avant que ce
 		// composant (et les listeners d'UndercoverService) n'existent.
@@ -141,15 +151,16 @@ export class UndercoverChampionComponent {
 			const word = this.uc.myWord();
 			if (this.uc.phase() !== "reveal" || !word) return;
 			this.wordFlipped.set(false);
+			clearTimeout(this.flipTimer);
+			clearTimeout(this.flipSfxTimer);
 			requestAnimationFrame(() => {
 				const host = this.hostElement.nativeElement;
 				punchIn(host.querySelector(".word-card-3d"));
-				const flipTimer = setTimeout(() => {
+				this.flipTimer = setTimeout(() => {
 					this.wordFlipped.set(true);
 					this.audio.play("whoosh", { volume: 0.6 });
-					setTimeout(() => this.audio.play("impact", { volume: 0.7 }), 260);
+					this.flipSfxTimer = setTimeout(() => this.audio.play("impact", { volume: 0.7 }), 260);
 				}, 550);
-				destroyRef.onDestroy(() => clearTimeout(flipTimer));
 			});
 		});
 
@@ -192,7 +203,8 @@ export class UndercoverChampionComponent {
 			this.audio.play("countdown-tick", { volume: 0.5 });
 			const host = this.hostElement.nativeElement;
 			requestAnimationFrame(() => punchIn(host.querySelector(".mystery-mask")));
-			const timer = setTimeout(() => {
+			clearTimeout(this.revealTimer);
+			this.revealTimer = setTimeout(() => {
 				this.suspense.set(false);
 				this.audio.play("reveal", { volume: 0.8 });
 				requestAnimationFrame(() => {
@@ -207,7 +219,6 @@ export class UndercoverChampionComponent {
 					});
 				});
 			}, 1600);
-			destroyRef.onDestroy(() => clearTimeout(timer));
 		});
 	}
 
@@ -265,7 +276,13 @@ export class UndercoverChampionComponent {
 			const host = this.hostElement.nativeElement;
 			punchIn(host.querySelector(".results-stage > div:not(.reveal-mystery)"));
 		});
-		if (this.resultStage() === 3) this.submitMix();
+		if (this.resultStage() === 3) {
+			this.submitMix();
+			// Ecran de scores final : count-up cinematique sur les points (marqueurs [data-count-up]).
+			animateEndScreen(this.hostElement.nativeElement, {
+				onCountTick: () => this.audio.play("score-tick", { volume: 0.4 }),
+			});
+		}
 	}
 
 	private submitMix(): void {

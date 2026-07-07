@@ -6,6 +6,7 @@ import {
 	DestroyRef,
 	effect,
 	inject,
+	OnDestroy,
 	signal,
 } from "@angular/core";
 import { gsap } from "gsap";
@@ -34,7 +35,7 @@ import {
 import { championSplashUrl, championSquareUrl } from "../../shared/lol-assets";
 import { IconComponent, IconName } from "../../shared/components/icon/icon.component";
 import { AudioService } from "../../core/services/audio.service";
-import { burstParticles, pulse } from "../../shared/cinematic/cinematic";
+import { burstParticles, countUp, pulse } from "../../shared/cinematic/cinematic";
 
 const ROLE_ORDER: Role[] = ["TOP", "JUNGLE", "MID", "ADC", "SUPPORT"];
 const ROLE_LABEL: Record<Role, string> = {
@@ -53,8 +54,45 @@ const ROLE_LABEL: Record<Role, string> = {
 	templateUrl: "./draft-battle.component.html",
 	styleUrl: "./draft-battle.component.scss",
 })
-export class DraftBattleComponent {
+export class DraftBattleComponent implements OnDestroy {
 	protected readonly roles = ROLE_ORDER;
+
+	/**
+	 * Vrai des que le composant est detruit. Sert de garde-fou aux boucles de
+	 * re-essai `requestAnimationFrame(() => this.animateXxx())` : sans lui, un
+	 * composant demonte pendant que le DOM cible n'existe pas encore laissait
+	 * une boucle rAF infinie tourner pour toujours (querySelector rate ->
+	 * re-planification a chaque frame), bien apres la fin du jeu.
+	 */
+	private destroyed = false;
+	/**
+	 * Toutes les animations GSAP a callbacks (timelines de reveal, pulses de
+	 * confirmation, transition "Drafter !", delayedCalls...) creees par ce
+	 * composant : tuees en bloc dans ngOnDestroy. Leurs `.call()`/`onComplete`
+	 * jouent des sons (fanfare, impacts, decompte) et font avancer des signaux
+	 * (`revealMatchup`, `drafterReady`, `advanceStep`) — aucun ne doit survivre
+	 * au composant, surtout en Party Mix ou le jeu suivant est deja a l'ecran.
+	 */
+	private readonly liveAnims: gsap.core.Animation[] = [];
+
+	/** Enregistre une animation GSAP pour la tuer a la destruction (et purge au passage celles deja terminees pour que la liste reste courte). */
+	private track<T extends gsap.core.Animation>(anim: T): T {
+		for (let i = this.liveAnims.length - 1; i >= 0; i--) {
+			if (this.liveAnims[i].totalProgress() === 1) this.liveAnims.splice(i, 1);
+		}
+		this.liveAnims.push(anim);
+		return anim;
+	}
+
+	ngOnDestroy(): void {
+		this.destroyed = true;
+		this.vsRevealTimeline?.kill();
+		this.vsRevealTimeline = null;
+		this.vsRevealReadyCall?.kill();
+		this.vsRevealReadyCall = null;
+		for (const anim of this.liveAnims) anim.kill();
+		this.liveAnims.length = 0;
+	}
 
 	// ---- phase de pick (partagee : mode simple, et rejouee a chaque round de tournoi) ----
 	private readonly picksByRole = signal<Partial<Record<Role, Champion>>>({});
@@ -209,6 +247,7 @@ export class DraftBattleComponent {
 	 * affiche (cf. l'effect qui l'appelle).
 	 */
 	private animateBracketReveal(): void {
+		if (this.destroyed) return;
 		const svg = document.querySelector<SVGSVGElement>(".svg-bracket");
 		if (!svg) {
 			// Le dialog vient tout juste de s'ouvrir : Angular n'a peut-etre pas
@@ -232,7 +271,7 @@ export class DraftBattleComponent {
 		gsap.set(roundLabels, { opacity: 0, y: -10 });
 		gsap.set(playerInners, { opacity: 0, x: -20, scale: 0.92 });
 
-		const tl = gsap.timeline();
+		const tl = this.track(gsap.timeline());
 
 		tl.to(roundLabels, { opacity: 1, y: 0, duration: 0.35, stagger: 0.08, ease: "power2.out" }, 0);
 
@@ -266,12 +305,15 @@ export class DraftBattleComponent {
 		// suppose le SVG deja mis en page : ca, en revanche, peut attendre un frame
 		// sans creer de flash visible (ce sont de simples traits qui se dessinent).
 		requestAnimationFrame(() => {
+			if (this.destroyed) return;
 			for (const path of Array.from(svg.querySelectorAll<SVGPathElement>(".svg-path.active"))) {
 				const length = path.getTotalLength();
-				gsap.fromTo(
-					path,
-					{ strokeDasharray: length, strokeDashoffset: length },
-					{ strokeDashoffset: 0, duration: 0.6, ease: "power2.inOut", delay: 0.35 },
+				this.track(
+					gsap.fromTo(
+						path,
+						{ strokeDasharray: length, strokeDashoffset: length },
+						{ strokeDashoffset: 0, duration: 0.6, ease: "power2.inOut", delay: 0.35 },
+					),
 				);
 			}
 		});
@@ -292,6 +334,7 @@ export class DraftBattleComponent {
 	private vsRevealReadyCall: gsap.core.Tween | null = null;
 
 	private animateVsReveal(): void {
+		if (this.destroyed) return;
 		this.drafterReady.set(false);
 		const stage = document.querySelector(".vs-reveal-inline");
 		if (!stage) {
@@ -405,7 +448,8 @@ export class DraftBattleComponent {
 		gsap.killTweensOf([modal, flash].filter(Boolean) as Element[]);
 		if (flash) gsap.set(flash, { opacity: 0, scale: 0.15 });
 
-		const tl = gsap.timeline({ onComplete });
+		// Trackee : son onComplete declenche revealMatchup() — jamais apres destroy.
+		const tl = this.track(gsap.timeline({ onComplete }));
 		// Petit recul avant l'impact, comme un "chargement" du coup.
 		tl.to(modal, { scale: 0.985, duration: 0.14, ease: "power1.in" })
 			// Impact : secousse breve + onde de choc qui explose depuis le centre.
@@ -433,6 +477,7 @@ export class DraftBattleComponent {
 	 */
 	private animateFinalRecap(): void {
 		requestAnimationFrame(() => {
+			if (this.destroyed) return;
 			const popup = document.querySelector<HTMLElement>(".final-popup");
 			if (!popup) return;
 
@@ -440,12 +485,18 @@ export class DraftBattleComponent {
 			const crown = popup.querySelector(".champion-spotlight .crown");
 			const rows = popup.querySelectorAll(".placement-row");
 			const footer = popup.querySelector(".final-popup-footer");
+			const points = popup.querySelectorAll<HTMLElement>(".pts-num");
 
 			gsap.killTweensOf([spotlight, crown, rows, footer].filter(Boolean) as Element[]);
 
+			// Les points partent de 0 AVANT le premier paint du popup : le count-up
+			// (lance plus bas, une fois les rangees posees) ne doit jamais laisser
+			// entrevoir la valeur finale une fraction de seconde.
+			points.forEach((el) => (el.textContent = "0"));
+
 			this.audio.play("fanfare", { volume: 0.85 });
 
-			const tl = gsap.timeline();
+			const tl = this.track(gsap.timeline());
 			if (spotlight) {
 				tl.from(spotlight, {
 					opacity: 0,
@@ -475,6 +526,20 @@ export class DraftBattleComponent {
 					"-=0.15",
 				);
 			}
+			// Count-up des points de chaque placement une fois les rangees posees
+			// (helper partage cinematic.ts) : la cible est portee par data-target.
+			if (points.length) {
+				tl.call(
+					() => {
+						if (this.destroyed) return;
+						points.forEach((el) =>
+							countUp(el, Number(el.dataset["target"]) || 0, { duration: 0.9 }),
+						);
+					},
+					undefined,
+					"-=0.05",
+				);
+			}
 			if (footer) {
 				tl.from(footer, { opacity: 0, y: 10, duration: 0.3, ease: "power1.out" }, "-=0.1");
 			}
@@ -489,22 +554,41 @@ export class DraftBattleComponent {
 	 */
 	private animateSimpleResults(): void {
 		requestAnimationFrame(() => {
+			if (this.destroyed) return;
 			const stage = document.querySelector<HTMLElement>(".results-stage");
 			if (!stage) return;
 			const title = stage.querySelector(".stage-title");
 			const cards = stage.querySelectorAll<HTMLElement>("app-draft-result .result");
 			const winnerCard = stage.querySelector<HTMLElement>("app-draft-result .result.winner");
+			const totals = stage.querySelectorAll<HTMLElement>("app-draft-result .total-num");
 
 			gsap.killTweensOf([title, ...Array.from(cards)].filter(Boolean) as Element[]);
 
+			// Comme dans animateFinalRecap : scores a 0 avant le premier paint,
+			// pour que le count-up ne laisse pas flasher la valeur finale.
+			totals.forEach((el) => (el.textContent = "0"));
+
 			this.audio.play("fanfare", { volume: 0.85 });
 
-			const tl = gsap.timeline();
+			const tl = this.track(gsap.timeline());
 			if (title) tl.from(title, { opacity: 0, y: -16, duration: 0.4, ease: "power2.out" });
 			if (cards.length) {
 				tl.from(
 					cards,
 					{ opacity: 0, y: 24, scale: 0.96, duration: 0.45, stagger: 0.1, ease: "back.out(1.6)" },
+					"-=0.1",
+				);
+			}
+			// Count-up GSAP des scores une fois les cartes posees (helper partage).
+			if (totals.length) {
+				tl.call(
+					() => {
+						if (this.destroyed) return;
+						totals.forEach((el) =>
+							countUp(el, Number(el.dataset["target"]) || 0, { duration: 1 }),
+						);
+					},
+					undefined,
 					"-=0.1",
 				);
 			}
@@ -1096,7 +1180,9 @@ export class DraftBattleComponent {
 			onComplete?.();
 			return;
 		}
-		gsap.timeline({ onComplete })
+		// Trackee : son onComplete fait avancer l'etape de pick (advanceStep) —
+		// jamais apres destroy.
+		this.track(gsap.timeline({ onComplete }))
 			.to(el, { scale: 1.07, duration: 0.12, ease: "power2.out" })
 			.to(el, { scale: 1, duration: 0.2, ease: "power1.inOut", clearProps: "scale" });
 	}
@@ -1117,11 +1203,12 @@ export class DraftBattleComponent {
 	 */
 	private animateOffersEntrance(): void {
 		requestAnimationFrame(() => {
+			if (this.destroyed) return;
 			const cards = document.querySelectorAll<HTMLElement>(".pick-card");
 			if (!cards.length) return;
 			gsap.killTweensOf(cards);
 			this.audio.play("whoosh", { volume: 0.55 });
-			const tl = gsap.timeline();
+			const tl = this.track(gsap.timeline());
 			tl.from(cards, {
 				opacity: 0,
 				y: -90,

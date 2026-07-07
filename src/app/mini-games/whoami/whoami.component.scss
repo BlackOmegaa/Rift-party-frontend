@@ -13,6 +13,8 @@
 	font-weight: 900;
 }
 .end-screen {
+	--end-accent: #0ac8b9;
+
 	position: relative;
 	overflow: hidden;
 	background:
@@ -428,6 +430,20 @@
 	color: var(--danger);
 	text-shadow: 0 0 26px rgba(193, 60, 77, 0.4);
 }
+.verdict-panel .verdict-icon {
+	display: grid;
+	place-items: center;
+	line-height: 0;
+	margin-bottom: 0.2rem;
+}
+.verdict-panel.oui .verdict-icon {
+	color: var(--success);
+	filter: drop-shadow(0 0 14px rgba(63, 214, 122, 0.5));
+}
+.verdict-panel.non .verdict-icon {
+	color: var(--danger);
+	filter: drop-shadow(0 0 14px rgba(193, 60, 77, 0.5));
+}
 
 .stage-line {
 	color: var(--text-secondary);
@@ -512,6 +528,18 @@
 	gap: 0.3rem;
 	text-align: center;
 	padding: 1rem 1.4rem;
+}
+.guess-stamp-icon {
+	display: grid;
+	place-items: center;
+	line-height: 0;
+	color: #ff8a9a;
+	filter: drop-shadow(0 0 26px rgba(193, 60, 77, 0.55));
+	animation: stamp-slam 0.5s cubic-bezier(0.16, 1.3, 0.3, 1) both;
+}
+.guess-banner.win .guess-stamp-icon {
+	color: #7dffb0;
+	filter: drop-shadow(0 0 26px rgba(63, 214, 122, 0.55));
 }
 .guess-stamp {
 	font-size: clamp(1.6rem, 4vw, 2.6rem);
@@ -665,7 +693,18 @@
 /* ===== Fin de partie ===== */
 
 .end-screen .reveal-row {
-	grid-template-columns: 44px 1fr auto;
+	grid-template-columns: 44px 1fr auto auto;
+}
+.end-screen .lb-flag {
+	display: grid;
+	place-items: center;
+	line-height: 0;
+	color: var(--danger);
+	opacity: 0.85;
+}
+.end-screen .lb-flag.ok {
+	color: var(--end-accent, #0ac8b9);
+	filter: drop-shadow(0 0 10px rgba(10, 200, 185, 0.45));
 }
 .lb-img {
 	width: 44px;

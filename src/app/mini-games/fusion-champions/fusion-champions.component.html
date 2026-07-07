@@ -49,6 +49,7 @@
 		<main
 			class="cine-stage"
 			[class.locked]="locked()"
+			[class.swapping]="splashesPending() > 0"
 			[class.won]="verdict() === 'correct'"
 			[class.lost]="verdict() === 'wrong' || verdict() === 'timeout'"
 		>
@@ -57,12 +58,14 @@
 					class="stage-splash left"
 					draggable="false"
 					[src]="splash(fusion().a)"
+					(load)="onSplashLoaded()"
 					alt=""
 				/>
 				<img
 					class="stage-splash right"
 					draggable="false"
 					[src]="splash(fusion().b)"
+					(load)="onSplashLoaded()"
 					alt=""
 				/>
 			</div>
@@ -114,15 +117,15 @@
 			} @else {
 				<!-- Verdict cinématique : chaque moitié de la fusion validée séparément -->
 				<div class="verdict" [class.win]="verdict() === 'correct'">
-					<span class="verdict-stamp">{{ verdict() === "correct" ? "✔" : "✗" }}</span>
+					<span class="verdict-stamp"><app-icon [name]="verdict() === 'correct' ? 'check-circle' : 'x-circle'" [size]="72" /></span>
 					<div class="verdict-duo">
 						<span class="verdict-half" [class.ok]="firstOk()" [class.ko]="!firstOk()">
-							<em>{{ firstOk() ? "✔" : "✗" }}</em>
+							<em><app-icon [name]="firstOk() ? 'check-circle' : 'x-circle'" [size]="24" /></em>
 							<strong>{{ fusion().a }}</strong>
 						</span>
 						<b class="verdict-plus">+</b>
 						<span class="verdict-half" [class.ok]="secondOk()" [class.ko]="!secondOk()">
-							<em>{{ secondOk() ? "✔" : "✗" }}</em>
+							<em><app-icon [name]="secondOk() ? 'check-circle' : 'x-circle'" [size]="24" /></em>
 							<strong>{{ fusion().b }}</strong>
 						</span>
 					</div>

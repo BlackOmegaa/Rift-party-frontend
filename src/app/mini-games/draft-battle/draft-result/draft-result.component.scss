@@ -6,24 +6,45 @@
 	flex-direction: column;
 	gap: 0.7rem;
 }
+/* Carte du vainqueur : c'est elle qui porte le "spotlight" de l'ecran final
+ * (accent or #c8aa6e, meme langage que _end-screen.scss). */
 .result.winner {
 	border-color: var(--gold);
-	box-shadow: 0 0 24px rgba(200, 170, 110, 0.18);
+	background: linear-gradient(160deg, rgba(200, 170, 110, 0.14), rgba(1, 10, 19, 0.4));
+	box-shadow: 0 0 42px rgba(200, 170, 110, 0.24);
 }
 .header {
 	display: flex;
 	align-items: center;
 	gap: 0.6rem;
 }
+.header .badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.3rem;
+}
 .pseudo {
 	font-weight: 700;
 	font-size: 1.05rem;
 	flex: 1;
 }
+.result.winner .pseudo {
+	color: var(--gold-bright);
+	font-weight: 900;
+}
 .total {
 	color: var(--teal);
 	font-weight: 700;
 	font-variant-numeric: tabular-nums;
+}
+.total-num {
+	font-style: normal;
+}
+.result.winner .total {
+	color: var(--gold-bright);
+	font-size: 1.2rem;
+	font-weight: 900;
+	text-shadow: 0 0 24px rgba(200, 170, 110, 0.55);
 }
 .draft-icons {
 	display: flex;

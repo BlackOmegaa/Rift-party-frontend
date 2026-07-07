@@ -617,9 +617,53 @@
 	place-items: center;
 	color: var(--teal);
 }
+/* Ecran final du mode simple : scene cinematique plein ecran alignee sur le
+ * langage partage de _end-screen.scss (spotlight radial fixe qui respire,
+ * accent or #c8aa6e, fondu d'entree retarde de 0.18s). Le retard evite le
+ * flash d'une fraction de seconde quand le Party Mix enchaine quasi
+ * instantanement sur son propre ecran de scores. */
 .results-stage {
+	position: relative;
+	overflow: hidden;
+	isolation: isolate;
+	min-height: calc(100vh - 3.2rem);
+	justify-content: center;
+	border-radius: 28px;
+	border: 1px solid rgba(200, 170, 110, 0.35);
+	animation: fade-in 0.4s ease 0.18s both;
+}
+.results-stage::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	z-index: -1;
+	background:
+		radial-gradient(ellipse 70% 55% at 50% 25%, rgba(200, 170, 110, 0.16), transparent 70%),
+		radial-gradient(ellipse 100% 70% at 50% 110%, rgba(1, 6, 12, 0.9), transparent 55%);
+	animation: results-glow 3.4s ease-in-out infinite;
+	pointer-events: none;
+}
+@keyframes results-glow {
+	0%,
+	100% {
+		opacity: 0.75;
+	}
+	50% {
+		opacity: 1;
+	}
+}
+.results-stage .stage-title .eyebrow {
+	letter-spacing: 0.3em;
+	color: var(--gold);
+	text-shadow: 0 0 20px rgba(200, 170, 110, 0.5);
+}
+.results-stage .stage-title h2 {
+	font-size: clamp(1.9rem, 4.6vw, 3.1rem);
+	text-shadow: 0 6px 34px rgba(0, 0, 0, 0.8), 0 0 70px rgba(200, 170, 110, 0.35);
+}
+.results-stage app-draft-result {
+	width: min(560px, 100%);
 	text-align: left;
-	align-items: stretch;
 }
 
 .cinematic-overlay {
@@ -1010,12 +1054,38 @@
 	padding: 0.75rem 1rem;
 	background: rgba(1, 10, 19, 0.5);
 }
+/* Badge de rang, meme lecture que le podium de _end-screen.scss (.lb-row b) */
+.placement-row .placement-rank {
+	flex-shrink: 0;
+	width: 28px;
+	height: 28px;
+	border-radius: 9px;
+	display: grid;
+	place-items: center;
+	font-size: 0.78rem;
+	font-weight: 900;
+	color: var(--text-muted);
+	background: rgba(255, 255, 255, 0.05);
+}
+/* Le vainqueur = vraie rangee podium : plus grande, doree, avec glow */
 .placement-row.champion {
+	padding: 0.95rem 1rem;
 	border-color: rgba(200, 170, 110, 0.7);
-	background: rgba(200, 170, 110, 0.1);
+	background: linear-gradient(90deg, rgba(200, 170, 110, 0.18), rgba(1, 10, 19, 0.6));
+	box-shadow: 0 0 32px rgba(200, 170, 110, 0.16);
+}
+.placement-row.champion .placement-rank {
+	width: 32px;
+	height: 32px;
+	color: #120d05;
+	background: linear-gradient(135deg, var(--gold-dim), var(--gold));
+	box-shadow: 0 0 16px rgba(200, 170, 110, 0.45);
 }
 .placement-row strong {
 	color: var(--gold-bright);
+}
+.placement-row.champion strong {
+	font-size: 1.05rem;
 }
 .placement-row span {
 	flex: 1;
@@ -1026,7 +1096,14 @@
 .placement-row em {
 	font-style: normal;
 	font-weight: 900;
+	font-variant-numeric: tabular-nums;
 	color: var(--success);
+}
+.placement-row .pts-num {
+	font-style: normal;
+}
+.placement-row.champion em {
+	color: var(--gold-bright);
 }
 
 .bracket-slot.eliminated {
@@ -2346,6 +2423,10 @@
 	place-items: center;
 	overflow: hidden;
 	background: rgba(2, 6, 14, 0.94);
+	/* Fondu retarde anti-flash (meme convention que _end-screen.scss) : quand le
+	 * Party Mix enchaine sur son ecran de scores en ~100-200ms, le recap final
+	 * n'a pas le temps d'apparaitre puis disparaitre brutalement. */
+	animation: fade-in 0.4s ease 0.18s both;
 }
 .final-bracket-backdrop {
 	position: absolute;

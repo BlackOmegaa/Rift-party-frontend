@@ -18,6 +18,7 @@ import { championLoadingUrl } from '../../shared/lol-assets';
 import { BrumeChatChannel, BrumeNightRecap, BrumePhase, BrumeRole, BRUME_ROLE_LABELS, BRUME_ROLE_META, BRUME_TEAM_LABELS } from '../../core/models/brume.model';
 import { IconComponent } from '../../shared/components/icon/icon.component';
 import { AudioService } from '../../core/services/audio.service';
+import { animateEndScreen } from '../../shared/end-screen-animate';
 import { burstParticles, floatScore, punchIn, shake, slideUp } from '../../shared/cinematic/cinematic';
 
 const REACTIONS = ['👀', '😱', '🤫', '🔥', '😈'];
@@ -48,6 +49,11 @@ export class BrumeComponent {
   private readonly now = signal(Date.now());
   private seenDawn: BrumeNightRecap | null = null;
   private seenVote: { eliminatedId: string | null; eliminatedPseudo: string | null } | null = null;
+  /** Timers d'annonces/scroll suivis en champs : annules a la destruction (sinon un son/une annonce peut se jouer apres la fin de la manche en Party Mix). */
+  private dawnDelayTimer?: ReturnType<typeof setTimeout>;
+  private dawnHideTimer?: ReturnType<typeof setTimeout>;
+  private voteHideTimer?: ReturnType<typeof setTimeout>;
+  private readonly scrollTimers = new Set<ReturnType<typeof setTimeout>>();
 
   private readonly packFeedRef = viewChild<ElementRef<HTMLDivElement>>('packFeed');
   private readonly dayFeedRef = viewChild<ElementRef<HTMLDivElement>>('dayFeed');
@@ -109,7 +115,14 @@ export class BrumeComponent {
     private readonly audio: AudioService,
   ) {
     const ticker = setInterval(() => this.now.set(Date.now()), 250);
-    inject(DestroyRef).onDestroy(() => clearInterval(ticker));
+    inject(DestroyRef).onDestroy(() => {
+      clearInterval(ticker);
+      clearTimeout(this.dawnDelayTimer);
+      clearTimeout(this.dawnHideTimer);
+      clearTimeout(this.voteHideTimer);
+      this.scrollTimers.forEach((t) => clearTimeout(t));
+      this.scrollTimers.clear();
+    });
     // Toujours se resynchroniser au montage : les events one-shot (START,
     // REVEAL, NIGHT_STARTED...) peuvent avoir ete emis avant que ce composant
     // n'existe.
@@ -147,7 +160,9 @@ export class BrumeComponent {
       if (dawn && dawn !== this.seenDawn) {
         this.seenDawn = dawn;
         this.audio.play('whoosh', { volume: 0.5 });
-        setTimeout(() => {
+        clearTimeout(this.dawnDelayTimer);
+        clearTimeout(this.dawnHideTimer);
+        this.dawnDelayTimer = setTimeout(() => {
           this.dawnAnnounce.set(dawn);
           this.audio.play(dawn.deaths.length ? 'impact' : 'reveal', { volume: 0.85 });
           if (dawn.deaths.length) {
@@ -157,7 +172,7 @@ export class BrumeComponent {
             });
           }
         }, 900);
-        setTimeout(() => this.dawnAnnounce.set(null), 5900);
+        this.dawnHideTimer = setTimeout(() => this.dawnAnnounce.set(null), 5900);
       }
     });
     effect(() => {
@@ -166,7 +181,8 @@ export class BrumeComponent {
         this.seenVote = vr;
         this.voteAnnounce.set(vr);
         this.audio.play(vr.eliminatedId ? 'impact' : 'reveal', { volume: 0.75 });
-        setTimeout(() => this.voteAnnounce.set(null), 4200);
+        clearTimeout(this.voteHideTimer);
+        this.voteHideTimer = setTimeout(() => this.voteAnnounce.set(null), 4200);
       }
     });
 
@@ -213,9 +229,11 @@ export class BrumeComponent {
     el.scrollTop = el.scrollHeight;
     // Filet de securite : si plusieurs messages arrivent quasi simultanement
     // (rafale), une deuxieme passe corrige un scrollHeight mesure trop tot.
-    setTimeout(() => {
+    const timer = setTimeout(() => {
+      this.scrollTimers.delete(timer);
       el.scrollTop = el.scrollHeight;
     }, 60);
+    this.scrollTimers.add(timer);
   }
 
   private myPseudo(): string | undefined {
@@ -345,7 +363,13 @@ export class BrumeComponent {
   nextResultStage(): void {
     if (this.resultStage() >= 1) return;
     this.resultStage.update((s) => s + 1);
-    if (this.resultStage() === 1) this.submitMix();
+    if (this.resultStage() === 1) {
+      this.submitMix();
+      // Ecran de scores final : count-up cinematique sur les points (marqueurs [data-count-up]).
+      animateEndScreen(this.hostElement.nativeElement, {
+        onCountTick: () => this.audio.play('score-tick', { volume: 0.4 }),
+      });
+    }
   }
 
   private submitMix(): void {

@@ -539,9 +539,36 @@
 
 /* ===== Results : reveal cinématique final ===== */
 .results-stage {
+	--end-accent: #6c5ce7;
+
 	padding: 2.4rem 1.6rem;
 	gap: 1.6rem;
 	text-align: center;
+	/* Fondu retarde ~0.18s : en Party Mix le backend enchaine sur l'ecran de
+	 * scores du Mix en ~100-200ms, ce delai evite le flash de l'ecran de fin. */
+	animation: uc-end-in 0.4s ease 0.18s both;
+}
+@keyframes uc-end-in {
+	from { opacity: 0; }
+	to { opacity: 1; }
+}
+/* Spotlight central fixe qui respire (pas de rotation), meme langage que _end-screen.scss */
+.results-stage::before {
+	content: "";
+	position: absolute;
+	inset: 0;
+	z-index: 0;
+	pointer-events: none;
+	background: radial-gradient(
+		ellipse 70% 55% at 50% 30%,
+		color-mix(in srgb, var(--end-accent), transparent 84%),
+		transparent 70%
+	);
+	animation: uc-end-glow 3.4s ease-in-out infinite;
+}
+@keyframes uc-end-glow {
+	0%, 100% { opacity: 0.75; }
+	50% { opacity: 1; }
 }
 .results-stage.won {
 	border-color: rgba(63, 214, 122, 0.5);
@@ -576,6 +603,24 @@
 .reveal-identity {
 	animation: revealFade 0.6s ease-out both;
 }
+/* Gros stamp de verdict (undercover demasque ou non) */
+.identity-verdict-icon {
+	display: grid;
+	place-items: center;
+	line-height: 0;
+	color: #ff8a9a;
+	filter: drop-shadow(0 0 28px rgba(193, 60, 77, 0.55));
+	animation: verdict-stamp-in 0.55s cubic-bezier(0.16, 1.3, 0.3, 1) both;
+}
+.identity-verdict-icon.caught {
+	color: #7dffb0;
+	filter: drop-shadow(0 0 28px rgba(63, 214, 122, 0.55));
+}
+@keyframes verdict-stamp-in {
+	0% { opacity: 0; transform: scale(2); }
+	60% { opacity: 1; transform: scale(0.94); }
+	100% { opacity: 1; transform: scale(1); }
+}
 .mystery-mask {
 	margin-top: 1rem;
 	display: grid;
@@ -591,12 +636,17 @@
 .found-pill {
 	margin-top: 0.6rem;
 	display: inline-flex;
+	align-items: center;
+	gap: 0.45rem;
 	border: 1px solid rgba(193, 60, 77, 0.4);
 	background: rgba(193, 60, 77, 0.1);
 	color: #ff9aa8;
 	border-radius: 999px;
 	padding: 0.5rem 1rem;
 	font-weight: 900;
+}
+.found-pill app-icon {
+	line-height: 0;
 }
 .found-pill.caught {
 	border-color: rgba(63, 214, 122, 0.42);
@@ -702,6 +752,26 @@
 }
 .score-row em.zero {
 	color: var(--text-muted);
+}
+/* Podium : la premiere ligne du classement final passe en dore, plus grande */
+.score-row.leader {
+	padding: 0.95rem 1rem;
+	border-color: rgba(200, 170, 110, 0.65);
+	background: linear-gradient(90deg, rgba(200, 170, 110, 0.18), rgba(6, 4, 14, 0.5));
+	box-shadow: 0 0 32px rgba(200, 170, 110, 0.16);
+}
+.score-row.leader strong {
+	color: var(--gold-bright);
+	font-size: 1.05rem;
+}
+.score-row.leader em {
+	font-size: 1.3rem;
+	color: var(--gold-bright);
+	text-shadow: 0 0 18px rgba(200, 170, 110, 0.45);
+}
+.score-row.leader em.zero {
+	color: var(--text-muted);
+	text-shadow: none;
 }
 
 /* ===== RIFT BUTTONS ===== */

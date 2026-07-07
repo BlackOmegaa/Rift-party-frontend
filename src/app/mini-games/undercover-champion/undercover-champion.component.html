@@ -256,13 +256,17 @@
 						@case (0) {
 							<div class="reveal-identity">
 								<span class="eyebrow">Undercover Champion</span>
+								<span class="identity-verdict-icon" [class.caught]="results.found">
+									<app-icon [name]="results.found ? 'check-circle' : 'x-circle'" [size]="72" />
+								</span>
 								<h2>{{ results.undercoverPseudo }}</h2>
 								<div class="found-pill" [class.caught]="results.found">
-									{{
+									<app-icon [name]="results.found ? 'check-circle' : 'x-circle'" [size]="18" />
+									<span>{{
 										results.found
 											? "Démasqué par le lobby"
 											: "S'en sort sans être démasqué"
-									}}
+									}}</span>
 								</div>
 							</div>
 						}
@@ -309,10 +313,11 @@
 							<div class="reveal-scores">
 								<span class="eyebrow">Scores de la manche</span>
 								<div class="score-grid">
-									@for (row of scoreRows(); track row.id) {
+									@for (row of scoreRows(); track row.id; let i = $index) {
 										<article
 											class="score-row"
 											[class.undercover]="row.id === results.undercoverId"
+											[class.leader]="i === 0"
 										>
 											<div class="history-who">
 												<span class="avatar" [style.background]="avatarColor(row.id)">{{
@@ -320,7 +325,7 @@
 												}}</span>
 												<strong>{{ row.pseudo }}</strong>
 											</div>
-											<em [class.zero]="row.points <= 0">+{{ row.points }}</em>
+											<em [class.zero]="row.points <= 0">+<span data-count-up>{{ row.points }}</span></em>
 										</article>
 									}
 								</div>

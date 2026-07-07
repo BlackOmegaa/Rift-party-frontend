@@ -88,7 +88,8 @@
 .teammate-chip em { font-style: normal; color: #ff9aa8; font-weight: 700; }
 
 /* ===== Rappel de role (bouton persistant hors reveal) ===== */
-.role-reminder-btn { position: fixed; right: 1.4rem; bottom: 1.4rem; z-index: 150; width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; border: 1px solid rgba(200,170,110,.4); background: rgba(6,12,20,.82); backdrop-filter: blur(6px); color: var(--gold); cursor: pointer; box-shadow: 0 8px 24px rgba(0,0,0,.4); transition: transform .18s, border-color .18s; }
+/* bottom: 4.6rem et pas 1.4rem : la place en bas a droite est prise par le bouton son global (sound-toggle), on s'empile au-dessus. */
+.role-reminder-btn { position: fixed; right: 1.1rem; bottom: 4.6rem; z-index: 150; width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center; border: 1px solid rgba(200,170,110,.4); background: rgba(6,12,20,.82); backdrop-filter: blur(6px); color: var(--gold); cursor: pointer; box-shadow: 0 8px 24px rgba(0,0,0,.4); transition: transform .18s, border-color .18s; }
 .role-reminder-btn:hover { transform: translateY(-2px); border-color: var(--gold); }
 .role-reminder-backdrop { position: fixed; inset: 0; z-index: 200; display: grid; place-items: center; padding: 1.5rem; background: rgba(1,6,12,.72); backdrop-filter: blur(6px); animation: overlay-in .2s ease both; }
 .role-reminder-card { position: relative; width: min(420px, 100%); }
@@ -102,7 +103,8 @@
   gap: 1.4rem;
 }
 .main-content { display: flex; flex-direction: column; gap: 1.4rem; min-width: 0; }
-.results-stage { animation: stage-in .4s cubic-bezier(.2,1,.4,1) both; }
+/* Fondu retarde ~0.18s : en Party Mix le backend enchaine sur l'ecran de scores du Mix en ~100-200ms, ce delai evite le flash de l'ecran de fin. */
+.results-stage { animation: stage-in .4s cubic-bezier(.2,1,.4,1) .18s both; }
 
 /* ===== Glossaire des roles (panneau lateral droit) ===== */
 .roles-legend { display: flex; flex-direction: column; gap: .6rem; padding: 1rem .9rem; border-radius: 16px; border: 1px solid var(--border-subtle); background: rgba(15,18,26,.5); align-self: start; }
@@ -215,8 +217,9 @@
 .mini-tag { font-size: .62rem; background: rgba(200,170,110,.16); border: 1px solid rgba(200,170,110,.3); border-radius: 999px; padding: .1rem .4rem; color: var(--gold-bright); animation: card-pop .2s ease both; }
 .wait-pill { align-self: center; border: 1px solid rgba(200,170,110,.32); border-radius: 999px; padding: .65rem 1.1rem; color: var(--gold-bright); font-weight: 900; background: rgba(200,170,110,.08); }
 
-/* ===== Results ===== */
-.results-stage { position: relative; overflow: hidden; padding: 2.4rem 1.6rem; display: flex; flex-direction: column; align-items: center; gap: 1.6rem; text-align: center; }
+/* ===== Results : plein ecran + spotlight fixe qui respire (meme langage que _end-screen.scss) ===== */
+.results-stage { --end-accent: #c13c4d; position: relative; overflow: hidden; isolation: isolate; min-height: calc(100vh - 3.2rem); padding: 2.4rem 1.6rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1.6rem; text-align: center; }
+.results-stage::before { content: ""; position: absolute; inset: 0; z-index: 0; pointer-events: none; background: radial-gradient(ellipse 70% 55% at 50% 30%, color-mix(in srgb, var(--end-accent), transparent 84%), transparent 70%); animation: end-glow 3.4s ease-in-out infinite; }
 .results-stage > *:not(.confetti) { position: relative; z-index: 1; }
 .reveal-winner h2 { font-size: clamp(1.8rem, 4.5vw, 3rem); color: var(--gold-bright); text-transform: uppercase; margin-top: .5rem; text-shadow: 0 0 30px rgba(200,170,110,.35); animation: title-glow 1.8s ease-in-out infinite; }
 .role-grid { display: flex; flex-direction: column; gap: .55rem; width: 100%; max-width: 560px; }
@@ -232,6 +235,11 @@
 .score-row strong { color: var(--gold-bright); }
 .score-row em { font-style: normal; font-weight: 900; color: var(--success); }
 .score-row em.zero { color: var(--text-muted); }
+/* Podium : la premiere ligne du classement final passe en dore, plus grande */
+.score-row.leader { padding: .95rem 1rem; border-color: rgba(200,170,110,.65); background: linear-gradient(90deg, rgba(200,170,110,.18), rgba(1,10,19,.5)); box-shadow: 0 0 32px rgba(200,170,110,.16); }
+.score-row.leader strong { font-size: 1.05rem; }
+.score-row.leader em { font-size: 1.3rem; color: var(--gold-bright); text-shadow: 0 0 18px rgba(200,170,110,.45); }
+.score-row.leader em.zero { color: var(--text-muted); text-shadow: none; }
 
 /* ===== Confetti ===== */
 .confetti { position: absolute; inset: 0; overflow: hidden; pointer-events: none; z-index: 0; }
@@ -250,6 +258,7 @@
 @keyframes verdict-rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
 @keyframes title-glow { 0%, 100% { text-shadow: 0 0 30px rgba(200,170,110,.35); } 50% { text-shadow: 0 0 50px rgba(200,170,110,.6); } }
 @keyframes row-in { from { opacity: 0; transform: translateX(-14px); } to { opacity: 1; transform: none; } }
+@keyframes end-glow { 0%, 100% { opacity: .75; } 50% { opacity: 1; } }
 @keyframes confetti-fall { 0% { transform: translateY(0) rotate(0deg); opacity: 0; } 8% { opacity: 1; } 100% { transform: translateY(560px) rotate(560deg); opacity: 0; } }
 
 @media (max-width: 860px) {

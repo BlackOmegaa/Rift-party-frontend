@@ -49,6 +49,7 @@
 		<main
 			class="cine-stage"
 			[class.locked]="locked()"
+			[class.swapping]="splashSwapping()"
 			[class.won]="verdict() === 'correct'"
 			[class.lost]="verdict() === 'wrong' || verdict() === 'timeout'"
 		>
@@ -56,6 +57,7 @@
 				class="stage-splash"
 				draggable="false"
 				[src]="splash(round().answer)"
+				(load)="splashSwapping.set(false)"
 				alt=""
 			/>
 			<div class="stage-vignette"></div>
@@ -106,7 +108,7 @@
 			} @else {
 				<!-- Verdict cinématique -->
 				<div class="verdict" [class.win]="verdict() === 'correct'">
-					<span class="verdict-stamp">{{ verdict() === "correct" ? "✔" : "✗" }}</span>
+					<span class="verdict-stamp"><app-icon [name]="verdict() === 'correct' ? 'check-circle' : 'x-circle'" [size]="72" /></span>
 					<strong class="verdict-name">{{ round().answer }}</strong>
 					<span class="verdict-points">
 						@switch (verdict()) {

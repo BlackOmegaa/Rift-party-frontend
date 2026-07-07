@@ -117,7 +117,7 @@
 			} @else {
 				<!-- Verdict cinématique -->
 				<div class="verdict" [class.win]="verdict() === 'correct'">
-					<span class="verdict-stamp">{{ verdict() === "correct" ? "✔" : "✗" }}</span>
+					<span class="verdict-stamp"><app-icon [name]="verdict() === 'correct' ? 'check-circle' : 'x-circle'" [size]="72" /></span>
 					<strong class="verdict-name">{{ scenario().answer }} coups</strong>
 					<span class="verdict-points">
 						@switch (verdict()) {

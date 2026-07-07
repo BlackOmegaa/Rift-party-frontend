@@ -38,9 +38,10 @@ const MUSIC_FADE_MS = 900;
 @Injectable({ providedIn: 'root' })
 export class AudioService {
   readonly muted = signal(false);
+  /** Volumes exposes en signaux : le panneau son (sound-toggle) les affiche en sliders. */
+  readonly sfxVolume = signal(0.7);
+  readonly musicVolume = signal(0.25);
 
-  private sfxVolume = 0.7;
-  private musicVolume = 0.35;
   private readonly sfxCache = new Map<SfxName, Howl>();
   private readonly musicCache = new Map<MusicName, Howl>();
   private currentMusic: MusicName | null = null;
@@ -49,8 +50,8 @@ export class AudioService {
     try {
       const prefs = JSON.parse(localStorage.getItem(PREFS_KEY) ?? '{}') as Partial<AudioPrefs>;
       this.muted.set(prefs.muted ?? false);
-      this.sfxVolume = prefs.sfxVolume ?? 0.7;
-      this.musicVolume = prefs.musicVolume ?? 0.35;
+      this.sfxVolume.set(prefs.sfxVolume ?? 0.7);
+      this.musicVolume.set(prefs.musicVolume ?? 0.25);
     } catch {
       // prefs corrompues : on repart sur les valeurs par defaut
     }
@@ -61,7 +62,7 @@ export class AudioService {
   play(name: SfxName, options?: { volume?: number; rate?: number }): void {
     const howl = this.sfx(name);
     const id = howl.play();
-    howl.volume((options?.volume ?? 1) * this.sfxVolume, id);
+    howl.volume((options?.volume ?? 1) * this.sfxVolume(), id);
     if (options?.rate) howl.rate(options.rate, id);
   }
 
@@ -76,7 +77,20 @@ export class AudioService {
     }
     const next = this.music(name);
     if (!next.playing()) next.play();
-    next.fade(0, this.musicVolume, MUSIC_FADE_MS);
+    next.fade(0, this.musicVolume(), MUSIC_FADE_MS);
+  }
+
+  setMusicVolume(volume: number): void {
+    const clamped = Math.max(0, Math.min(1, volume));
+    this.musicVolume.set(clamped);
+    // Applique en direct sur la boucle en cours, sans attendre le prochain crossfade.
+    if (this.currentMusic) this.musicCache.get(this.currentMusic)?.volume(clamped);
+    this.persist();
+  }
+
+  setSfxVolume(volume: number): void {
+    this.sfxVolume.set(Math.max(0, Math.min(1, volume)));
+    this.persist();
   }
 
   stopMusic(): void {
@@ -116,7 +130,7 @@ export class AudioService {
   private persist(): void {
     localStorage.setItem(
       PREFS_KEY,
-      JSON.stringify({ muted: this.muted(), sfxVolume: this.sfxVolume, musicVolume: this.musicVolume } satisfies AudioPrefs),
+      JSON.stringify({ muted: this.muted(), sfxVolume: this.sfxVolume(), musicVolume: this.musicVolume() } satisfies AudioPrefs),
     );
   }
 }

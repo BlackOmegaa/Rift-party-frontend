@@ -455,9 +455,9 @@
               <span class="eyebrow">Scores de la manche</span>
               <div class="score-grid">
                 @for (row of scoreRows(); track row.id; let i = $index) {
-                  <article class="score-row" [style.animation-delay.ms]="i * 70">
+                  <article class="score-row" [class.leader]="i === 0" [style.animation-delay.ms]="i * 70">
                     <strong>{{ row.pseudo }}</strong>
-                    <em [class.zero]="row.points <= 0">+{{ row.points }}</em>
+                    <em [class.zero]="row.points <= 0">+<span data-count-up>{{ row.points }}</span></em>
                   </article>
                 }
               </div>

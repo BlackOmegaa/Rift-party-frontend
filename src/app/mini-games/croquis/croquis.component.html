@@ -9,7 +9,7 @@
 					<div class="lb-row" [class.me]="row.playerId === room.myId()" [class.leader]="i === 0">
 						<b>{{ i + 1 }}</b>
 						<span>{{ row.pseudo }}</span>
-						<strong>{{ row.points }} pts</strong>
+						<strong><span data-count-up>{{ row.points }}</span> pts</strong>
 					</div>
 				}
 			</div>
@@ -150,6 +150,7 @@
 			</div>
 
 			<div class="score-orb" [class.win]="myRoundPoints() > 0">
+				<span class="orb-flag"><app-icon [name]="myRoundPoints() > 0 ? 'check-circle' : 'x-circle'" [size]="24" /></span>
 				<span>Cette manche</span><strong>+{{ myRoundPoints() }}</strong>
 			</div>
 
@@ -158,7 +159,7 @@
 					<div class="guess-row-item" [class.correct]="g.correct">
 						<span>{{ g.pseudo }}</span>
 						<em>{{ g.guess }}</em>
-						<b>{{ g.correct ? '+10' : '0' }}</b>
+						<b><app-icon [name]="g.correct ? 'check-circle' : 'x-circle'" [size]="16" />{{ g.correct ? '+10' : '0' }}</b>
 					</div>
 				} @empty {
 					<p class="hint-line">Personne n'a osé proposer quoi que ce soit.</p>

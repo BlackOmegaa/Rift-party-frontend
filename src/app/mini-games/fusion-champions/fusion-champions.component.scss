@@ -19,6 +19,8 @@
 	font-weight: 900;
 }
 .end-screen {
+	--end-accent: #b673ff;
+
 	position: relative;
 	overflow: hidden;
 	background:
@@ -68,9 +70,15 @@
 	height: 100%;
 	object-fit: cover;
 	filter: grayscale(100%) brightness(0.5) contrast(140%) blur(22px);
-	transition: filter 0.9s ease, transform 6s cubic-bezier(0.2, 0.6, 0.3, 1);
+	transition: filter 0.9s ease, transform 6s cubic-bezier(0.2, 0.6, 0.3, 1), opacity 0.35s ease;
 	user-select: none;
 	pointer-events: none;
+}
+/* Changement de round : images masquees net (aucune transition) tant que les
+ * nouvelles n'ont pas charge, pour ne jamais laisser voir la reponse en clair. */
+.cine-stage.swapping .stage-splash {
+	opacity: 0;
+	transition: none;
 }
 .stage-splash.left {
 	object-position: 75% 20%;
@@ -312,15 +320,16 @@
 	margin-top: -3vh;
 }
 .verdict-stamp {
-	font-size: clamp(3rem, 8vw, 5.5rem);
+	display: grid;
+	place-items: center;
 	line-height: 1;
 	color: #ff8a9a;
-	text-shadow: 0 0 40px rgba(193, 60, 77, 0.6);
+	filter: drop-shadow(0 0 20px rgba(193, 60, 77, 0.6));
 	animation: stamp-slam 0.5s cubic-bezier(0.16, 1.3, 0.3, 1) both;
 }
 .verdict.win .verdict-stamp {
 	color: #7dffb0;
-	text-shadow: 0 0 40px rgba(63, 214, 122, 0.6);
+	filter: drop-shadow(0 0 20px rgba(63, 214, 122, 0.6));
 }
 
 .verdict-duo {
@@ -341,8 +350,9 @@
 }
 .verdict-half em {
 	font-style: normal;
-	font-size: 1.6rem;
 	line-height: 1;
+	display: grid;
+	place-items: center;
 }
 .verdict-half strong {
 	font-size: clamp(1.3rem, 3.6vw, 2.4rem);
@@ -358,7 +368,7 @@
 }
 .verdict-half.ok em {
 	color: #7dffb0;
-	text-shadow: 0 0 20px rgba(63, 214, 122, 0.6);
+	filter: drop-shadow(0 0 10px rgba(63, 214, 122, 0.6));
 }
 .verdict-half.ko {
 	border-color: rgba(193, 60, 77, 0.5);
@@ -366,7 +376,7 @@
 }
 .verdict-half.ko em {
 	color: #ff8a9a;
-	text-shadow: 0 0 20px rgba(193, 60, 77, 0.6);
+	filter: drop-shadow(0 0 10px rgba(193, 60, 77, 0.6));
 }
 .verdict-plus {
 	font-size: clamp(1.4rem, 3vw, 2rem);

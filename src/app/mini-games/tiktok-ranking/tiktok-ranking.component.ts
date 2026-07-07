@@ -1370,6 +1370,21 @@ export class TiktokRankingComponent implements OnDestroy {
 	locked = computed(() => this.submitted() && !this.results());
 	/** Ligne du classement de reference (consensus) actuellement revelee pendant le stagger. */
 	protected revealedRows = signal(0);
+	/**
+	 * Handlers socket enregistres par CETTE instance : desinscrits dans
+	 * ngOnDestroy. Sans ca, chaque partie de Tier List laissait une instance
+	 * morte qui reagissait encore aux events tiktok:* suivants (sons fantomes,
+	 * emissions tiktok:review-next en double via les setTimeout survivants).
+	 */
+	private readonly socketHandlers: [string, (payload: never) => void][] = [];
+	private revealIntroTimer?: number;
+	private tribunalTimer?: number;
+	private autoAdvanceTimer?: number;
+
+	private listen<T>(event: string, handler: (payload: T) => void): void {
+		this.socket.on(event, handler);
+		this.socketHandlers.push([event, handler]);
+	}
 
 	constructor(
 		protected room: RoomService,
@@ -1378,14 +1393,14 @@ export class TiktokRankingComponent implements OnDestroy {
 		protected readonly settings: GameSettingsService,
 		private readonly audio: AudioService,
 	) {
-		this.socket.on<{ question: string; ready: number; total: number }>(
+		this.listen<{ question: string; ready: number; total: number }>(
 			"tiktok:progress",
 			(payload) => {
 				if (payload.question === this.round().question)
 					this.progress.set({ ready: payload.ready, total: payload.total });
 			},
 		);
-		this.socket.on<TiktokResults>("tiktok:results", (payload) => {
+		this.listen<TiktokResults>("tiktok:results", (payload) => {
 			if (payload.question === this.round().question) {
 				this.progress.set({ ready: payload.ready, total: payload.total });
 				this.results.set(payload);
@@ -1393,10 +1408,13 @@ export class TiktokRankingComponent implements OnDestroy {
 				this.fraudVotes.set({});
 				this.revealIntro.set(true);
 				this.audio.play("reveal", { volume: 0.7 });
-				window.setTimeout(() => this.revealIntro.set(false), 1100);
+				this.revealIntroTimer = window.setTimeout(
+					() => this.revealIntro.set(false),
+					1100,
+				);
 			}
 		});
-		this.socket.on<{
+		this.listen<{
 			question: string;
 			targetPlayerId: string;
 			votes: Record<number, string[]>;
@@ -1408,7 +1426,7 @@ export class TiktokRankingComponent implements OnDestroy {
 			}));
 		});
 		const TRIBUNAL_DURATION = 7000;
-		this.socket.on<{
+		this.listen<{
 			question: string;
 			nextIndex: number;
 			complete: boolean;
@@ -1416,7 +1434,7 @@ export class TiktokRankingComponent implements OnDestroy {
 		}>("tiktok:review-advance", (payload) => {
 			if (payload.question !== this.round().question) return;
 			this.tribunal.set(payload.tribunal);
-			window.setTimeout(() => {
+			this.tribunalTimer = window.setTimeout(() => {
 				this.tribunal.set(null);
 				if (payload.complete) {
 					if (!this.mix.active()) this.nextLocalRound();
@@ -1438,7 +1456,7 @@ export class TiktokRankingComponent implements OnDestroy {
 			if (this.autoAdvancedFor() === row.playerId) return;
 			this.autoAdvancedFor.set(row.playerId);
 			const reviewedId = row.playerId;
-			window.setTimeout(() => {
+			this.autoAdvanceTimer = window.setTimeout(() => {
 				if (this.currentReview()?.playerId === reviewedId) this.hostNextReview();
 			}, 1500);
 		});
@@ -1519,6 +1537,11 @@ export class TiktokRankingComponent implements OnDestroy {
 	}
 	ngOnDestroy(): void {
 		this.timer.stop();
+		clearTimeout(this.revealIntroTimer);
+		clearTimeout(this.tribunalTimer);
+		clearTimeout(this.autoAdvanceTimer);
+		for (const [event, handler] of this.socketHandlers)
+			this.socket.off(event, handler as (...args: unknown[]) => void);
 	}
 
 	private startRoundTimer() {

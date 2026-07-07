@@ -18,14 +18,26 @@
 						<small>Champion du lobby</small>
 					</div>
 					<div class="tournament-placements">
-						@for (row of placements(); track row.playerId) {
+						@for (row of placements(); track row.playerId; let i = $index) {
 							<article
 								class="placement-row"
 								[class.champion]="row.playerId === championId"
 							>
+								<b class="placement-rank">
+									@if (row.playerId === championId) {
+										<app-icon name="crown" [size]="14" />
+									} @else {
+										{{ i + 1 }}
+									}
+								</b>
 								<strong>{{ pseudoOf(row.playerId) }}</strong>
 								<span>{{ row.tag }}</span>
-								<em>+{{ row.points }} pts</em>
+								<em
+									>+<i class="pts-num" [attr.data-target]="row.points">{{
+										row.points
+									}}</i>
+									pts</em
+								>
 							</article>
 						}
 					</div>

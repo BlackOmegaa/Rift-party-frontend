@@ -232,6 +232,13 @@ export class IntrusComponent implements OnDestroy {
 	/** Resultat du round en cours, pilote le style du stage cinematique (glow vert/rouge). */
 	protected verdict = signal<"correct" | "wrong" | "timeout" | null>(null);
 	private autoNextTimer?: ReturnType<typeof setTimeout>;
+	/**
+	 * Vrai apres ngOnDestroy : le handler socket de onGameRestarted n'est jamais
+	 * desinscrit, un GAME_RESTARTED tardif relancerait donc restart() (et son
+	 * RoundTimer) sur une instance morte — timer fantome qui peut appeler
+	 * submitMixSegment pendant le jeu suivant du Party Mix.
+	 */
+	private destroyed = false;
 	protected readonly timer = new RoundTimer();
 	protected remainingSec = signal(0);
 
@@ -267,6 +274,7 @@ export class IntrusComponent implements OnDestroy {
 		this.setupRound();
 		this.startRoundTimer();
 		this.room.onGameRestarted((payload) => {
+			if (this.destroyed) return;
 			if (payload.gameId === "intrus") this.restart();
 		});
 		effect(() => {
@@ -301,6 +309,7 @@ export class IntrusComponent implements OnDestroy {
 	}
 
 	ngOnDestroy(): void {
+		this.destroyed = true;
 		this.timer.stop();
 		clearTimeout(this.autoNextTimer);
 	}

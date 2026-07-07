@@ -4,7 +4,9 @@ import {
 	LucideBrush,
 	LucideCaseSensitive,
 	LucideCheck,
+	LucideCircleCheck,
 	LucideCircleQuestionMark,
+	LucideCircleX,
 	LucideCloudFog,
 	LucideCrown,
 	LucideDroplet,
@@ -61,6 +63,8 @@ export type IconName =
 	| 'brush'
 	| 'gear'
 	| 'check'
+	| 'check-circle'
+	| 'x-circle'
 	| 'send'
 	| 'loader'
 	| 'close'
@@ -83,7 +87,9 @@ export type IconName =
 		LucideBrush,
 		LucideCaseSensitive,
 		LucideCheck,
+		LucideCircleCheck,
 		LucideCircleQuestionMark,
+		LucideCircleX,
 		LucideCloudFog,
 		LucideCrown,
 		LucideDroplet,
@@ -194,6 +200,12 @@ export type IconName =
 			}
 			@case ('check') {
 				<svg lucideCheck [size]="size()" [strokeWidth]="1.6" />
+			}
+			@case ('check-circle') {
+				<svg lucideCircleCheck [size]="size()" [strokeWidth]="2" />
+			}
+			@case ('x-circle') {
+				<svg lucideCircleX [size]="size()" [strokeWidth]="2" />
 			}
 			@case ('send') {
 				<svg lucideSend [size]="size()" [strokeWidth]="1.6" />

@@ -39,6 +39,8 @@ export class LoldleComponent {
   private readonly now = signal(Date.now());
   private readonly hostElement = inject(ElementRef<HTMLElement>);
   private lastRowCount = 0;
+  /** Timeouts du flip lettre par lettre : purges a la destruction pour ne pas jouer de sons/DOM fantomes en Party Mix. */
+  private revealTimeouts: ReturnType<typeof setTimeout>[] = [];
 
   protected readonly championOptions = CHAMPION_OPTIONS;
 
@@ -118,7 +120,11 @@ export class LoldleComponent {
     private readonly audio: AudioService,
   ) {
     const ticker = setInterval(() => this.now.set(Date.now()), 250);
-    inject(DestroyRef).onDestroy(() => clearInterval(ticker));
+    inject(DestroyRef).onDestroy(() => {
+      clearInterval(ticker);
+      this.revealTimeouts.forEach((id) => clearTimeout(id));
+      this.revealTimeouts = [];
+    });
     // Toujours se resynchroniser au montage : les events one-shot (START,
     // GUESS_RESULT...) peuvent avoir ete emis avant que ce composant n'existe.
     this.loldle.requestState();
@@ -189,12 +195,14 @@ export class LoldleComponent {
     const cells = Array.from(rowEl.querySelectorAll('.cell')) as HTMLElement[];
     cells.forEach((cell, i) => {
       const state = row.feedback[i];
-      setTimeout(() => {
-        cell.classList.add('flip');
-        if (state === 'correct') this.audio.play('correct', { volume: 0.55 });
-        else if (state === 'present') this.audio.play('hint', { volume: 0.55 });
-        else this.audio.play('ui-click', { volume: 0.35 });
-      }, i * 160);
+      this.revealTimeouts.push(
+        setTimeout(() => {
+          cell.classList.add('flip');
+          if (state === 'correct') this.audio.play('correct', { volume: 0.55 });
+          else if (state === 'present') this.audio.play('hint', { volume: 0.55 });
+          else this.audio.play('ui-click', { volume: 0.35 });
+        }, i * 160),
+      );
     });
   }
 

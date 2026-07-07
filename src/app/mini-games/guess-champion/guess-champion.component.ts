@@ -1063,8 +1063,22 @@ export class GuessChampionComponent implements OnDestroy {
 	protected locked = signal(false);
 	/** Resultat du round en cours, pilote l'overlay de verdict cinematique. */
 	protected verdict = signal<"correct" | "wrong" | "timeout" | null>(null);
+	/**
+	 * Vrai pendant le changement de round : masque le splash instantanement
+	 * (transition CSS coupee) jusqu'au `load` de la nouvelle image. Sans ca, la
+	 * nouvelle image apparait en clair ~1s le temps que le deflou du round
+	 * precedent se re-applique en sens inverse.
+	 */
+	protected splashSwapping = signal(false);
 	protected lastGain = signal(0);
 	private autoNextTimer?: ReturnType<typeof setTimeout>;
+	/**
+	 * Vrai apres ngOnDestroy : le handler socket de onGameRestarted n'est jamais
+	 * desinscrit, un GAME_RESTARTED tardif relancerait donc restart() (et son
+	 * RoundTimer) sur une instance morte — timer fantome qui peut appeler
+	 * submitMixSegment pendant le jeu suivant du Party Mix.
+	 */
+	private destroyed = false;
 	protected readonly timer = new RoundTimer();
 	protected remainingSec = signal(0);
 	answer = "";
@@ -1103,6 +1117,7 @@ export class GuessChampionComponent implements OnDestroy {
 		this.shuffleRounds();
 		this.startRoundTimer();
 		this.room.onGameRestarted((payload) => {
+			if (this.destroyed) return;
 			if (payload.gameId === "guess-champion") this.restart();
 		});
 		effect(() => {
@@ -1136,6 +1151,7 @@ export class GuessChampionComponent implements OnDestroy {
 		});
 	}
 	ngOnDestroy(): void {
+		this.destroyed = true;
 		this.timer.stop();
 		clearTimeout(this.autoNextTimer);
 	}
@@ -1203,6 +1219,7 @@ export class GuessChampionComponent implements OnDestroy {
 		if (!this.locked()) return;
 		clearTimeout(this.autoNextTimer);
 		this.audio.play("swap", { volume: 0.7 });
+		this.splashSwapping.set(true);
 		this.index.update((i) => i + 1);
 		if (this.finished()) {
 			this.timer.stop();
@@ -1230,6 +1247,7 @@ export class GuessChampionComponent implements OnDestroy {
 	restart() {
 		this.shuffleRounds();
 		clearTimeout(this.autoNextTimer);
+		this.splashSwapping.set(true);
 		this.submittedToMix.set(false);
 		this.index.set(0);
 		this.score.set(0);
