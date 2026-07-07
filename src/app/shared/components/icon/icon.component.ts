@@ -17,6 +17,7 @@ import {
 	LucideHeartHandshake,
 	LucideList,
 	LucideLoaderCircle,
+	LucideLock,
 	LucideLogOut,
 	LucideMoon,
 	LucidePawPrint,
@@ -70,7 +71,8 @@ export type IconName =
 	| 'close'
 	| 'back'
 	| 'leave'
-	| 'replay';
+	| 'replay'
+	| 'lock';
 
 /**
  * Icone uniforme (jeu de traits Lucide, cf. https://lucide.dev) : plus de SVG
@@ -100,6 +102,7 @@ export type IconName =
 		LucideHeartHandshake,
 		LucideList,
 		LucideLoaderCircle,
+		LucideLock,
 		LucideLogOut,
 		LucideMoon,
 		LucidePawPrint,
@@ -224,6 +227,9 @@ export type IconName =
 			}
 			@case ('replay') {
 				<svg lucideRotateCcw [size]="size()" [strokeWidth]="1.6" />
+			}
+			@case ('lock') {
+				<svg lucideLock [size]="size()" [strokeWidth]="1.6" />
 			}
 		}
 	`,

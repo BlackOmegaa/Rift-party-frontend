@@ -40,12 +40,12 @@ interface GuessRound {
 const ROUNDS: GuessRound[] = [
 	{
 		answer: "Aatrox",
-		title: "Il rêve d’une seule chose : la fin du monde.",
+		title: "L'apocalypse portable, format une seule épée.",
 		hints: ["Darkin.", "Manie une immense épée.", "World Ender."],
 	},
 	{
 		answer: "Ahri",
-		title: "Toujours capable de trouver un angle.",
+		title: "Neuf queues, zéro excuse pour lui résister.",
 		hints: [
 			"Mage très mobile.",
 			"Son charme peut retourner un duel.",
@@ -54,16 +54,16 @@ const ROUNDS: GuessRound[] = [
 	},
 	{
 		answer: "Akali",
-		title: "Quand elle disparaît, il est souvent déjà trop tard.",
+		title: "Le temps qu'elle disparaisse dans la fumée, t'es déjà mort.",
 		hints: [
-			"Assassin d’Ionia.",
+			"Assassin d'Ionia.",
 			"Utilise un écran de fumée.",
 			"Perfect Execution.",
 		],
 	},
 	{
 		answer: "Akshan",
-		title: "Le héros qui ne respecte pas vraiment les règles.",
+		title: "Justicier, voleur, séducteur : il coche toutes les cases.",
 		hints: [
 			"ADC atypique.",
 			"Possède un grappin.",
@@ -72,7 +72,7 @@ const ROUNDS: GuessRound[] = [
 	},
 	{
 		answer: "Alistar",
-		title: "Impossible de le déplacer quand il décide d’avancer.",
+		title: "Le combo W-Q qui t'envoie visiter la tribune.",
 		hints: [
 			"Support tank.",
 			"Combo classique : W puis Q.",
@@ -81,17 +81,17 @@ const ROUNDS: GuessRound[] = [
 	},
 	{
 		answer: "Amumu",
-		title: "Cherche un ami depuis bien trop longtemps.",
+		title: "La momie la plus triste de tout Runeterra cherche encore un ami.",
 		hints: ["Jungler tank.", "Lance des bandages.", "Curse of the Sad Mummy."],
 	},
 	{
 		answer: "Anivia",
-		title: "Même morte, elle n’a pas toujours dit son dernier mot.",
+		title: "Un oiseau qui refuse obstinément de rester mort.",
 		hints: ["Mage de Freljord.", "Peut créer un mur de glace.", "Renaissance."],
 	},
 	{
 		answer: "Annie",
-		title: "Petite taille, gros problème.",
+		title: "Une gamine, un ours en peluche, et une bonne dose de nope.",
 		hints: [
 			"Accumule un passif avant de stun.",
 			"Aime les ours en peluche.",
@@ -100,51 +100,51 @@ const ROUNDS: GuessRound[] = [
 	},
 	{
 		answer: "Aphelios",
-		title: "Lire sa compétence prend plus longtemps que certains teamfights.",
-		hints: ["ADC.", "Change constamment d’armes.", "Cinq armes différentes."],
+		title: "Cinq armes, un mutisme total, et un mal de crâne pour tout le monde.",
+		hints: ["ADC.", "Change constamment d'armes.", "Cinq armes différentes."],
 	},
 	{
 		answer: "Ashe",
-		title: "Même à l’autre bout de la map, elle peut commencer un combat.",
+		title: "Une flèche qui traverse la carte pour te dire bonjour.",
 		hints: ["ADC utilitaire.", "Ralentit avec ses attaques.", "Crystal Arrow."],
 	},
 	{
 		answer: "Aurelion Sol",
-		title: "Créer une étoile est presque devenu banal.",
+		title: "Un dragon qui fabriquait des étoiles avant que ce soit la mode.",
 		hints: [
 			"Dragon céleste.",
-			"Contrôle le vide de l’espace.",
+			"Contrôle le vide de l'espace.",
 			"Falling Star.",
 		],
 	},
 	{
 		answer: "Azir",
-		title: "Il préfère envoyer les autres se battre.",
-		hints: ["Mage de Shurima.", "Contrôle des soldats.", "Emperor’s Divide."],
+		title: "Un empereur qui fait bosser des soldats de sable à sa place.",
+		hints: ["Mage de Shurima.", "Contrôle des soldats.", "Emperor's Divide."],
 	},
 	{
 		answer: "Bard",
-		title: "Personne ne comprend vraiment ce qu’il raconte.",
+		title: "Un vagabond cosmique accro aux carillons et aux portails.",
 		hints: ["Support.", "Collectionne des carillons.", "Tempered Fate."],
 	},
 	{
 		answer: "Bel'Veth",
-		title: "Elle veut tout consommer.",
+		title: "L'impératrice du Néant a une seule diète : tout.",
 		hints: ["Créature du Néant.", "Très forte en combats prolongés.", "Coral."],
 	},
 	{
 		answer: "Blitzcrank",
-		title: "Un seul clic peut décider d’une partie.",
+		title: "Un bras robotique, une distance ridicule, et ta game qui bascule.",
 		hints: ["Support.", "Son grab est mythique.", "Rocket Grab."],
 	},
 	{
 		answer: "Brand",
-		title: "Tout finit toujours par brûler.",
+		title: "Ce type n'a jamais entendu parler des pompiers.",
 		hints: ["Mage.", "Accumule des marques de feu.", "Pyroclasm."],
 	},
 	{
 		answer: "Braum",
-		title: "Le véritable bouclier de son équipe.",
+		title: "Une porte en guise de bouclier, une moustache en guise de style.",
 		hints: [
 			"Support tank.",
 			"Porte une immense porte.",
@@ -153,42 +153,42 @@ const ROUNDS: GuessRound[] = [
 	},
 	{
 		answer: "Briar",
-		title: "Le self-control n’est clairement pas son point fort.",
+		title: "Zéro chill, zéro frein, cent pour cent frénésie sanguinaire.",
 		hints: ["Jungler.", "Entre dans une frénésie.", "Bloody Frenzy."],
 	},
 	{
 		answer: "Caitlyn",
-		title: "Toujours quelques pas trop loin.",
+		title: "Le sniff qui te touche même trois lignes plus loin.",
 		hints: ["ADC.", "Pose des pièges.", "Ace in the Hole."],
 	},
 	{
 		answer: "Camille",
-		title: "La précision avant tout.",
+		title: "Des jambes-lames et une obsession pour la perfection chirurgicale.",
 		hints: ["Toplane.", "Possède des jambes-lames.", "Hextech Ultimatum."],
 	},
 	{
 		answer: "Cassiopeia",
-		title: "Mieux vaut éviter de la regarder.",
+		title: "Regarde-la dans les yeux et tu deviens statue.",
 		hints: ["Mage.", "Ne peut pas acheter de bottes.", "Petrifying Gaze."],
 	},
 	{
 		answer: "Cho'Gath",
-		title: "Chaque élimination le rend plus difficile à ignorer.",
+		title: "Il mange, il grandit, tu pleures.",
 		hints: ["Tank du Néant.", "Grandit pendant la partie.", "Feast."],
 	},
 	{
 		answer: "Corki",
-		title: "Livraison express.",
+		title: "Un pilote qui préfère larguer des colis explosifs plutôt que voler haut.",
 		hints: ["ADC atypique.", "Pilote un petit avion.", "The Package."],
 	},
 	{
 		answer: "Darius",
-		title: "S’il commence à reset, il vaut mieux courir.",
+		title: "Cinq stacks de saignement plus tard, c'est déjà terminé.",
 		hints: ["Toplane.", "Accumule des saignements.", "Noxian Guillotine."],
 	},
 	{
 		answer: "Diana",
-		title: "La lune a rarement été aussi agressive.",
+		title: "Une prêtresse lunaire qui a troqué la contemplation contre le combo Q-E.",
 		hints: [
 			"Assassin AP.",
 			"Très forte après avoir touché son Q.",
@@ -197,7 +197,7 @@ const ROUNDS: GuessRound[] = [
 	},
 	{
 		answer: "Dr. Mundo",
-		title: "Il va exactement là où il en a envie.",
+		title: "Zed dit qu'il va où il veut. Lui, il le fait vraiment, seringues en main.",
 		hints: [
 			"Tank.",
 			"Ignore parfois les contrôles.",
@@ -206,7 +206,7 @@ const ROUNDS: GuessRound[] = [
 	},
 	{
 		answer: "Draven",
-		title: "Il joue autant contre ses ennemis que pour son ego.",
+		title: "Trop stylé pour rater ses haches, trop fier pour arrêter d'en parler.",
 		hints: [
 			"ADC.",
 			"Récupère ses haches pour maximiser ses dégâts.",
@@ -215,17 +215,17 @@ const ROUNDS: GuessRound[] = [
 	},
 	{
 		answer: "Ekko",
-		title: "Quand tout se passe mal, il recommence.",
+		title: "Raté ? Pas grave, il rembobine et recommence.",
 		hints: ["Assassin AP.", "Manipule le temps.", "Chronobreak."],
 	},
 	{
 		answer: "Elise",
-		title: "Deux formes, deux façons de te tuer.",
+		title: "Araignée le jour, araignée le soir, araignée toute la partie.",
 		hints: ["Jungle.", "Peut se transformer.", "Spider Form."],
 	},
 	{
 		answer: "Evelynn",
-		title: "Tu ne la vois généralement qu’une seule fois.",
+		title: "Invisible jusqu'au niveau 6, fatale juste après.",
 		hints: [
 			"Assassin.",
 			"Devient invisible après le niveau 6.",
@@ -234,61 +234,61 @@ const ROUNDS: GuessRound[] = [
 	},
 	{
 		answer: "Ezreal",
-		title: "Toujours prêt à explorer... de très loin.",
+		title: "L'explorateur qui préfère esquiver le danger que l'affronter.",
 		hints: ["ADC.", "Très mobile.", "Trueshot Barrage."],
 	},
 	{
 		answer: "Fiddlesticks",
-		title: "Le silence avant le carnage.",
+		title: "Dans le buisson vide, y'a peut-être un épouvantail affamé.",
 		hints: ["Jungler.", "Aime surprendre depuis les buissons.", "Crowstorm."],
 	},
 	{
 		answer: "Fiora",
-		title: "Chaque duel est une démonstration.",
+		title: "Une escrimeuse qui vise toujours les mêmes quatre points.",
 		hints: ["Toplane.", "Cherche les points faibles.", "Grand Challenge."],
 	},
 	{
 		answer: "Fizz",
-		title: "Il est plus difficile à attraper qu’à supporter.",
+		title: "Un poisson qui saute au-dessus de tout, y compris de tes espoirs.",
 		hints: ["Assassin AP.", "Peut devenir intouchable.", "Chum the Waters."],
 	},
 	{
 		answer: "Galio",
-		title: "Il arrive rarement seul dans un combat.",
+		title: "La gargouille qui débarque juste quand ton mage adverse pousse trop.",
 		hints: [
 			"Tank AP.",
 			"Très fort contre les dégâts magiques.",
-			"Hero’s Entrance.",
+			"Hero's Entrance.",
 		],
 	},
 	{
 		answer: "Gangplank",
-		title: "Un baril suffit parfois.",
+		title: "Un pirate, des barils, et une gueule cassée qui fait toujours la loi.",
 		hints: ["Toplane.", "Accumule des barils explosifs.", "Cannon Barrage."],
 	},
 	{
 		answer: "Garen",
-		title: "Simple, efficace et très bruyant.",
+		title: "Pas de mana, pas de complexe, juste Demacia et une épée qui tourne.",
 		hints: ["Toplane.", "Tourne sur lui-même.", "Demacia."],
 	},
 	{
 		answer: "Gnar",
-		title: "Petit... jusqu’à ce qu’il ne le soit plus.",
+		title: "Mignon en petit, terrifiant en méga.",
 		hints: ["Toplane.", "Change de forme.", "GNAR!"],
 	},
 	{
 		answer: "Gragas",
-		title: "Chaque combat commence souvent par une boisson.",
+		title: "Un tonneau, une gorgée, et un teamfight qui commence de travers.",
 		hints: ["Tank.", "Utilise des tonneaux.", "Explosive Cask."],
 	},
 	{
 		answer: "Graves",
-		title: "Le seul ADC qui recharge comme un fusil.",
+		title: "L'unique ADC qui recharge son fusil comme un vrai bandit.",
 		hints: ["Jungle.", "Utilise un shotgun.", "Collateral Damage."],
 	},
 	{
 		answer: "Gwen",
-		title: "Les aiguilles font parfois très mal.",
+		title: "Une poupée animée dont les ciseaux détestent particulièrement les mages.",
 		hints: [
 			"Toplane AP.",
 			"Ignore les attaques extérieures dans sa brume.",
@@ -297,61 +297,61 @@ const ROUNDS: GuessRound[] = [
 	},
 	{
 		answer: "Hecarim",
-		title: "Quand tu l’entends arriver, il est souvent déjà trop tard.",
+		title: "Le galop fantomatique qu'on entend avant de comprendre qu'on est mort.",
 		hints: ["Jungler.", "Très rapide.", "Onslaught of Shadows."],
 	},
 	{
 		answer: "Heimerdinger",
-		title: "Pourquoi combattre soi-même quand les machines peuvent le faire ?",
+		title: "Un savant de Piltover qui laisse des tourelles régler ses problèmes.",
 		hints: ["Mage.", "Pose plusieurs tourelles.", "Upgrade!!!"],
 	},
 	{
 		answer: "Hwei",
-		title: "Trois sujets. Dix sorts.",
-		hints: ["Mage.", "Chaque compétence dépend d’un choix.", "Visionary."],
+		title: "Un peintre qui a dix sorts pour un seul pinceau.",
+		hints: ["Mage.", "Chaque compétence dépend d'un choix.", "Visionary."],
 	},
 	{
 		answer: "Illaoi",
-		title: "Les tentacules ne sont jamais très loin.",
-		hints: ["Toplane.", "Arrache l’esprit de ses ennemis.", "Leap of Faith."],
+		title: "Ses tentacules d'ombre te montrent une vérité que tu voulais pas voir.",
+		hints: ["Toplane.", "Arrache l'esprit de ses ennemis.", "Leap of Faith."],
 	},
 	{
 		answer: "Irelia",
-		title: "Chaque dash prépare le suivant.",
-		hints: ["Toplane.", "Manipule des lames.", "Vanguard’s Edge."],
+		title: "Des lames qui dansent et un dash qui n'attend jamais son tour.",
+		hints: ["Toplane.", "Manipule des lames.", "Vanguard's Edge."],
 	},
 	{
 		answer: "Ivern",
-		title: "Le seul jungler qui préfère éviter de tuer les monstres.",
+		title: "Le seul jungler qui préfère câliner les monstres plutôt que les taper.",
 		hints: ["Support jungle.", "Libère les camps.", "Daisy."],
 	},
 	{
 		answer: "Janna",
-		title: "Elle décide souvent qui peut avancer.",
+		title: "Un souffle de vent, et ton engage part en fumée.",
 		hints: ["Support.", "Contrôle énormément les déplacements.", "Monsoon."],
 	},
 	{
 		answer: "Jarvan IV",
-		title: "Quand il engage, tout le monde reste.",
+		title: "Le prince qui t'enferme dans son mur avant que tu comprennes le plan.",
 		hints: ["Jungler.", "Combo drapeau + lance.", "Cataclysm."],
 	},
 	{
 		answer: "Jax",
-		title: "Imagine-le avec une vraie arme.",
+		title: "Une lampe torche comme arme, et pourtant ça fait très mal.",
 		hints: ["Toplane.", "Évite les attaques de base.", "Counter Strike."],
 	},
 	{
 		answer: "Jayce",
-		title: "Pourquoi choisir entre marteau et canon ?",
+		title: "Marteau ou canon, il refuse juste de choisir un seul kit.",
 		hints: [
 			"Originaire de Piltover.",
-			"Peut changer d’arme instantanément.",
+			"Peut changer d'arme instantanément.",
 			"Mercury Cannon.",
 		],
 	},
 	{
 		answer: "Jhin",
-		title: "Pour lui, tout est une question de mise en scène.",
+		title: "Un tueur qui compte ses balles comme un metteur en scène compte ses actes.",
 		hints: [
 			"ADC.",
 			"Recharge après un certain nombre de tirs.",
@@ -360,17 +360,17 @@ const ROUNDS: GuessRound[] = [
 	},
 	{
 		answer: "Jinx",
-		title: "Le chaos est rarement un accident.",
+		title: "Le chaos incarné, en rose et complètement cracked.",
 		hints: ["ADC.", "Change entre deux armes.", "Super Mega Death Rocket!"],
 	},
 	{
 		answer: "K'Sante",
-		title: "Il abandonne sa défense pour finir le travail.",
+		title: "Le protecteur de Nazumah qui balance son bouclier pour tout finir.",
 		hints: ["Toplane.", "Tank qui peut devenir bruiser.", "All Out."],
 	},
 	{
 		answer: "Kai'Sa",
-		title: "Elle attend juste la bonne ouverture.",
+		title: "Née du Néant, elle attend juste que tu baisses ta garde.",
 		hints: [
 			"ADC.",
 			"Évolue ses compétences.",
@@ -379,7 +379,7 @@ const ROUNDS: GuessRound[] = [
 	},
 	{
 		answer: "Kalista",
-		title: "Le moindre faux pas se paie immédiatement.",
+		title: "L'esprit vengeur qui te fait payer chaque erreur de positionnement.",
 		hints: [
 			"ADC.",
 			"Saute après chaque attaque.",
@@ -388,7 +388,7 @@ const ROUNDS: GuessRound[] = [
 	},
 	{
 		answer: "Karma",
-		title: "Une compétence, deux versions.",
+		title: "Une seule enivocatrice, deux fois plus de punch avec son ultime.",
 		hints: [
 			"Support ou mage.",
 			"Renforce ses sorts avec son ultime.",
@@ -397,22 +397,22 @@ const ROUNDS: GuessRound[] = [
 	},
 	{
 		answer: "Karthus",
-		title: "Même mort, il continue de jouer.",
+		title: "Sérieusement, pourquoi il fait encore des dégâts après être mort ?",
 		hints: ["Mage.", "Inflige encore des dégâts après sa mort.", "Requiem."],
 	},
 	{
 		answer: "Kassadin",
-		title: "Chaque niveau le rend plus difficile à attraper.",
+		title: "Un chasseur de vide qui devient carrément op passé trente minutes.",
 		hints: ["Mage assassin.", "Très fort en fin de partie.", "Riftwalk."],
 	},
 	{
 		answer: "Katarina",
-		title: "Ramasser une dague change tout.",
+		title: "Une dague au sol, et soudain elle est déjà sur toi.",
 		hints: ["Assassin AP.", "Reset sur les éliminations.", "Death Lotus."],
 	},
 	{
 		answer: "Kayle",
-		title: "La patience finit souvent par payer.",
+		title: "Faible en early, terrifiante quand elle sort enfin ses ailes.",
 		hints: [
 			"Toplane.",
 			"Devient de plus en plus puissante avec les niveaux.",
@@ -421,17 +421,17 @@ const ROUNDS: GuessRound[] = [
 	},
 	{
 		answer: "Kayn",
-		title: "Il doit faire un choix avant de révéler son vrai potentiel.",
+		title: "Un choix à faire : la faucheuse discrète, ou le démon qui explose tout.",
 		hints: ["Jungler.", "Deux formes possibles.", "Shadow Assassin ou Rhaast."],
 	},
 	{
 		answer: "Kennen",
-		title: "Petit, rapide et électrisant.",
+		title: "Le yordle électrique qui stun toute une équipe d'un coup.",
 		hints: ["Toplane.", "Accumule des marques.", "Slicing Maelstrom."],
 	},
 	{
 		answer: "Kha'Zix",
-		title: "Les cibles isolées le savent trop bien.",
+		title: "Un prédateur du Néant qui adore les proies qui jouent en solo.",
 		hints: [
 			"Jungler assassin.",
 			"Évolue ses compétences.",
@@ -440,37 +440,37 @@ const ROUNDS: GuessRound[] = [
 	},
 	{
 		answer: "Kindred",
-		title: "Deux personnages, une seule entité.",
+		title: "La mort et le loup, indissociables et toujours de sortie ensemble.",
 		hints: ["Jungle.", "Marque des cibles.", "Lamb et Wolf."],
 	},
 	{
 		answer: "Kled",
-		title: "La moitié de son courage tient sur quatre pattes.",
+		title: "Un vieux grincheux qui charge sur sa monture, courage compris ou pas.",
 		hints: ["Toplane.", "Combat avec Skaarl.", "Charge toute son équipe."],
 	},
 	{
 		answer: "Kog'Maw",
-		title: "Plus il tire de loin, moins c’est rassurant.",
+		title: "Une créature du Néant qui dissout tes plaques d'armure à distance.",
 		hints: ["ADC.", "Très fort contre les tanks.", "Bio-Arcane Barrage."],
 	},
 	{
 		answer: "LeBlanc",
-		title: "Impossible d’être sûr de laquelle est la vraie.",
+		title: "Un miroir, une illusion, et toi qui frappes le mauvais clone.",
 		hints: ["Mage assassin.", "Peut créer un clone.", "Distortion."],
 	},
 	{
 		answer: "Lee Sin",
-		title: "Les meilleurs clips commencent souvent par un saut.",
+		title: "Le moine aveugle dont chaque highlight commence par un kick vers la base.",
 		hints: ["Jungler.", "Ward Hop.", "Dragon's Rage."],
 	},
 	{
 		answer: "Leona",
-		title: "Quand elle engage, quelqu’un finit contrôlé.",
+		title: "L'aube solaire qui stun avant même que tu réalises qu'elle a engagé.",
 		hints: ["Support tank.", "Très riche en contrôles.", "Solar Flare."],
 	},
 	{
 		answer: "Lillia",
-		title: "Courir est sa solution à presque tout.",
+		title: "Une timide qui préfère fuir en courant plutôt qu'affronter qui que ce soit.",
 		hints: [
 			"Jungle AP.",
 			"Accumule énormément de vitesse.",
@@ -479,27 +479,27 @@ const ROUNDS: GuessRound[] = [
 	},
 	{
 		answer: "Lissandra",
-		title: "Parfois, la meilleure cible… c’est elle-même.",
+		title: "Se rendre invulnérable en s'enfermant dans la glace, quelle stratégie.",
 		hints: ["Mage.", "Peut se rendre invulnérable.", "Frozen Tomb."],
 	},
 	{
 		answer: "Lucian",
-		title: "Deux tirs valent mieux qu’un.",
+		title: "Un chasseur qui tire deux fois pour être bien sûr du résultat.",
 		hints: ["ADC.", "Très mobile.", "The Culling."],
 	},
 	{
 		answer: "Lulu",
-		title: "Elle décide souvent qui devient impossible à tuer.",
+		title: "Une fée farceuse qui décide qui devient une créature géante intuable.",
 		hints: ["Support.", "Transforme ses ennemis.", "Wild Growth."],
 	},
 	{
 		answer: "Lux",
-		title: "Une compétence touche… et tout le monde regarde la suite.",
+		title: "Un rayon lumineux qui traverse toute la lane sans prévenir.",
 		hints: ["Mage.", "Très longue portée.", "Final Spark."],
 	},
 	{
 		answer: "Malphite",
-		title: "Le combat commence souvent quand il disparaît de ton écran.",
+		title: "Un tas de cailloux qui débarque de nulle part pour tout aplatir.",
 		hints: [
 			"Tank.",
 			"Très fort contre les dégâts physiques.",
@@ -508,121 +508,121 @@ const ROUNDS: GuessRound[] = [
 	},
 	{
 		answer: "Malzahar",
-		title: "Son plan est simple : appuyer sur R.",
+		title: "Une stratégie limpide : suppression pure et invocation de vermine.",
 		hints: ["Mage.", "Invoque des créatures du Néant.", "Nether Grasp."],
 	},
 	{
 		answer: "Maokai",
-		title: "Même les buissons ne sont pas vraiment sûrs.",
+		title: "Un arbre tank pour qui les buissons n'ont jamais été un endroit sûr.",
 		hints: ["Tank.", "Lance des jeunes pousses.", "Nature's Grasp."],
 	},
 	{
 		answer: "Master Yi",
-		title: "Quand il reset, quelqu’un panique.",
+		title: "Un adepte du Wuju qui punit sévèrement les équipes qui restent groupées.",
 		hints: ["Jungler.", "Très fort en nettoyage de teamfight.", "Highlander."],
 	},
 	{
 		answer: "Milio",
-		title: "Le plus gentil... jusqu’à ce que son ADC devienne intuable.",
+		title: "Le petit soleil de sa famille qui rend ton ADC franchement injouable.",
 		hints: ["Support.", "Augmente la portée des alliés.", "Breath of Life."],
 	},
 	{
 		answer: "Miss Fortune",
-		title: "Si personne ne l’interrompt, la teamfight est déjà finie.",
+		title: "Une capitaine dont la pluie de balles n'épargne jamais les groupés.",
 		hints: ["ADC.", "Très forte en zone.", "Bullet Time."],
 	},
 	{
 		answer: "Mordekaiser",
-		title: "Parfois, il décide juste que vous allez régler ça à deux.",
+		title: "Le seigneur des ombres qui t'invite à un duel dont tu ne reviens pas.",
 		hints: ["Toplane.", "Isole un ennemi.", "Realm of Death."],
 	},
 	{
 		answer: "Morgana",
-		title: "Le bouclier qui fait soupirer les supports engage.",
+		title: "Une déchue aux ailes noires qui annule ton engage d'un simple bouclier.",
 		hints: ["Support ou mage.", "Immobilisation très longue.", "Black Shield."],
 	},
 	{
 		answer: "Naafiri",
-		title: "Elle n’arrive jamais vraiment seule.",
+		title: "Cent corps, un seul esprit, et jamais loin de sa meute.",
 		hints: ["Assassin.", "Combat avec sa meute.", "The Call of the Pack."],
 	},
 	{
 		answer: "Nami",
-		title: "Tout paraît plus facile quand elle est derrière toi.",
-		hints: ["Support.", "Contrôle l’eau.", "Tidal Wave."],
+		title: "Une sirène dont la vague pousse toute l'équipe adverse au mauvais endroit.",
+		hints: ["Support.", "Contrôle l'eau.", "Tidal Wave."],
 	},
 	{
 		answer: "Nasus",
-		title: "Plus la partie dure, plus tu regrettes.",
+		title: "Plus la game s'étire, plus son coup basique fait mal.",
 		hints: ["Toplane.", "Accumule des stacks.", "Siphoning Strike."],
 	},
 	{
 		answer: "Nautilus",
-		title: "Son grab trouve toujours quelqu’un.",
+		title: "Une ancre qui te trouve peu importe où tu te caches.",
 		hints: ["Support tank.", "Très riche en contrôles.", "Depth Charge."],
 	},
 	{
 		answer: "Neeko",
-		title: "Tu ne sais jamais vraiment qui arrive.",
-		hints: ["Mage.", "Peut prendre l’apparence d’un allié.", "Pop Blossom."],
+		title: "Ce coéquipier bizarre pourrait très bien ne pas en être un.",
+		hints: ["Mage.", "Peut prendre l'apparence d'un allié.", "Pop Blossom."],
 	},
 	{
 		answer: "Nidalee",
-		title: "Une lance peut suffire.",
+		title: "Chasseresse le jour, cougar tout le temps.",
 		hints: ["Jungle.", "Deux formes.", "Cougar Form."],
 	},
 	{
 		answer: "Nilah",
-		title: "Elle transforme les combats rapprochés en spectacle.",
+		title: "Une lame liquide qui vole de la vie à tout ce qui l'entoure.",
 		hints: [
 			"ADC.",
 			"Corps à corps.",
-			"Apporte de l’expérience supplémentaire.",
+			"Apporte de l'expérience supplémentaire.",
 		],
 	},
 	{
 		answer: "Nocturne",
-		title: "Quand les lumières s’éteignent, quelqu’un disparaît.",
+		title: "Quand l'écran devient noir autour de toi, panique légitime.",
 		hints: ["Jungler.", "Éteint la vision de toute la map.", "Paranoia."],
 	},
 	{
 		answer: "Nunu & Willump",
-		title: "Une boule de neige peut vite devenir incontrôlable.",
+		title: "Un enfant et son yéti qui font grossir une simple boule de neige jusqu'à l'absurde.",
 		hints: ["Jungler.", "Très fort sur les objectifs.", "Absolute Zero."],
 	},
 	{
 		answer: "Olaf",
-		title: "Les contrôles ? Très peu pour lui.",
+		title: "Plus il est bas en vie, moins les contrôles l'affectent.",
 		hints: ["Bruiser.", "Lance des haches.", "Ragnarok."],
 	},
 	{
 		answer: "Orianna",
-		title: "Tout dépend de l’endroit où se trouve sa balle.",
+		title: "Une balle mécanique, et tout le monde dans son rayon regrette d'être venu.",
 		hints: ["Mage.", "Contrôle une sphère.", "Shockwave."],
 	},
 	{
 		answer: "Ornn",
-		title: "Il forge son équipement sans rentrer à la base.",
+		title: "Le forgeron divin qui upgrade tes objets sans même que tu bouges.",
 		hints: ["Tank.", "Peut améliorer des objets.", "Call of the Forge God."],
 	},
 	{
 		answer: "Pantheon",
-		title: "Il préfère arriver du ciel.",
+		title: "Un guerrier qui préfère atterrir directement sur ta tête depuis le ciel.",
 		hints: ["Bruiser.", "Bloque les dégâts devant lui.", "Grand Starfall."],
 	},
 	{
 		answer: "Poppy",
-		title: "Les dashs ne sont pas les bienvenus.",
+		title: "Une yordle au marteau qui déteste particulièrement les gros dashs.",
 		hints: ["Tank.", "Peut empêcher les déplacements.", "Steadfast Presence."],
 	},
 	{
 		answer: "Pyke",
-		title: "Les exécutions profitent à toute l’équipe.",
+		title: "L'éventreur des profondeurs dont les exécutions financent toute l'équipe.",
 		hints: ["Support assassin.", "Reset son ultime.", "Death From Below."],
 	},
 	{
 		answer: "Qiyana",
-		title: "Chaque terrain devient une arme.",
+		title: "Une princesse d'Ixtal qui transforme le terrain lui-même en arme.",
 		hints: [
 			"Assassin.",
 			"Manipule les éléments.",
@@ -631,32 +631,32 @@ const ROUNDS: GuessRound[] = [
 	},
 	{
 		answer: "Quinn",
-		title: "Elle n’est jamais seule très longtemps.",
+		title: "Une éclaireuse démacienne jamais bien loin de son faucon Valor.",
 		hints: ["Toplane ou ADC.", "Combat avec Valor.", "Behind Enemy Lines."],
 	},
 	{
 		answer: "Rakan",
-		title: "Il engage avec autant de style que de vitesse.",
+		title: "Le charmeur qui engage en dansant et repart avant que tu comprennes.",
 		hints: ["Support.", "Très mobile autour de ses alliés.", "The Quickness."],
 	},
 	{
 		answer: "Rammus",
-		title: "Il a rarement besoin de parler pour se faire comprendre.",
+		title: "Ok.",
 		hints: ["Tank.", "Se déplace en boule.", "Ok."],
 	},
 	{
 		answer: "Rek'Sai",
-		title: "Même sous terre, elle te trouve.",
+		title: "Une terreur du Néant qui te chope même sous la carte.",
 		hints: ["Jungler.", "Creuse des tunnels.", "Void Rush."],
 	},
 	{
 		answer: "Rell",
-		title: "Quand elle engage, toute la map le sait.",
+		title: "Une chevalière dissidente au métal vivant qui n'engage jamais discrètement.",
 		hints: ["Support tank.", "Contrôle le métal.", "Magnet Storm."],
 	},
 	{
 		answer: "Renata Glasc",
-		title: "Les combats tournent parfois contre leurs propres alliés.",
+		title: "La chimiste de Zaun qui retourne carrément ton propre camp contre toi.",
 		hints: [
 			"Support.",
 			"Peut ressusciter temporairement.",
@@ -665,37 +665,37 @@ const ROUNDS: GuessRound[] = [
 	},
 	{
 		answer: "Renekton",
-		title: "Les premiers niveaux sont souvent à son avantage.",
+		title: "Un croco enragé qui punit très fort les early games trop tranquilles.",
 		hints: ["Toplane.", "Utilise une barre de Fureur.", "Dominus."],
 	},
 	{
 		answer: "Rengar",
-		title: "Le buisson est rarement vide.",
+		title: "Le chasseur du buisson pour qui aucune proie n'est vraiment en sécurité.",
 		hints: ["Assassin.", "Bondit sur ses cibles.", "Thrill of the Hunt."],
 	},
 	{
 		answer: "Riven",
-		title: "Chaque animation compte.",
+		title: "Une exilée noxienne au fragment d'épée brisée, et pourtant carrément cracked.",
 		hints: ["Toplane.", "Épée brisée.", "Blade of the Exile."],
 	},
 	{
 		answer: "Rumble",
-		title: "La température décide souvent du combat.",
+		title: "Un yordle mécanicien dont la jauge de chaleur décide de tout.",
 		hints: ["Toplane.", "Gère une jauge de chaleur.", "The Equalizer."],
 	},
 	{
 		answer: "Ryze",
-		title: "Il collectionne bien plus que des victoires.",
+		title: "Le mage errant obsédé par des Runes plus que par sa propre win rate.",
 		hints: ["Mage.", "Cherche les Runes.", "Realm Warp."],
 	},
 	{
 		answer: "Samira",
-		title: "Le spectacle commence quand le combo est complet.",
+		title: "Le style avant tout, sinon le combo ne compte pas vraiment.",
 		hints: ["ADC.", "Accumule un style de combat.", "Inferno Trigger."],
 	},
 	{
 		answer: "Sejuani",
-		title: "Elle préfère charger avec toute sa cavalerie.",
+		title: "Une cheffe de guerre qui préfère régler ça avec un sanglier gelé.",
 		hints: [
 			"Jungler tank.",
 			"Combat sur un énorme sanglier.",
@@ -704,27 +704,27 @@ const ROUNDS: GuessRound[] = [
 	},
 	{
 		answer: "Senna",
-		title: "Chaque âme compte.",
+		title: "Une tireuse d'élite qui récupère littéralement les âmes de ses victimes.",
 		hints: ["Support ou ADC.", "Ramasse des âmes.", "Dawning Shadow."],
 	},
 	{
 		answer: "Seraphine",
-		title: "Plus il y a d'alliés, plus elle brille.",
+		title: "Une popstar de Zaun-Piltover dont l'ultime adore les foules nombreuses.",
 		hints: ["Mage / Support.", "Très forte en teamfight.", "Encore."],
 	},
 	{
 		answer: "Sett",
-		title: "Parfois, la meilleure arme... c’est toi.",
+		title: "Le patron qui règle tout à mains nues, littéralement.",
 		hints: ["Toplane.", "Très fort au corps à corps.", "The Show Stopper."],
 	},
 	{
 		answer: "Shaco",
-		title: "Le vrai problème est souvent celui que tu n' as pas vu.",
+		title: "Le clown démoniaque : ce que t'as vu n'était probablement pas lui.",
 		hints: ["Assassin.", "Pose des boîtes.", "Hallucinate."],
 	},
 	{
 		answer: "Shen",
-		title: "Il n'est jamais vraiment loin.",
+		title: "Un ninja de l'Ordre du Kinkou qui débarque en renfort à la vitesse de la lumière.",
 		hints: [
 			"Toplane.",
 			"Peut rejoindre un allié instantanément.",
@@ -733,7 +733,7 @@ const ROUNDS: GuessRound[] = [
 	},
 	{
 		answer: "Shyvana",
-		title: "Un dragon finit toujours par apparaître.",
+		title: "Une demi-dragonne dont la vraie forme arrive toujours au meilleur moment.",
 		hints: [
 			"Jungle.",
 			"Très dépendante de sa forme ultime.",
@@ -742,37 +742,37 @@ const ROUNDS: GuessRound[] = [
 	},
 	{
 		answer: "Singed",
-		title: "Le poursuivre est rarement une bonne idée.",
+		title: "Le kite le plus détesté du jeu, en version chimiste toxique.",
 		hints: ["Toplane.", "Laisse une traînée de poison.", "Insanity Potion."],
 	},
 	{
 		answer: "Sion",
-		title: "Même mort, il continue d'avancer.",
+		title: "Ce mort-vivant refuse de comprendre qu'il n'a plus de tête.",
 		hints: ["Tank.", "Peut foncer sur toute la map.", "Unstoppable Onslaught."],
 	},
 	{
 		answer: "Sivir",
-		title: "Un seul objet peut faire rebondir toute la vague.",
+		title: "Une mercenaire dont le bouclier renvoie littéralement les sorts adverses.",
 		hints: ["ADC.", "Possède un bouclier anti-sort.", "Ricochet."],
 	},
 	{
 		answer: "Skarner",
-		title: "Personne n'aime finir au bout de sa queue.",
+		title: "Un scorpion de cristal, une queue, et une envoyée directe dans ta base.",
 		hints: ["Jungler.", "Capture une cible.", "Impale."],
 	},
 	{
 		answer: "Smolder",
-		title: "Petit dragon, gros potentiel.",
+		title: "Un bébé dragon qui grandit à chaque stack jusqu'à devenir un vrai cauchemar.",
 		hints: ["ADC.", "Devient plus fort avec ses stacks.", "MMOOOMMMM!"],
 	},
 	{
 		answer: "Sona",
-		title: "Elle parle très peu, mais toute son équipe l'entend.",
+		title: "Elle ne dit jamais un mot, et pourtant toute la lane l'entend jouer.",
 		hints: ["Support.", "Utilise plusieurs auras.", "Crescendo."],
 	},
 	{
 		answer: "Soraka",
-		title: "Tout le monde adore la voir... sauf les assassins.",
+		title: "La licorne céleste que tout le monde adore, sauf les assassins frustrés.",
 		hints: [
 			"Support.",
 			"Sacrifie parfois sa propre vie pour soigner.",
@@ -781,35 +781,35 @@ const ROUNDS: GuessRound[] = [
 	},
 	{
 		answer: "Swain",
-		title: "Il voit plus de choses que tout le monde.",
+		title: "Le grand général de Noxus, avec des corbeaux qui voient tout à sa place.",
 		hints: [
 			"Mage de Noxus.",
-			"Des corbeaux l’accompagnent partout.",
+			"Des corbeaux l'accompagnent partout.",
 			"Transforme un teamfight en drain géant.",
 		],
 	},
 	{
 		answer: "Sylas",
-		title: "Son ultime dépend surtout du tien.",
+		title: "Un rebelle de Demacia qui pique carrément l'ultime de l'adversaire.",
 		hints: [
 			"Mage au corps à corps.",
-			"S’échappe facilement avec ses chaînes.",
+			"S'échappe facilement avec ses chaînes.",
 			"Peut voler les ultimes ennemis.",
 		],
 	},
 	{
 		answer: "Syndra",
-		title: "Plus il y a de sphères, plus quelqu’un disparaît.",
+		title: "Une souveraine des ténèbres qui jongle avec des sphères pas franchement amicales.",
 		hints: ["Mage.", "Contrôle des sphères noires.", "Unleashed Power."],
 	},
 	{
 		answer: "Tahm Kench",
-		title: "Il peut sauver un allié... ou simplement le manger.",
+		title: "Le crapaud-roi propose son aide, mais version toujours limite louche.",
 		hints: ["Support tank.", "Très fort en lane.", "Devour."],
 	},
 	{
 		answer: "Taliyah",
-		title: "Le terrain devient son terrain de jeu.",
+		title: "Une tisse-pierre qui transforme le sol en tapis roulant géant.",
 		hints: [
 			"Mage.",
 			"Contrôle les rochers.",
@@ -818,12 +818,12 @@ const ROUNDS: GuessRound[] = [
 	},
 	{
 		answer: "Talon",
-		title: "Les murs ne sont qu’un léger détail.",
+		title: "Les murs de la carte ? Une simple formalité pour ce tueur noxien.",
 		hints: ["Assassin AD.", "Très mobile sur la map.", "Assassin de Noxus."],
 	},
 	{
 		answer: "Taric",
-		title: "Les gemmes sont vraiment extraordinaires.",
+		title: "Le protecteur du Soleil dont les gemmes rendent toute l'équipe invincible.",
 		hints: [
 			"Support.",
 			"Peut rendre son équipe invulnérable.",
@@ -832,7 +832,7 @@ const ROUNDS: GuessRound[] = [
 	},
 	{
 		answer: "Teemo",
-		title: "Personne ne l’aime jusqu’à ce qu’il soit dans son équipe.",
+		title: "Le yordle le plus détesté de Runeterra, sauf quand il est dans ton équipe.",
 		hints: [
 			"Toplane.",
 			"Pose des champignons.",
@@ -841,62 +841,62 @@ const ROUNDS: GuessRound[] = [
 	},
 	{
 		answer: "Thresh",
-		title: "Une lanterne peut sauver une game.",
+		title: "Le geôlier des âmes dont la lanterne peut aussi bien te sauver que t'achever.",
 		hints: ["Support.", "Ramasse les âmes.", "Death Sentence."],
 	},
 	{
 		answer: "Tristana",
-		title: "Plus elle tire, plus elle tire loin.",
+		title: "Une yordle canonnière qui envoie sa cible visiter la stratosphère.",
 		hints: ["ADC.", "Très forte sur les tours.", "Rocket Jump."],
 	},
 	{
 		answer: "Trundle",
-		title: "Il adore voler les statistiques des tanks.",
+		title: "Un troll des glaces qui pique carrément les stats du tank adverse.",
 		hints: ["Bruiser.", "Crée un énorme pilier.", "Subjugate."],
 	},
 	{
 		answer: "Tryndamere",
-		title: "Refuse parfois tout simplement de mourir.",
+		title: "Un barbare qui a manifestement zappé le tuto sur la mort.",
 		hints: ["Toplane.", "Accumule de la fureur.", "Undying Rage."],
 	},
 	{
 		answer: "Twisted Fate",
-		title: "Les cartes sont rarement distribuées au hasard.",
+		title: "Le magicien des cartes, jamais très clean sur la table de poker.",
 		hints: ["Mage.", "Choisit entre trois cartes.", "Destiny."],
 	},
 	{
 		answer: "Twitch",
-		title: "Il apparaît souvent quand tu penses être en sécurité.",
+		title: "Un rat des égouts qui se pointe pile quand tu te crois tranquille.",
 		hints: ["ADC.", "Devient invisible.", "Rat-ta-tat-tat."],
 	},
 	{
 		answer: "Udyr",
-		title: "Pourquoi avoir un ultime quand on peut avoir quatre styles ?",
+		title: "Quatre esprits, quatre postures, et zéro besoin d'ultime pour tout péter.",
 		hints: ["Jungler.", "Change constamment de posture.", "Le spirit walker."],
 	},
 	{
 		answer: "Urgot",
-		title: "Ses chaînes annoncent rarement une bonne nouvelle.",
+		title: "Un bourreau de Zaun dont les chaînes ne t'invitent pas à une balade tranquille.",
 		hints: ["Toplane.", "Très fort contre les bruisers.", "Fear Beyond Death."],
 	},
 	{
 		answer: "Varus",
-		title: "Chaque flèche prépare la suivante.",
+		title: "Une flèche corrompue par le Néant, et une deuxième juste derrière.",
 		hints: ["ADC.", "Accumule des marques.", "Chain of Corruption."],
 	},
 	{
 		answer: "Vayne",
-		title: "Les tanks préfèrent éviter de la croiser.",
+		title: "Une chasseuse de monstres pour qui les gros tanks sont juste une cible facile.",
 		hints: ["ADC.", "Très forte en duel.", "Silver Bolts."],
 	},
 	{
 		answer: "Veigar",
-		title: "Plus la partie dure, plus il sourit.",
+		title: "Un mage minuscule dont le sourire s'agrandit à chaque minute de jeu.",
 		hints: ["Mage.", "Accumule de la puissance.", "Primordial Burst."],
 	},
 	{
 		answer: "Vel'Koz",
-		title: "Pour lui, tout n’est qu’une expérience.",
+		title: "Un œil du Néant qui te dissèque avant même de te dire bonjour.",
 		hints: [
 			"Mage du Néant.",
 			"Analyse ses cibles.",
@@ -905,33 +905,33 @@ const ROUNDS: GuessRound[] = [
 	},
 	{
 		answer: "Vex",
-		title: "Même sa mauvaise humeur fait des dégâts.",
+		title: "Une yordle grognon dont même la déprime fait mal aux ennemis.",
 		hints: ["Mage.", "Combat avec son ombre.", "Shadow Surge."],
 	},
 	{
 		answer: "Vi",
-		title: "La solution passe souvent par un énorme coup de poing.",
+		title: "Une exécutrice de Piltover, gantelets énormes, patience quasi nulle.",
 		hints: ["Jungler.", "Charge son Q.", "Cease and Desist."],
 	},
 	{
 		answer: "Viego",
-		title: "Chaque élimination peut changer le combat.",
+		title: "Le Roi Déchu vole littéralement le corps de ceux qu'il élimine.",
 		hints: ["Jungler.", "Possède les champions ennemis.", "Le Roi Déchu."],
 	},
 	{
 		answer: "Viktor",
-		title: "Chaque amélioration le rapproche de son idéal.",
+		title: "Un scientifique de Zaun qui préfère l'acier à la chair, poste après poste.",
 		hints: ["Mage.", "Évolue ses compétences.", "Glorious Evolution."],
 	},
 	{
 		answer: "Vladimir",
-		title: "Les points de vie sont surtout une ressource.",
+		title: "Un hémomancien pour qui la vie de tout le monde est juste une ressource de plus.",
 		hints: ["Mage.", "Utilise son propre sang.", "Sanguine Pool."],
 	},
 
 	{
 		answer: "Warwick",
-		title: "L’odeur du sang lui suffit.",
+		title: "Une odeur de sang, et le loup zaunite débarque sans prévenir.",
 		hints: [
 			"Jungler.",
 			"Court plus vite vers les ennemis blessés.",
@@ -940,7 +940,7 @@ const ROUNDS: GuessRound[] = [
 	},
 	{
 		answer: "Wukong",
-		title: "Un clone. Un bâton. Beaucoup trop de pression.",
+		title: "Un bâton, un clone, et une déferlante de bâtons qui te font tourner en rond.",
 		hints: [
 			"Top/Jungle.",
 			"Peut devenir invisible un court instant.",
@@ -949,42 +949,42 @@ const ROUNDS: GuessRound[] = [
 	},
 	{
 		answer: "Xayah",
-		title: "Chaque plume laissée au sol compte.",
+		title: "Chaque plume qu'elle laisse tomber prépare la suivante mise à mort.",
 		hints: ["ADC.", "Rappelle ses plumes.", "Featherstorm."],
 	},
 	{
 		answer: "Xerath",
-		title: "Il préfère combattre à deux écrans de distance.",
+		title: "Un mage emprisonné qui te grille à distance depuis deux écrans.",
 		hints: ["Mage.", "Très longue portée.", "Arcane Barrage."],
 	},
 	{
 		answer: "Xin Zhao",
-		title: "Le premier à entrer, rarement le dernier debout.",
+		title: "Le sénéchal de Demacia, toujours le premier à sauter dans le combat.",
 		hints: ["Jungler.", "Très fort en duel.", "Crescent Guard."],
 	},
 	{
 		answer: "Yasuo",
-		title: "Une tornade suffit parfois.",
+		title: "Un vent qui souffle, et soudain toute l'équipe adverse s'envole.",
 		hints: ["Mid/Top.", "Son ultime nécessite un knock-up.", "Steel Tempest."],
 	},
 	{
 		answer: "Yone",
-		title: "Il revient toujours à son point de départ.",
+		title: "Un esprit lié à deux lames qui revient toujours pile à son point de départ.",
 		hints: ["Mid/Top.", "Alterne deux épées.", "Soul Unbound."],
 	},
 	{
 		answer: "Yorick",
-		title: "Il ne se bat presque jamais seul.",
+		title: "Un fossoyeur qui ne se déplace jamais vraiment seul.",
 		hints: ["Toplane.", "Invoque des goules.", "Maiden of the Mist."],
 	},
 	{
 		answer: "Yuumi",
-		title: "Son meilleur placement est souvent sur quelqu’un d’autre.",
+		title: "Le chat magique dont le meilleur move est de se coller à un allié.",
 		hints: ["Support.", "Peut devenir inciblable.", "Final Chapter."],
 	},
 	{
 		answer: "Zac",
-		title: "Plus il rebondit, plus ça devient inquiétant.",
+		title: "Une gelée zaunite qui rebondit dans toute l'équipe, morceaux compris.",
 		hints: [
 			"Tank.",
 			"Ramasse ses morceaux pour se soigner.",
@@ -993,36 +993,36 @@ const ROUNDS: GuessRound[] = [
 	},
 	{
 		answer: "Zed",
-		title: "L’ombre est rarement là par hasard.",
+		title: "L'ombre qu'on aperçoit une fraction de seconde avant que tout devienne noir.",
 		hints: ["Assassin AD.", "Utilise des ombres.", "Death Mark."],
 	},
 	{
 		answer: "Zeri",
-		title: "Ses attaques ne ressemblent à aucune autre.",
+		title: "Une électro-punkette de Zaun dont même l'attaque de base est un vrai sort.",
 		hints: ["ADC.", "Très mobile.", "Son attaque de base est un sort."],
 	},
 	{
 		answer: "Ziggs",
-		title: "Tout explose, la question est juste : quand ?",
+		title: "Un yordle qui répond à absolument toutes les questions par une bombe.",
 		hints: ["Mage.", "Excellent contre les tours.", "Mega Inferno Bomb."],
 	},
 	{
 		answer: "Zilean",
-		title: "Le temps joue pour lui.",
+		title: "Un chronomancien qui garde toujours une seconde vie en réserve.",
 		hints: ["Support/Mage.", "Peut ressusciter un allié.", "Chronoshift."],
 	},
 	{
 		answer: "Zoe",
-		title: "Elle transforme une erreur en one-shot.",
+		title: "Une enfant cosmique qui transforme un sort d'invocateur volé en one-shot.",
 		hints: [
 			"Mage.",
-			"Ramasse les sorts d’invocateur.",
+			"Ramasse les sorts d'invocateur.",
 			"Sleepy Trouble Bubble.",
 		],
 	},
 	{
 		answer: "Zyra",
-		title: "Le moindre buisson peut devenir dangereux.",
+		title: "Une plante carnivore version champion : le buisson d'à côté n'est jamais innocent.",
 		hints: ["Support/Mage.", "Fait pousser des plantes.", "Stranglethorns."],
 	},
 ];

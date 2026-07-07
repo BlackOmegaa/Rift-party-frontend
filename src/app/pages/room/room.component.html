@@ -286,7 +286,15 @@
                   <div class="meta-line"><span>{{ mix.minPlayers }}-{{ mix.maxPlayers }} joueurs</span><span>{{ gameSettings.roundTimeSec() }}s/manche</span></div>
                   <strong>{{ currentRoom.players.length < mix.minPlayers ? 'Pas assez de joueurs' : 'Lancer la party' }}</strong>
                 </button>
-                <button class="gear card-gear big" (click)="openSettings('party-mix')" title="Paramètres Party Mix"><app-icon name="gear" [size]="20" /></button>
+                <button
+                  class="gear card-gear big"
+                  [class.locked]="currentRoom.players.length < mix.minPlayers"
+                  [disabled]="currentRoom.players.length < mix.minPlayers"
+                  (click)="openSettings('party-mix')"
+                  [title]="currentRoom.players.length < mix.minPlayers ? 'Pas assez de joueurs pour régler ce mode' : 'Paramètres Party Mix'"
+                >
+                  <app-icon [name]="currentRoom.players.length < mix.minPlayers ? 'lock' : 'gear'" [size]="20" />
+                </button>
               </article>
             </section>
           }
@@ -305,9 +313,17 @@
                   <h2>{{ game.label }}</h2>
                   <p>{{ game.description }}</p>
                   <div class="meta-line"><span>{{ game.minPlayers }}-{{ game.maxPlayers }} joueurs</span><span>{{ gameSettings.roundTimeSec() }}s</span></div>
-                  <strong>Lancer</strong>
+                  <strong>{{ currentRoom.players.length < game.minPlayers ? 'Pas assez de joueurs' : 'Lancer' }}</strong>
                 </button>
-                <button class="gear card-gear" (click)="openSettings(game.id)" title="Paramètres"><app-icon name="gear" [size]="16" /></button>
+                <button
+                  class="gear card-gear"
+                  [class.locked]="currentRoom.players.length < game.minPlayers"
+                  [disabled]="currentRoom.players.length < game.minPlayers"
+                  (click)="openSettings(game.id)"
+                  [title]="currentRoom.players.length < game.minPlayers ? 'Pas assez de joueurs pour régler ce mode' : 'Paramètres'"
+                >
+                  <app-icon [name]="currentRoom.players.length < game.minPlayers ? 'lock' : 'gear'" [size]="16" />
+                </button>
               </article>
             }
           </section>

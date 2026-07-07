@@ -43,7 +43,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 70,
 		items: ["Ruby Crystal"],
 		answer: 3,
-		note: "Unstoppable Force sur la tour, dommage que ça ne marche pas dans l'autre sens.",
+		note: "Unstoppable Force sur la tour, l'ironie c'est que ça marche surtout contre lui.",
 	},
 	{
 		champ: "Ornn",
@@ -52,7 +52,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 75,
 		items: ["Ruby Crystal"],
 		answer: 3,
-		note: "Il forge ses items, la tour forge ses dégâts. Douloureux pour tout le monde.",
+		note: "Le forgeron sort ses items, la tour sort ses dégâts, tout le monde souffre un peu.",
 	},
 	{
 		champ: "Rammus",
@@ -61,7 +61,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 80,
 		items: ["Ruby Crystal"],
 		answer: 3,
-		note: "Ok tank Rammus, mais si le comeback ne suit jamais, ça sert à quoi ?",
+		note: "Le comeback ne suit jamais, mais Rammus continue de tank comme si de rien n'était.",
 	},
 	{
 		champ: "K'Sante",
@@ -70,7 +70,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 75,
 		items: ["Ruby Crystal"],
 		answer: 4,
-		note: "Ultimate qui repousse tout, sauf les regrets du draft.",
+		note: "L'ultimate repousse tout sauf les regrets du draft, franchement dommage.",
 	},
 	{
 		champ: "Alistar",
@@ -79,7 +79,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 65,
 		items: ["Ruby Crystal"],
 		answer: 3,
-		note: "Il headbutt la tour, la tour ne rigole pas.",
+		note: "Headbutt sur la tour, sourire aux lèvres, la tour ne trouve pas ça drôle.",
 	},
 	{
 		champ: "Shen",
@@ -88,7 +88,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 68,
 		items: ["Ruby Crystal"],
 		answer: 3,
-		note: "Un vrai Shen protège sa botlane, un faux Shen farm en solo en tapant la tour.",
+		note: "Un vrai Shen protège la botlane, celui-là farm en solo sous la tour, carrément à côté.",
 	},
 	{
 		champ: "Zac",
@@ -97,7 +97,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 72,
 		items: ["Ruby Crystal"],
 		answer: 3,
-		note: "Il rebondit sur la tour, la tour ne rebondit pas sur lui. Dommage.",
+		note: "Il rebondit sur tout sauf sur les dégâts de la tour, gros oubli dans le kit.",
 	},
 	{
 		champ: "Braum",
@@ -106,7 +106,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 65,
 		items: ["Ruby Crystal"],
 		answer: 3,
-		note: "Le bouclier arrête tout, sauf les remarques du chat.",
+		note: "Le bouclier bloque les projectiles mais pas les remarques salées du chat.",
 	},
 	{
 		champ: "Poppy",
@@ -115,7 +115,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 60,
 		items: ["Ruby Crystal"],
 		answer: 3,
-		note: "Elle attend son moment. La tour n'attend rien.",
+		note: "Elle attend patiemment son moment, la tour n'attend jamais personne.",
 	},
 	{
 		champ: "Leona",
@@ -124,7 +124,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 55,
 		items: ["Ruby Crystal"],
 		answer: 2,
-		note: "Elle engage, la tour tape, et l'ADC est déjà mort avant l'impact.",
+		note: "Engage parfait, ADC déjà mort avant même que la tour ait fini de taper.",
 	},
 	{
 		champ: "Sion",
@@ -133,7 +133,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 55,
 		items: ["Ruby Crystal"],
 		answer: 3,
-		note: "Il refuse de mourir tout de suite, la tour s'en fiche et retape derrière.",
+		note: "Refuse de mourir tout de suite, la tour s'en fiche et retape juste derrière.",
 	},
 	{
 		champ: "Volibear",
@@ -142,7 +142,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 58,
 		items: ["Ruby Crystal"],
 		answer: 3,
-		note: "Il plonge du ciel sur la tour. La tour n'apprécie pas la surprise.",
+		note: "Plongeon spectaculaire depuis le ciel, atterrissage franchement moins glorieux.",
 	},
 	{
 		champ: "Gragas",
@@ -151,7 +151,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 52,
 		items: ["Ruby Crystal"],
 		answer: 3,
-		note: "Un tonneau, une explosion, et un top laner qui recule d'un pas trop tard.",
+		note: "Le tonneau explose, le top laner recule d'un pas, un pas de trop tard visiblement.",
 	},
 	{
 		champ: "Sett",
@@ -160,7 +160,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 50,
 		items: ["Ruby Crystal"],
 		answer: 3,
-		note: "Les pecs tank, la tour ne respecte pas les pecs.",
+		note: "Les pecs sont énormes, la tour s'en moque complètement, zéro respect.",
 	},
 	{
 		champ: "Mordekaiser",
@@ -169,7 +169,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 54,
 		items: ["Ruby Crystal"],
 		answer: 3,
-		note: "Il t'emmène dans sa réalité, la tour reste dans la vraie.",
+		note: "Il t'emmène dans sa dimension personnelle, la tour reste bien dans la vraie.",
 	},
 	{
 		champ: "Nasus",
@@ -178,7 +178,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 45,
 		items: ["Ruby Crystal"],
 		answer: 2,
-		note: "Plus il stack, plus la tour a l'air ridicule. Jusqu'à un certain point.",
+		note: "Plus il stack Q, plus la tour a l'air ridicule, sauf que là, c'est pas encore le cas.",
 	},
 	{
 		champ: "Garen",
@@ -187,7 +187,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 53,
 		items: ["Ruby Crystal"],
 		answer: 3,
-		note: "Silence, spin, et une tour qui continue de parler quand même.",
+		note: "Silence lancé, spin enclenché, la tour continue de parler comme si de rien n'était.",
 	},
 	{
 		champ: "Aatrox",
@@ -196,7 +196,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 48,
 		items: ["Ruby Crystal"],
 		answer: 3,
-		note: "Il revient d'entre les morts une fois. La tour, elle, ne s'arrête jamais.",
+		note: "Il revient d'entre les morts une seule fois, la tour ne s'arrête jamais elle.",
 	},
 	{
 		champ: "Darius",
@@ -205,7 +205,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 42,
 		items: ["Ruby Crystal"],
 		answer: 2,
-		note: "Cinq stacks de saignement plus tard, c'est la tour qui prend le crédit du kill.",
+		note: "Cinq stacks de saignement bien posés, et c'est la tour qui rafle le crédit du kill.",
 	},
 	{
 		champ: "Wukong",
@@ -214,7 +214,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 40,
 		items: ["Ruby Crystal"],
 		answer: 2,
-		note: "Clone posé, invisible, et toujours cette tour qui tape le vrai par hasard.",
+		note: "Clone invisible bien planqué, la tour retrouve quand même le vrai à chaque fois.",
 	},
 	{
 		champ: "Pantheon",
@@ -223,7 +223,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 44,
 		items: ["Ruby Crystal"],
 		answer: 2,
-		note: "Il plonge depuis la stratosphère. La tour l'attendait déjà en dessous.",
+		note: "Plongée depuis la stratosphère façon grand style, la tour l'attendait déjà en bas.",
 	},
 	{
 		champ: "Draven",
@@ -232,7 +232,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 35,
 		items: ["Berserker"],
 		answer: 2,
-		note: "Les haches tournent, la confiance monte, la tour n'est pas impressionnée.",
+		note: "Les haches tournent, la confiance est au max, la tour reste complètement zéro chill.",
 	},
 	{
 		champ: "Thresh",
@@ -241,7 +241,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 40,
 		items: ["Ruby Crystal"],
 		answer: 2,
-		note: "La lanterne sauve tout le monde, sauf lui-même sous la tour.",
+		note: "La lanterne sauve tout le monde sur la carte, sauf lui-même sous cette tour.",
 	},
 	{
 		champ: "Pyke",
@@ -250,7 +250,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 35,
 		items: ["Ruby Crystal"],
 		answer: 1,
-		note: "Passif discount sur la vie max, la tour ne fait pas de rabais.",
+		note: "Passif discount sur la vie max, mais la tour ne fait jamais de rabais, jamais.",
 	},
 	{
 		champ: "Yasuo",
@@ -259,7 +259,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 30,
 		items: ["Berserker"],
 		answer: 2,
-		note: "Le bouclier tient tant qu'il court, la tour tire plus vite qu'il ne dash.",
+		note: "Le bouclier tient tant qu'il bouge, sauf que la tour tire plus vite que son dash.",
 	},
 	{
 		champ: "Vayne",
@@ -268,7 +268,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 25,
 		items: ["Berserker"],
 		answer: 1,
-		note: "Invisible en combat, très visible pour la tour.",
+		note: "Invisible pour son adversaire en combat, carrément visible pour la tour.",
 	},
 	{
 		champ: "Lux",
@@ -277,7 +277,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 22,
 		items: ["Lucidity Boots"],
 		answer: 1,
-		note: "Zéro armure, une seule tour, un seul aller simple.",
+		note: "Zéro armure sur le dos, une tour en face, un aller simple garanti.",
 	},
 	{
 		champ: "Yuumi",
@@ -286,7 +286,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 20,
 		items: ["Lucidity Boots"],
 		answer: 1,
-		note: "Détachée, seule, et face à une tour qui ne demande pas la permission.",
+		note: "Détachée toute seule, la tour ne lui demande clairement pas la permission.",
 	},
 	{
 		champ: "Jinx",
@@ -295,7 +295,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 28,
 		items: ["Berserker"],
 		answer: 2,
-		note: "Elle rigole du danger jusqu'à ce que le danger tape en retour.",
+		note: "Elle rigole du danger jusqu'à ce que le danger, lui, tape en retour bien plus fort.",
 	},
 	{
 		champ: "Kai'Sa",
@@ -304,7 +304,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 24,
 		items: ["Berserker"],
 		answer: 1,
-		note: "Plus elle évolue, plus elle croit être en sécurité. Elle ne l'est pas.",
+		note: "Plus elle évolue, plus elle se sent invincible, sauf que là, pas du tout en sécurité.",
 	},
 	{
 		champ: "Malphite",
@@ -313,7 +313,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 160,
 		items: ["Sunfire", "Plated Steelcaps"],
 		answer: 6,
-		note: "Unstoppable Force sur la tour, dommage que ça ne marche pas dans l'autre sens.",
+		note: "Unstoppable Force sur la tour, l'ironie c'est que ça marche surtout contre lui.",
 	},
 	{
 		champ: "Ornn",
@@ -322,7 +322,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 165,
 		items: ["Heartsteel", "Plated Steelcaps"],
 		answer: 6,
-		note: "Il forge ses items, la tour forge ses dégâts. Douloureux pour tout le monde.",
+		note: "Le forgeron sort ses items, la tour sort ses dégâts, tout le monde souffre un peu.",
 	},
 	{
 		champ: "Rammus",
@@ -331,7 +331,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 170,
 		items: ["JakSho", "Plated Steelcaps"],
 		answer: 6,
-		note: "Ok tank Rammus, mais si le comeback ne suit jamais, ça sert à quoi ?",
+		note: "Le comeback ne suit jamais, mais Rammus continue de tank comme si de rien n'était.",
 	},
 	{
 		champ: "K'Sante",
@@ -340,7 +340,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 170,
 		items: ["Iceborn Gauntlet", "Plated Steelcaps"],
 		answer: 7,
-		note: "Ultimate qui repousse tout, sauf les regrets du draft.",
+		note: "L'ultimate repousse tout sauf les regrets du draft, franchement dommage.",
 	},
 	{
 		champ: "Alistar",
@@ -349,7 +349,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 155,
 		items: ["Sunfire", "Tabi"],
 		answer: 6,
-		note: "Il headbutt la tour, la tour ne rigole pas.",
+		note: "Headbutt sur la tour, sourire aux lèvres, la tour ne trouve pas ça drôle.",
 	},
 	{
 		champ: "Shen",
@@ -358,7 +358,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 158,
 		items: ["JakSho", "Plated Steelcaps"],
 		answer: 6,
-		note: "Un vrai Shen protège sa botlane, un faux Shen farm en solo en tapant la tour.",
+		note: "Un vrai Shen protège la botlane, celui-là farm en solo sous la tour, carrément à côté.",
 	},
 	{
 		champ: "Zac",
@@ -367,7 +367,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 162,
 		items: ["Frozen Heart", "Tabi"],
 		answer: 6,
-		note: "Il rebondit sur la tour, la tour ne rebondit pas sur lui. Dommage.",
+		note: "Il rebondit sur tout sauf sur les dégâts de la tour, gros oubli dans le kit.",
 	},
 	{
 		champ: "Braum",
@@ -376,7 +376,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 150,
 		items: ["Plated Steelcaps", "JakSho"],
 		answer: 6,
-		note: "Le bouclier arrête tout, sauf les remarques du chat.",
+		note: "Le bouclier bloque les projectiles mais pas les remarques salées du chat.",
 	},
 	{
 		champ: "Poppy",
@@ -385,7 +385,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 130,
 		items: ["Tabi", "Frozen Heart"],
 		answer: 5,
-		note: "Elle attend son moment. La tour n'attend rien.",
+		note: "Elle attend patiemment son moment, la tour n'attend jamais personne.",
 	},
 	{
 		champ: "Leona",
@@ -394,7 +394,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 140,
 		items: ["Plated Steelcaps", "Frozen Heart"],
 		answer: 5,
-		note: "Elle engage, la tour tape, et l'ADC est déjà mort avant l'impact.",
+		note: "Engage parfait, ADC déjà mort avant même que la tour ait fini de taper.",
 	},
 	{
 		champ: "Sion",
@@ -403,7 +403,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 125,
 		items: ["Sterak", "Plated Steelcaps"],
 		answer: 5,
-		note: "Il refuse de mourir tout de suite, la tour s'en fiche et retape derrière.",
+		note: "Refuse de mourir tout de suite, la tour s'en fiche et retape juste derrière.",
 	},
 	{
 		champ: "Volibear",
@@ -412,7 +412,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 128,
 		items: ["Stridebreaker", "Tabi"],
 		answer: 5,
-		note: "Il plonge du ciel sur la tour. La tour n'apprécie pas la surprise.",
+		note: "Plongeon spectaculaire depuis le ciel, atterrissage franchement moins glorieux.",
 	},
 	{
 		champ: "Gragas",
@@ -421,7 +421,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 122,
 		items: ["Sterak", "Sunfire"],
 		answer: 5,
-		note: "Un tonneau, une explosion, et un top laner qui recule d'un pas trop tard.",
+		note: "Le tonneau explose, le top laner recule d'un pas, un pas de trop tard visiblement.",
 	},
 	{
 		champ: "Sett",
@@ -430,7 +430,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 115,
 		items: ["Stridebreaker", "Sterak"],
 		answer: 5,
-		note: "Les pecs tank, la tour ne respecte pas les pecs.",
+		note: "Les pecs sont énormes, la tour s'en moque complètement, zéro respect.",
 	},
 	{
 		champ: "Mordekaiser",
@@ -439,7 +439,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 124,
 		items: ["Sterak", "Sunfire"],
 		answer: 5,
-		note: "Il t'emmène dans sa réalité, la tour reste dans la vraie.",
+		note: "Il t'emmène dans sa dimension personnelle, la tour reste bien dans la vraie.",
 	},
 	{
 		champ: "Nasus",
@@ -448,7 +448,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 100,
 		items: ["Sunfire", "Tabi"],
 		answer: 4,
-		note: "Plus il stack, plus la tour a l'air ridicule. Jusqu'à un certain point.",
+		note: "Plus il stack Q, plus la tour a l'air ridicule, sauf que là, c'est pas encore le cas.",
 	},
 	{
 		champ: "Garen",
@@ -457,7 +457,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 118,
 		items: ["Stridebreaker", "Plated Steelcaps"],
 		answer: 5,
-		note: "Silence, spin, et une tour qui continue de parler quand même.",
+		note: "Silence lancé, spin enclenché, la tour continue de parler comme si de rien n'était.",
 	},
 	{
 		champ: "Aatrox",
@@ -466,7 +466,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 112,
 		items: ["Stridebreaker", "Sterak"],
 		answer: 5,
-		note: "Il revient d'entre les morts une fois. La tour, elle, ne s'arrête jamais.",
+		note: "Il revient d'entre les morts une seule fois, la tour ne s'arrête jamais elle.",
 	},
 	{
 		champ: "Darius",
@@ -475,7 +475,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 85,
 		items: ["Stridebreaker", "Tabi"],
 		answer: 4,
-		note: "Cinq stacks de saignement plus tard, c'est la tour qui prend le crédit du kill.",
+		note: "Cinq stacks de saignement bien posés, et c'est la tour qui rafle le crédit du kill.",
 	},
 	{
 		champ: "Wukong",
@@ -484,7 +484,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 82,
 		items: ["Stridebreaker", "Sterak"],
 		answer: 4,
-		note: "Clone posé, invisible, et toujours cette tour qui tape le vrai par hasard.",
+		note: "Clone invisible bien planqué, la tour retrouve quand même le vrai à chaque fois.",
 	},
 	{
 		champ: "Pantheon",
@@ -493,7 +493,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 88,
 		items: ["Stridebreaker", "Tabi"],
 		answer: 4,
-		note: "Il plonge depuis la stratosphère. La tour l'attendait déjà en dessous.",
+		note: "Plongée depuis la stratosphère façon grand style, la tour l'attendait déjà en bas.",
 	},
 	{
 		champ: "Draven",
@@ -502,7 +502,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 50,
 		items: ["Kraken", "Berserker"],
 		answer: 3,
-		note: "Les haches tournent, la confiance monte, la tour n'est pas impressionnée.",
+		note: "Les haches tournent, la confiance est au max, la tour reste complètement zéro chill.",
 	},
 	{
 		champ: "Thresh",
@@ -511,7 +511,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 65,
 		items: ["Frozen Heart", "Plated Steelcaps"],
 		answer: 4,
-		note: "La lanterne sauve tout le monde, sauf lui-même sous la tour.",
+		note: "La lanterne sauve tout le monde sur la carte, sauf lui-même sous cette tour.",
 	},
 	{
 		champ: "Pyke",
@@ -520,7 +520,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 45,
 		items: ["Ruby Crystal", "Tabi"],
 		answer: 2,
-		note: "Passif discount sur la vie max, la tour ne fait pas de rabais.",
+		note: "Passif discount sur la vie max, mais la tour ne fait jamais de rabais, jamais.",
 	},
 	{
 		champ: "Yasuo",
@@ -529,7 +529,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 35,
 		items: ["Kraken", "Berserker"],
 		answer: 3,
-		note: "Le bouclier tient tant qu'il court, la tour tire plus vite qu'il ne dash.",
+		note: "Le bouclier tient tant qu'il bouge, sauf que la tour tire plus vite que son dash.",
 	},
 	{
 		champ: "Vayne",
@@ -538,7 +538,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 30,
 		items: ["Kraken", "Berserker"],
 		answer: 2,
-		note: "Invisible en combat, très visible pour la tour.",
+		note: "Invisible pour son adversaire en combat, carrément visible pour la tour.",
 	},
 	{
 		champ: "Lux",
@@ -547,7 +547,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 28,
 		items: ["Rabadon", "Lucidity Boots"],
 		answer: 2,
-		note: "Zéro armure, une seule tour, un seul aller simple.",
+		note: "Zéro armure sur le dos, une tour en face, un aller simple garanti.",
 	},
 	{
 		champ: "Yuumi",
@@ -556,7 +556,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 25,
 		items: ["Moonstone", "Lucidity Boots"],
 		answer: 1,
-		note: "Détachée, seule, et face à une tour qui ne demande pas la permission.",
+		note: "Détachée toute seule, la tour ne lui demande clairement pas la permission.",
 	},
 	{
 		champ: "Jinx",
@@ -565,7 +565,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 38,
 		items: ["Kraken", "Berserker"],
 		answer: 3,
-		note: "Elle rigole du danger jusqu'à ce que le danger tape en retour.",
+		note: "Elle rigole du danger jusqu'à ce que le danger, lui, tape en retour bien plus fort.",
 	},
 	{
 		champ: "Kai'Sa",
@@ -574,7 +574,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 30,
 		items: ["Guinsoo", "Berserker"],
 		answer: 2,
-		note: "Plus elle évolue, plus elle croit être en sécurité. Elle ne l'est pas.",
+		note: "Plus elle évolue, plus elle se sent invincible, sauf que là, pas du tout en sécurité.",
 	},
 	{
 		champ: "Malphite",
@@ -583,7 +583,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 240,
 		items: ["Sunfire", "Frozen Heart", "Plated Steelcaps"],
 		answer: 9,
-		note: "Unstoppable Force sur la tour, dommage que ça ne marche pas dans l'autre sens.",
+		note: "Unstoppable Force sur la tour, l'ironie c'est que ça marche surtout contre lui.",
 	},
 	{
 		champ: "Ornn",
@@ -592,7 +592,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 250,
 		items: ["Heartsteel", "Sunfire", "JakSho"],
 		answer: 10,
-		note: "Il forge ses items, la tour forge ses dégâts. Douloureux pour tout le monde.",
+		note: "Le forgeron sort ses items, la tour sort ses dégâts, tout le monde souffre un peu.",
 	},
 	{
 		champ: "Rammus",
@@ -601,7 +601,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 245,
 		items: ["JakSho", "Frozen Heart", "Plated Steelcaps"],
 		answer: 9,
-		note: "Ok tank Rammus, mais si le comeback ne suit jamais, ça sert à quoi ?",
+		note: "Le comeback ne suit jamais, mais Rammus continue de tank comme si de rien n'était.",
 	},
 	{
 		champ: "K'Sante",
@@ -610,7 +610,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 260,
 		items: ["Iceborn Gauntlet", "Heartsteel", "JakSho"],
 		answer: 10,
-		note: "Ultimate qui repousse tout, sauf les regrets du draft.",
+		note: "L'ultimate repousse tout sauf les regrets du draft, franchement dommage.",
 	},
 	{
 		champ: "Alistar",
@@ -619,7 +619,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 255,
 		items: ["Sunfire", "Frozen Heart", "Tabi"],
 		answer: 10,
-		note: "Il headbutt la tour, la tour ne rigole pas.",
+		note: "Headbutt sur la tour, sourire aux lèvres, la tour ne trouve pas ça drôle.",
 	},
 	{
 		champ: "Shen",
@@ -628,7 +628,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 235,
 		items: ["JakSho", "Sunfire", "Plated Steelcaps"],
 		answer: 9,
-		note: "Un vrai Shen protège sa botlane, un faux Shen farm en solo en tapant la tour.",
+		note: "Un vrai Shen protège la botlane, celui-là farm en solo sous la tour, carrément à côté.",
 	},
 	{
 		champ: "Zac",
@@ -637,7 +637,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 238,
 		items: ["Frozen Heart", "Sunfire", "Heartsteel"],
 		answer: 9,
-		note: "Il rebondit sur la tour, la tour ne rebondit pas sur lui. Dommage.",
+		note: "Il rebondit sur tout sauf sur les dégâts de la tour, gros oubli dans le kit.",
 	},
 	{
 		champ: "Braum",
@@ -646,7 +646,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 230,
 		items: ["Plated Steelcaps", "Sunfire", "Frozen Heart"],
 		answer: 9,
-		note: "Le bouclier arrête tout, sauf les remarques du chat.",
+		note: "Le bouclier bloque les projectiles mais pas les remarques salées du chat.",
 	},
 	{
 		champ: "Poppy",
@@ -655,7 +655,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 200,
 		items: ["Tabi", "JakSho", "Sunfire"],
 		answer: 8,
-		note: "Elle attend son moment. La tour n'attend rien.",
+		note: "Elle attend patiemment son moment, la tour n'attend jamais personne.",
 	},
 	{
 		champ: "Leona",
@@ -664,7 +664,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 210,
 		items: ["Plated Steelcaps", "Frozen Heart", "JakSho"],
 		answer: 8,
-		note: "Elle engage, la tour tape, et l'ADC est déjà mort avant l'impact.",
+		note: "Engage parfait, ADC déjà mort avant même que la tour ait fini de taper.",
 	},
 	{
 		champ: "Sion",
@@ -673,7 +673,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 195,
 		items: ["Sterak", "Sunfire", "Plated Steelcaps"],
 		answer: 8,
-		note: "Il refuse de mourir tout de suite, la tour s'en fiche et retape derrière.",
+		note: "Refuse de mourir tout de suite, la tour s'en fiche et retape juste derrière.",
 	},
 	{
 		champ: "Volibear",
@@ -682,7 +682,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 198,
 		items: ["Stridebreaker", "Sterak", "Tabi"],
 		answer: 8,
-		note: "Il plonge du ciel sur la tour. La tour n'apprécie pas la surprise.",
+		note: "Plongeon spectaculaire depuis le ciel, atterrissage franchement moins glorieux.",
 	},
 	{
 		champ: "Gragas",
@@ -691,7 +691,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 192,
 		items: ["Sterak", "Sunfire", "Plated Steelcaps"],
 		answer: 8,
-		note: "Un tonneau, une explosion, et un top laner qui recule d'un pas trop tard.",
+		note: "Le tonneau explose, le top laner recule d'un pas, un pas de trop tard visiblement.",
 	},
 	{
 		champ: "Sett",
@@ -700,7 +700,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 175,
 		items: ["Stridebreaker", "Sterak", "Tabi"],
 		answer: 7,
-		note: "Les pecs tank, la tour ne respecte pas les pecs.",
+		note: "Les pecs sont énormes, la tour s'en moque complètement, zéro respect.",
 	},
 	{
 		champ: "Mordekaiser",
@@ -709,7 +709,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 193,
 		items: ["Sterak", "Heartsteel", "Sunfire"],
 		answer: 8,
-		note: "Il t'emmène dans sa réalité, la tour reste dans la vraie.",
+		note: "Il t'emmène dans sa dimension personnelle, la tour reste bien dans la vraie.",
 	},
 	{
 		champ: "Nasus",
@@ -718,7 +718,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 190,
 		items: ["Sunfire", "Heartsteel", "Plated Steelcaps"],
 		answer: 8,
-		note: "Plus il stack, plus la tour a l'air ridicule. Jusqu'à un certain point.",
+		note: "Plus il stack Q, plus la tour a l'air ridicule, sauf que là, c'est pas encore le cas.",
 	},
 	{
 		champ: "Garen",
@@ -727,7 +727,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 178,
 		items: ["Stridebreaker", "Sterak", "Plated Steelcaps"],
 		answer: 7,
-		note: "Silence, spin, et une tour qui continue de parler quand même.",
+		note: "Silence lancé, spin enclenché, la tour continue de parler comme si de rien n'était.",
 	},
 	{
 		champ: "Aatrox",
@@ -736,7 +736,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 170,
 		items: ["Stridebreaker", "Sterak", "Heartsteel"],
 		answer: 7,
-		note: "Il revient d'entre les morts une fois. La tour, elle, ne s'arrête jamais.",
+		note: "Il revient d'entre les morts une seule fois, la tour ne s'arrête jamais elle.",
 	},
 	{
 		champ: "Darius",
@@ -745,7 +745,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 140,
 		items: ["Stridebreaker", "Sterak", "Tabi"],
 		answer: 6,
-		note: "Cinq stacks de saignement plus tard, c'est la tour qui prend le crédit du kill.",
+		note: "Cinq stacks de saignement bien posés, et c'est la tour qui rafle le crédit du kill.",
 	},
 	{
 		champ: "Wukong",
@@ -754,7 +754,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 135,
 		items: ["Stridebreaker", "Sterak", "Plated Steelcaps"],
 		answer: 6,
-		note: "Clone posé, invisible, et toujours cette tour qui tape le vrai par hasard.",
+		note: "Clone invisible bien planqué, la tour retrouve quand même le vrai à chaque fois.",
 	},
 	{
 		champ: "Pantheon",
@@ -763,7 +763,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 145,
 		items: ["Stridebreaker", "Sterak", "Plated Steelcaps"],
 		answer: 6,
-		note: "Il plonge depuis la stratosphère. La tour l'attendait déjà en dessous.",
+		note: "Plongée depuis la stratosphère façon grand style, la tour l'attendait déjà en bas.",
 	},
 	{
 		champ: "Draven",
@@ -772,7 +772,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 65,
 		items: ["Kraken", "Sterak", "Berserker"],
 		answer: 5,
-		note: "Les haches tournent, la confiance monte, la tour n'est pas impressionnée.",
+		note: "Les haches tournent, la confiance est au max, la tour reste complètement zéro chill.",
 	},
 	{
 		champ: "Thresh",
@@ -781,7 +781,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 95,
 		items: ["Frozen Heart", "Plated Steelcaps", "JakSho"],
 		answer: 5,
-		note: "La lanterne sauve tout le monde, sauf lui-même sous la tour.",
+		note: "La lanterne sauve tout le monde sur la carte, sauf lui-même sous cette tour.",
 	},
 	{
 		champ: "Pyke",
@@ -790,7 +790,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 60,
 		items: ["Ruby Crystal", "Tabi", "Frozen Heart"],
 		answer: 4,
-		note: "Passif discount sur la vie max, la tour ne fait pas de rabais.",
+		note: "Passif discount sur la vie max, mais la tour ne fait jamais de rabais, jamais.",
 	},
 	{
 		champ: "Yasuo",
@@ -799,7 +799,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 45,
 		items: ["Kraken", "Guinsoo", "Berserker"],
 		answer: 4,
-		note: "Le bouclier tient tant qu'il court, la tour tire plus vite qu'il ne dash.",
+		note: "Le bouclier tient tant qu'il bouge, sauf que la tour tire plus vite que son dash.",
 	},
 	{
 		champ: "Vayne",
@@ -808,7 +808,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 40,
 		items: ["Kraken", "Guinsoo", "Berserker"],
 		answer: 3,
-		note: "Invisible en combat, très visible pour la tour.",
+		note: "Invisible pour son adversaire en combat, carrément visible pour la tour.",
 	},
 	{
 		champ: "Lux",
@@ -817,7 +817,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 35,
 		items: ["Rabadon", "Lucidity Boots", "Ruby Crystal"],
 		answer: 3,
-		note: "Zéro armure, une seule tour, un seul aller simple.",
+		note: "Zéro armure sur le dos, une tour en face, un aller simple garanti.",
 	},
 	{
 		champ: "Yuumi",
@@ -826,7 +826,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 35,
 		items: ["Moonstone", "Lucidity Boots", "Ruby Crystal"],
 		answer: 2,
-		note: "Détachée, seule, et face à une tour qui ne demande pas la permission.",
+		note: "Détachée toute seule, la tour ne lui demande clairement pas la permission.",
 	},
 	{
 		champ: "Jinx",
@@ -835,7 +835,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 48,
 		items: ["Kraken", "Guinsoo", "Berserker"],
 		answer: 4,
-		note: "Elle rigole du danger jusqu'à ce que le danger tape en retour.",
+		note: "Elle rigole du danger jusqu'à ce que le danger, lui, tape en retour bien plus fort.",
 	},
 	{
 		champ: "Kai'Sa",
@@ -844,7 +844,7 @@ const SCENARIOS: Scenario[] = [
 		armor: 38,
 		items: ["Kraken", "Guinsoo", "Berserker"],
 		answer: 3,
-		note: "Plus elle évolue, plus elle croit être en sécurité. Elle ne l'est pas.",
+		note: "Plus elle évolue, plus elle se sent invincible, sauf que là, pas du tout en sécurité.",
 	},
 ];
 
