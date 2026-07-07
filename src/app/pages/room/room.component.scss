@@ -310,6 +310,133 @@ button {
     .layout.cinematic .mix-running strong{font-size:.8rem;display:inline}
     .layout.cinematic .mix-running small{display:inline;margin-left:.5rem;margin-top:0;font-size:.8rem}
 
+    /* ===== Ecrans de resultats cinematiques (bilan de manche + Rift Report final) ===== */
+
+    .rift-report{ --accent: var(--gold); }
+    .mix-resume.intermission,
+    .rift-report{
+      position:relative;
+      isolation:isolate;
+      overflow:hidden;
+      min-height:calc(100vh - 3.2rem);
+      padding:3rem 2rem 2.4rem;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:1rem;
+      text-align:center;
+      border-radius:28px;
+      border:1px solid color-mix(in srgb, var(--accent), transparent 65%);
+      /* Fondu retarde anti-flash : le backend peut enchainer sur l'ecran suivant en ~200ms quand tous les joueurs ont fini/valide. */
+      animation:results-in .4s ease .18s both;
+    }
+    @keyframes results-in{from{opacity:0}to{opacity:1}}
+    .mix-resume.intermission::before,
+    .rift-report::before{
+      content:"";
+      position:absolute;
+      inset:0;
+      z-index:-1;
+      background:
+        radial-gradient(ellipse 70% 55% at 50% 28%, color-mix(in srgb, var(--accent), transparent 84%), transparent 70%),
+        radial-gradient(ellipse 100% 70% at 50% 110%, rgba(1,6,12,.9), transparent 55%);
+      animation:results-glow 3.4s ease-in-out infinite;
+      pointer-events:none;
+    }
+    @keyframes results-glow{0%,100%{opacity:.7}50%{opacity:1}}
+
+    .rift-report h1{
+      animation:results-slam .55s cubic-bezier(.16,1.3,.3,1) both;
+      text-shadow:0 6px 34px rgba(0,0,0,.8), 0 0 70px color-mix(in srgb, var(--accent), transparent 65%);
+    }
+    .mix-resume.intermission .resume-copy h2{
+      animation:results-slam .55s cubic-bezier(.16,1.3,.3,1) both;
+    }
+    @keyframes results-slam{
+      0%{opacity:0;transform:scale(1.7)}
+      60%{opacity:1;transform:scale(.97)}
+      100%{opacity:1;transform:scale(1)}
+    }
+
+    .rift-report p{max-width:640px}
+
+    /* ===== Vrai podium (top 3) ===== */
+    .podium-top{
+      display:flex;
+      align-items:flex-end;
+      justify-content:center;
+      gap:1rem;
+      width:100%;
+      max-width:640px;
+      margin:1rem 0 .5rem;
+    }
+    .podium-block{
+      flex:1;
+      max-width:180px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:.35rem;
+      padding:1rem .75rem;
+      border-radius:18px 18px 0 0;
+      border:1px solid var(--border-subtle);
+      border-bottom:none;
+      background:rgba(1,10,19,.55);
+      backdrop-filter:blur(8px);
+    }
+    .podium-name{
+      font-weight:900;
+      color:var(--text-primary);
+      font-size:.92rem;
+      max-width:100%;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+    .podium-score{
+      font-size:1.5rem;
+      color:var(--gold-bright);
+    }
+    .podium-step{
+      width:100%;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:.15rem;
+      border-radius:12px 12px 0 0;
+      padding:.5rem 0 .3rem;
+    }
+    .podium-step b{font-size:1.3rem;font-weight:1000}
+    .podium-block.first{order:2}
+    .podium-block.second{order:1}
+    .podium-block.third{order:3}
+    .podium-block.first{
+      border-color:rgba(200,170,110,.7);
+      box-shadow:0 0 40px rgba(200,170,110,.18);
+    }
+    .podium-block.first .podium-step{
+      height:110px;
+      background:linear-gradient(180deg, rgba(200,170,110,.28), rgba(200,170,110,.06));
+      color:var(--gold-bright);
+    }
+    .podium-block.first .podium-score{font-size:2.1rem;text-shadow:0 0 30px rgba(200,170,110,.4)}
+    .podium-block.second .podium-step{
+      height:78px;
+      background:linear-gradient(180deg, rgba(200,210,225,.22), rgba(200,210,225,.05));
+      color:#dfe6ee;
+    }
+    .podium-block.third .podium-step{
+      height:56px;
+      background:linear-gradient(180deg, rgba(205,140,90,.22), rgba(205,140,90,.05));
+      color:#e8b998;
+    }
+
+    .final-ranking.rest{margin-top:.3rem}
+
+    .awards article{display:flex;flex-direction:column;align-items:center;gap:.3rem}
+    .awards article app-icon{color:var(--gold);margin-bottom:.2rem}
+
     .round-intro{
       position:fixed;
       inset:0;

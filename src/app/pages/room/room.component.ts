@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, OnDestroy, effect, inject, isDevMode, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, ElementRef, OnDestroy, effect, inject, isDevMode, signal } from '@angular/core';
 import { NgComponentOutlet } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { RoomService } from '../../core/services/room.service';
@@ -6,12 +6,14 @@ import { GamesService } from '../../core/services/games.service';
 import { PlayerBadgeComponent } from '../../shared/components/player-badge/player-badge.component';
 import { MINI_GAME_COMPONENTS } from '../../mini-games/mini-games.registry';
 import { MiniGame, Room } from '../../core/models/room.model';
+import { Player } from '../../core/models/player.model';
 import { GameSettingsService } from '../../core/services/game-settings.service';
 import { DevBotsService } from '../../core/services/dev-bots.service';
 import { IconComponent, IconName } from '../../shared/components/icon/icon.component';
 import { MixRuntimeService } from '../../core/services/mix-runtime.service';
 import { AudioService } from '../../core/services/audio.service';
 import { SoundToggleComponent } from '../../shared/components/sound-toggle/sound-toggle.component';
+import { burstParticles, countUp, punchIn, slideUp } from '../../shared/cinematic/cinematic';
 
 interface GameSettings {
   rounds: number;
@@ -73,6 +75,9 @@ export class RoomComponent implements OnDestroy {
   protected readonly countdownValue = signal(3);
   private introTimers: ReturnType<typeof setTimeout>[] = [];
   private introKey: string | null = null;
+  private readonly hostElement = inject(ElementRef<HTMLElement>);
+  /** Detecte les transitions (pas juste la presence) des ecrans de resultats, pour ne jouer le fanfare/particles qu'une fois par apparition. */
+  private lastRoomStatus: string | null = null;
 
   constructor(
     protected readonly room: RoomService,
@@ -108,6 +113,40 @@ export class RoomComponent implements OnDestroy {
       }
       const inGame = currentRoom.status === 'in-game' && !!currentRoom.currentGameId;
       this.audio.playMusic(inGame ? 'tension' : 'ambient');
+    });
+
+    // Ecrans de resultats (bilan de manche / Rift Report final) : mise en scene
+    // (son + particules) jouee une seule fois a l'apparition de chaque ecran,
+    // pas a chaque recalcul (le signal room() change aussi pour des raisons
+    // sans rapport, ex. un joueur qui rejoint entre deux manches).
+    effect(() => {
+      const currentRoom = this.room.room();
+      const status = currentRoom
+        ? currentRoom.activeMix?.status === 'finished' || currentRoom.status === 'finished'
+          ? 'finished'
+          : currentRoom.activeMix?.status === 'between-rounds'
+            ? 'between-rounds'
+            : null
+        : null;
+      if (status === this.lastRoomStatus) return;
+      this.lastRoomStatus = status;
+      if (!status) return;
+      const host = this.hostElement.nativeElement;
+      requestAnimationFrame(() => {
+        if (status === 'finished') {
+          this.audio.play('fanfare');
+          const scoreEl = host.querySelector('.rift-report [data-count-up]') as HTMLElement | null;
+          if (scoreEl) countUp(scoreEl, Number(scoreEl.textContent?.trim() ?? 0), { duration: 1.3 });
+          punchIn(host.querySelector('.podium-top .podium-block.first'));
+          slideUp(host.querySelector('.podium-top .podium-block.second'), { delay: 0.1 });
+          slideUp(host.querySelector('.podium-top .podium-block.third'), { delay: 0.16 });
+          burstParticles(host.querySelector('.rift-report'), { count: 46, colors: ['#c8aa6e', '#f0e6d2', '#3fd67a'] });
+        } else {
+          this.audio.play('round-win', { volume: 0.7 });
+          const leader = host.querySelector('.mix-resume .rank-card.leader') as HTMLElement | null;
+          if (leader) burstParticles(leader, { count: 20, colors: ['#c8aa6e', '#f0e6d2'] });
+        }
+      });
     });
   }
 
@@ -271,6 +310,17 @@ export class RoomComponent implements OnDestroy {
   communityBrain(): string { return this.room.sortedByScore()[1]?.pseudo ?? this.winnerName(); }
   worstTake(currentRoom: Room): string { return currentRoom.roundHistory.find((r) => r.summary.includes('downfall'))?.summary ?? 'Aucune take assez maudite, suspicious.'; }
 
+
+  /** Podium (top 3, ordre visuel 2-1-3 pour le rendu en marches) et le reste du classement, pour le Rift Report final. */
+  podiumOrder(): { player: Player; place: 1 | 2 | 3 }[] {
+    const top = this.room.sortedByScore().slice(0, 3);
+    return [
+      top[1] ? { player: top[1], place: 2 as const } : null,
+      top[0] ? { player: top[0], place: 1 as const } : null,
+      top[2] ? { player: top[2], place: 3 as const } : null,
+    ].filter((x): x is NonNullable<typeof x> => !!x);
+  }
+  restRanking(): Player[] { return this.room.sortedByScore().slice(3); }
 
   lastRound(currentRoom: Room) { return currentRoom.roundHistory[currentRoom.roundHistory.length - 1] ?? null; }
   intermissionTitle(currentRoom: Room): string {

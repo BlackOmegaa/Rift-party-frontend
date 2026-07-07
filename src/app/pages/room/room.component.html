@@ -97,7 +97,7 @@
           <ng-container [ngComponentOutlet]="componentFor(currentRoom.currentGameId)" />
         }
       } @else if (currentRoom.activeMix?.status === 'between-rounds') {
-        <section class="mix-resume card intermission">
+        <section class="mix-resume intermission" [style.--accent]="accentFor(lastRound(currentRoom)?.gameId)">
           <div class="resume-copy">
             <span class="eyebrow">Bilan de manche</span>
             <h2>{{ intermissionTitle(currentRoom) }}</h2>
@@ -173,26 +173,61 @@
           }
         </section>
       } @else if (currentRoom.activeMix?.status === 'finished' || currentRoom.status === 'finished') {
-        <section class="rift-report card">
+        <section class="rift-report">
           <span class="eyebrow">Rift Report</span>
           <h1>Victoire {{ winnerName() }}</h1>
           <p>Recap de la Party Mix : vrais scores, vraies manches, vrai tribunal Discord.</p>
-          <div class="final-ranking">
-            @for (player of room.sortedByScore(); track player.id; let i = $index) {
-              <article [class.champion]="i === 0" [style.animation-delay.ms]="i * 80">
-                <b>{{ i + 1 }}</b>
-                <div>
-                  <strong>{{ player.pseudo }}</strong>
-                  <small>{{ finalPlayerTag(currentRoom, player.id, i) }}</small>
+
+          <div class="podium-top">
+            @for (entry of podiumOrder(); track entry.player.id) {
+              <div
+                class="podium-block"
+                [class.first]="entry.place === 1"
+                [class.second]="entry.place === 2"
+                [class.third]="entry.place === 3"
+              >
+                <span class="podium-name">{{ entry.player.pseudo }}</span>
+                @if (entry.place === 1) {
+                  <strong class="podium-score" data-count-up>{{ entry.player.score }}</strong>
+                } @else {
+                  <strong class="podium-score">{{ entry.player.score }}</strong>
+                }
+                <div class="podium-step">
+                  <app-icon [name]="entry.place === 1 ? 'crown' : 'sparkle'" [size]="entry.place === 1 ? 26 : 18" />
+                  <b>{{ entry.place }}</b>
                 </div>
-                <span>{{ player.score }} pts</span>
-              </article>
+              </div>
             }
           </div>
+
+          @if (restRanking().length) {
+            <div class="final-ranking rest">
+              @for (player of restRanking(); track player.id; let i = $index) {
+                <article [style.animation-delay.ms]="i * 80">
+                  <b>{{ i + 4 }}</b>
+                  <div>
+                    <strong>{{ player.pseudo }}</strong>
+                    <small>{{ finalPlayerTag(currentRoom, player.id, i + 3) }}</small>
+                  </div>
+                  <span>{{ player.score }} pts</span>
+                </article>
+              }
+            </div>
+          }
+
           <div class="awards">
-            <article><span>MVP</span><strong>{{ winnerName() }}</strong><small>{{ room.sortedByScore()[0]?.score ?? 0 }} pts</small></article>
-            <article><span>Worst Take</span><strong>{{ cursedPlayer() }}</strong><small>{{ worstTake(currentRoom) }}</small></article>
-            <article><span>Community Brain</span><strong>{{ communityBrain() }}</strong><small>Le plus régulier du lobby.</small></article>
+            <article>
+              <app-icon name="crown" [size]="20" />
+              <span>MVP</span><strong>{{ winnerName() }}</strong><small>{{ room.sortedByScore()[0]?.score ?? 0 }} pts</small>
+            </article>
+            <article>
+              <app-icon name="skull" [size]="20" />
+              <span>Worst Take</span><strong>{{ cursedPlayer() }}</strong><small>{{ worstTake(currentRoom) }}</small>
+            </article>
+            <article>
+              <app-icon name="sparkle" [size]="20" />
+              <span>Community Brain</span><strong>{{ communityBrain() }}</strong><small>Le plus régulier du lobby.</small>
+            </article>
           </div>
           <div class="recap-list">
             @for (round of currentRoom.roundHistory; track round.roundNumber) {
