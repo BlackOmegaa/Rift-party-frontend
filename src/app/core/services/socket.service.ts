@@ -1,10 +1,12 @@
 import { Injectable } from "@angular/core";
 import { io, Socket } from "socket.io-client";
+import { environment } from "../../../environments/environment";
 import { getOrCreateAnonId } from "./anon-id";
 import { getAcquisitionSource } from "./acquisition";
 
-//export const BACKEND_URL = "http://localhost:3050";
-export const BACKEND_URL = "https://rift-party-backend-production.up.railway.app";
+// Localhost en dev (`ng serve`), URL Railway en prod : bascule automatique via
+// fileReplacements (angular.json), plus besoin de commenter/decommenter a la main.
+export const BACKEND_URL = environment.backendUrl;
 
 /**
  * Wrapper unique autour de socket.io-client. Tous les services (RoomService,

@@ -1,10 +1,12 @@
 import { Injectable, inject } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
 import { Observable } from "rxjs";
+import { environment } from "../../../environments/environment";
 import { MiniGame } from "../models/room.model";
 
-//const API_URL = "http://localhost:3050";
-const API_URL = "https://rift-party-backend-production.up.railway.app";
+// Localhost en dev (`ng serve`), URL Railway en prod : bascule automatique via
+// fileReplacements (angular.json), plus besoin de commenter/decommenter a la main.
+const API_URL = environment.backendUrl;
 
 /**
  * Recupere le catalogue de mini-jeux disponibles (issu du GamesRegistry backend).
