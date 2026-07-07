@@ -57,7 +57,6 @@ export class RoomComponent implements OnDestroy {
   private readonly gamesService = inject(GamesService);
   protected readonly games = signal<MiniGame[]>([]);
   protected readonly settingsGameId = signal<string | null>(null);
-  protected readonly premiumUnlocked = signal(localStorage.getItem('rift-party-premium-dev') === 'true');
   /** Mode dev : force un event Draft Battle special au lieu du tirage aleatoire (~10% de chances en temps normal), pour pouvoir le tester a volonte. 'none' = valeur par defaut (tirage normal). */
   protected readonly forcedDraftEvent = signal(localStorage.getItem('rift-party-force-event-dev') ?? 'none');
   protected readonly settings = signal<GameSettings>({
@@ -373,7 +372,6 @@ export class RoomComponent implements OnDestroy {
   updateGameRounds(gameId: string, event: Event) { this.gameSettings.setRounds(gameId, Number((event.target as HTMLInputElement).value)); }
   updateLoldleWordLength(length: number | null): void { this.gameSettings.setLoldleWordLength(length); }
   toggleIncluded(gameId: string, event: Event) { const checked = (event.target as HTMLInputElement).checked; this.settings.update((s) => { const next = { ...s, included: { ...s.included, [gameId]: checked } }; localStorage.setItem('rift-party-included', JSON.stringify(next.included)); return next; }); }
-  togglePremium(event: Event) { const checked = (event.target as HTMLInputElement).checked; localStorage.setItem('rift-party-premium-dev', String(checked)); this.premiumUnlocked.set(checked); }
   copyCode(code: string): void { navigator.clipboard?.writeText(code).catch(() => undefined); this.copiedCode.set(true); window.setTimeout(() => this.copiedCode.set(false), 1200); }
   /** Lien d'invitation direct : la home lit ?join=CODE et pre-remplit l'onglet Rejoindre. */
   copyInviteLink(code: string): void { navigator.clipboard?.writeText(`${window.location.origin}/?join=${code}`).catch(() => undefined); this.copiedInvite.set(true); this.room.notifyInviteGenerated(); window.setTimeout(() => this.copiedInvite.set(false), 1200); }

@@ -265,7 +265,7 @@
                   <div class="ornament">◆</div>
                   <span class="eyebrow">Mode principal (gratuit)</span>
                   <h2>Party Mix</h2>
-                  <p>{{ settings().rounds }} manches équilibrées. Découvrez tous les mini-jeux avec une sélection de défis. Débloquez Premium pour accéder à l'intégralité du contenu.</p>
+                  <p>{{ settings().rounds }} manches équilibrées. Découvrez tous les mini-jeux avec une sélection de défis.</p>
                   <div class="meta-line"><span>{{ mix.minPlayers }}-{{ mix.maxPlayers }} joueurs</span><span>{{ gameSettings.roundTimeSec() }}s/manche</span></div>
                   <strong>{{ currentRoom.players.length < mix.minPlayers ? 'Pas assez de joueurs' : 'Lancer la party' }}</strong>
                 </button>
@@ -276,26 +276,24 @@
 
           <section class="section-title">
             <span class="eyebrow">Mini-jeux séparés</span>
-            <h2>Premium</h2>
+            <h2>Sur mesure</h2>
             <p>Créez des parties sur mesure avec vos mini-jeux favoris et des paramètres personnalisés.</p>
           </section>
 
           <section class="game-grid">
             @for (game of secondaryGames(); track game.id; let i = $index) {
               <article class="game-wrap" [style.animation-delay.ms]="i * 65">
-                <button class="game-card" [attr.data-game]="game.id" [class.locked]="!premiumUnlocked() || currentRoom.players.length < game.minPlayers" [disabled]="!premiumUnlocked() || currentRoom.players.length < game.minPlayers" (click)="launchGame(game.id)">
+                <button class="game-card" [attr.data-game]="game.id" [class.locked]="currentRoom.players.length < game.minPlayers" [disabled]="currentRoom.players.length < game.minPlayers" (click)="launchGame(game.id)">
                   <div class="game-bg"><app-icon [name]="iconFor(game.id)" [size]="22" /></div>
-                  <span class="pill">Premium</span>
                   <h2>{{ game.label }}</h2>
                   <p>{{ game.description }}</p>
                   <div class="meta-line"><span>{{ game.minPlayers }}-{{ game.maxPlayers }} joueurs</span><span>{{ gameSettings.roundTimeSec() }}s</span></div>
-                  <strong>{{ premiumUnlocked() ? 'Lancer' : 'Débloquer avec Premium' }}</strong>
+                  <strong>Lancer</strong>
                 </button>
                 <button class="gear card-gear" (click)="openSettings(game.id)" title="Paramètres"><app-icon name="gear" [size]="16" /></button>
               </article>
             }
           </section>
-          <label class="premium-toggle card"><input type="checkbox" [checked]="premiumUnlocked()" (change)="togglePremium($event)" /> Mode dev : simuler Premium</label>
           @if (isDevMode()) {
             <div class="premium-toggle card dev-bots-row">
               <span>Mode dev : remplir avec des bots ({{ currentRoom.players.length }} joueur{{ currentRoom.players.length > 1 ? 's' : '' }})</span>
