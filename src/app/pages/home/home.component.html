@@ -62,6 +62,10 @@
 		</button>
 	</div>
 
+	@if (!playerAuth.profile()?.isSubscriber) {
+		<app-ad-slot [minHeight]="90" />
+	}
+
 	<app-support-banner />
 	<a class="account-link" [routerLink]="playerAuth.isAuthenticated() ? '/account' : '/login'">
 		@if (playerAuth.profile()?.isSubscriber) {

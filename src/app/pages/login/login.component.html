@@ -45,4 +45,6 @@
 			{{ loading() ? "..." : mode() === "register" ? "Creer mon compte" : "Se connecter" }}
 		</button>
 	</div>
+
+	<app-ad-slot [minHeight]="250" />
 </div>

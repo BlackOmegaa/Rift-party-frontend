@@ -3,11 +3,12 @@ import { Router, RouterLink } from "@angular/router";
 import { PlayerAuthService } from "../../core/services/player-auth.service";
 import { BillingService } from "../../core/services/billing.service";
 import { IconComponent } from "../../shared/components/icon/icon.component";
+import { AdSlotComponent } from "../../shared/components/ad-slot/ad-slot.component";
 
 @Component({
 	selector: "app-account",
 	standalone: true,
-	imports: [RouterLink, IconComponent],
+	imports: [RouterLink, IconComponent, AdSlotComponent],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	templateUrl: "./account.component.html",
 	styleUrl: "./account.component.scss",

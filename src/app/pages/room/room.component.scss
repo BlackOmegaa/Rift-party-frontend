@@ -57,6 +57,10 @@
       gap:1rem;
       min-width:0;
     }
+    app-ad-slot{
+      display:block;
+      width:100%;
+    }
     .card{border-radius:22px}.room-code,.players,.history,.lobby-panel{padding:1rem}.label{display:block;color:var(--text-muted);font-size:.75rem;text-transform:uppercase;letter-spacing:.12em;font-weight:900}.code{width:100%;margin:.55rem 0;border:1px solid var(--border-strong);border-radius:16px;background:rgba(200,170,110,.08);color:var(--gold-bright);font-size:2.2rem;font-weight:1000;letter-spacing:.16em;padding:.5rem;cursor:pointer;transition:.2s}.code.copied{background:rgba(63,214,122,.16);border-color:rgba(63,214,122,.55);color:var(--success);transform:scale(1.03)}.list{display:flex;flex-direction:column;gap:.55rem;margin-top:.8rem}
     
     .invite-link{

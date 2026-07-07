@@ -38,6 +38,13 @@
 	z-index: 1;
 	animation: fade-in-up var(--transition-med);
 }
+app-ad-slot {
+	display: block;
+	width: 100%;
+	max-width: 420px;
+	margin-top: 1.2rem;
+	z-index: 1;
+}
 .tabs {
 	display: flex;
 	gap: 0.5rem;

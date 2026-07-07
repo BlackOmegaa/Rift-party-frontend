@@ -60,4 +60,8 @@
 			</div>
 		}
 	</div>
+
+	@if (!playerAuth.profile()?.isSubscriber) {
+		<app-ad-slot [minHeight]="250" />
+	}
 </div>

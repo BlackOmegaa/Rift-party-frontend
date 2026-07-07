@@ -173,6 +173,9 @@
               <span [class.done]="i < (currentRoom.activeMix?.cursor ?? 0)" [class.active]="i === (currentRoom.activeMix?.cursor ?? 0)" [style.--accent]="accentFor(gameId)" [title]="labelFor(gameId)"></span>
             }
           </div>
+          @if (!playerAuth.profile()?.isSubscriber) {
+            <app-ad-slot [minHeight]="100" />
+          }
           @if (room.isHost()) {
             <div class="resume-actions">
               <button class="btn btn-primary" (click)="room.nextMixSegment()">Continuer</button>
@@ -248,6 +251,9 @@
               </div>
             }
           </div>
+          @if (!playerAuth.profile()?.isSubscriber) {
+            <app-ad-slot [minHeight]="100" />
+          }
           @if (room.isHost()) {
             <button class="btn btn-primary" (click)="room.finishMix()">Retour au lobby</button>
           } @else {
@@ -263,6 +269,10 @@
           </div>
           <div class="hero-rune"><app-icon name="sparkle" [size]="92" /></div>
         </section>
+
+        @if (!playerAuth.profile()?.isSubscriber) {
+          <app-ad-slot [minHeight]="100" />
+        }
 
         @if (room.isHost()) {
           @if (partyMix(); as mix) {

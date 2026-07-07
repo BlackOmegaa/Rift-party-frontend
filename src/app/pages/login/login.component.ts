@@ -2,13 +2,14 @@ import { ChangeDetectionStrategy, Component, signal } from "@angular/core";
 import { FormsModule } from "@angular/forms";
 import { Router } from "@angular/router";
 import { PlayerAuthService } from "../../core/services/player-auth.service";
+import { AdSlotComponent } from "../../shared/components/ad-slot/ad-slot.component";
 
 type Mode = "login" | "register";
 
 @Component({
 	selector: "app-login",
 	standalone: true,
-	imports: [FormsModule],
+	imports: [FormsModule, AdSlotComponent],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	templateUrl: "./login.component.html",
 	styleUrl: "./login.component.scss",

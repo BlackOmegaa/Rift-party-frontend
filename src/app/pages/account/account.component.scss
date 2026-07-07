@@ -54,6 +54,13 @@
 	border-color: rgba(200, 170, 110, 0.55);
 	box-shadow: var(--shadow-card), 0 0 40px rgba(200, 170, 110, 0.14);
 }
+app-ad-slot {
+	display: block;
+	width: 100%;
+	max-width: 420px;
+	margin-top: 1.2rem;
+	z-index: 1;
+}
 
 .supporter-badge {
 	align-self: flex-start;

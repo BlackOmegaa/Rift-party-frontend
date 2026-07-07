@@ -11,6 +11,7 @@ import { SupportBannerComponent } from "../../shared/components/support-banner/s
 import { PlayerAuthService } from "../../core/services/player-auth.service";
 import { IconComponent, IconName } from "../../shared/components/icon/icon.component";
 import { SupporterBadgeComponent } from "../../shared/components/supporter-badge/supporter-badge.component";
+import { AdSlotComponent } from "../../shared/components/ad-slot/ad-slot.component";
 
 type Mode = "create" | "join";
 
@@ -40,7 +41,7 @@ const GAMES: GameCard[] = [
 @Component({
 	selector: "app-home",
 	standalone: true,
-	imports: [FormsModule, SupportBannerComponent, RouterLink, IconComponent, SupporterBadgeComponent],
+	imports: [FormsModule, SupportBannerComponent, RouterLink, IconComponent, SupporterBadgeComponent, AdSlotComponent],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	templateUrl: "./home.component.html",
 	styleUrl: "./home.component.scss",

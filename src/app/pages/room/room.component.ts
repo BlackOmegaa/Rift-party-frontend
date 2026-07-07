@@ -16,6 +16,7 @@ import { AudioService } from '../../core/services/audio.service';
 import { SoundToggleComponent } from '../../shared/components/sound-toggle/sound-toggle.component';
 import { SupportBannerComponent } from '../../shared/components/support-banner/support-banner.component';
 import { SupporterOfferService } from '../../core/services/supporter-offer.service';
+import { AdSlotComponent } from '../../shared/components/ad-slot/ad-slot.component';
 import { burstParticles, countUp, punchIn, slideUp } from '../../shared/cinematic/cinematic';
 
 interface GameSettings {
@@ -49,7 +50,7 @@ interface RoundIntro {
 @Component({
   selector: 'app-room',
   standalone: true,
-  imports: [NgComponentOutlet, PlayerBadgeComponent, IconComponent, SoundToggleComponent, SupportBannerComponent, RouterLink],
+  imports: [NgComponentOutlet, PlayerBadgeComponent, IconComponent, SoundToggleComponent, SupportBannerComponent, RouterLink, AdSlotComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './room.component.html',
   styleUrl: './room.component.scss',

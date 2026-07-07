@@ -38,7 +38,8 @@
 	animation: fade-in-up var(--transition-med);
 }
 
-app-support-banner {
+app-support-banner,
+app-ad-slot {
 	display: block;
 	width: 100%;
 	max-width: 420px;
