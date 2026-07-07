@@ -4,7 +4,14 @@
 			<span class="eyebrow">Rift Party</span>
 			<h1>Dashboard analytics</h1>
 			@if (metrics(); as m) {
-				<p>Periode analysee : {{ localDate(m.period.from) }} → {{ localDate(m.period.to) }}</p>
+				<p>
+					Periode analysee : {{ localDate(m.period.from) }} → {{ localDate(m.period.to) }}
+					@if (m.meta.excludedVisitors > 0) {
+						<span class="excluded-badge" title="Appareils de l'equipe (admin/dev) retires de toutes les stats">
+							{{ m.meta.excludedVisitors }} appareil(s) equipe exclus
+						</span>
+					}
+				</p>
 			}
 		</div>
 		<div class="header-actions">
@@ -39,33 +46,118 @@
 	}
 
 	@if (metrics(); as m) {
-		<!-- ===== Vue d'ensemble ===== -->
+		<!-- ===== L'essentiel : les 4 chiffres a lire en 3 secondes ===== -->
 		<section class="section">
-			<h2 class="section-title">Vue d'ensemble</h2>
-			<div class="grid hero-grid">
-				<div class="card metric">
-					<span class="label">Utilisateurs aujourd'hui</span>
+			<div class="grid essentials-grid">
+				<div class="card metric big">
+					<span class="label">Joueurs aujourd'hui</span>
 					<strong>{{ m.todayVsYesterday.activeUsers.today }}</strong>
 					<span class="delta" [class]="delta(m.todayVsYesterday.activeUsers.today, m.todayVsYesterday.activeUsers.yesterday).direction">
 						{{ delta(m.todayVsYesterday.activeUsers.today, m.todayVsYesterday.activeUsers.yesterday).text }} vs hier
 					</span>
 				</div>
-				<div class="card metric">
-					<span class="label">Nouveaux visiteurs (aujourd'hui)</span>
+				<div class="card metric big">
+					<span class="label">Nouveaux visiteurs aujourd'hui</span>
 					<strong>{{ m.todayVsYesterday.newVisitors.today }}</strong>
 					<span class="delta" [class]="delta(m.todayVsYesterday.newVisitors.today, m.todayVsYesterday.newVisitors.yesterday).direction">
 						{{ delta(m.todayVsYesterday.newVisitors.today, m.todayVsYesterday.newVisitors.yesterday).text }} vs hier
 					</span>
 				</div>
+				<div class="card metric big">
+					<span class="label">Parties jouees <em>(periode)</em></span>
+					<strong>{{ m.engagement.totalGamesPlayed }}</strong>
+					<span class="sub">{{ round(m.engagement.avgGamesPerRoom) }} par room en moyenne</span>
+				</div>
+				<div class="card metric big gold">
+					<span class="label">Abonnes Supporter actifs</span>
+					<strong>{{ m.monetization.activeSubscribers }}</strong>
+					<span class="sub">{{ m.monetization.subscription.completed }} nouveau(x) sur la periode</span>
+				</div>
+			</div>
+		</section>
+
+		<!-- ===== Monetisation : funnel abonnement + donations + sources ===== -->
+		<section class="section">
+			<h2 class="section-title">Monetisation</h2>
+			<div class="two-col">
+				<div class="card">
+					<div class="card-head">
+						<h3>Funnel abonnement</h3>
+						<span class="hint-inline">ou les gens s'arretent-ils ?</span>
+					</div>
+					<div class="funnel-bars">
+						@for (step of subFunnelSteps(); track step.label) {
+							<div class="funnel-bar-row">
+								<span class="fb-label">{{ step.label }}</span>
+								<div class="fb-track">
+									<div class="fb-fill" [style.width.%]="step.width"></div>
+								</div>
+								<strong class="fb-value">{{ step.value }}</strong>
+								@if (step.rate !== null) {
+									<span class="fb-rate" [class.low]="step.rate < 0.3">{{ pct(step.rate) }}</span>
+								} @else {
+									<span class="fb-rate start">—</span>
+								}
+							</div>
+						}
+					</div>
+					@if (m.monetization.subscription.checkoutCancelled > 0) {
+						<p class="funnel-note">
+							{{ m.monetization.subscription.checkoutCancelled }} personne(s) sont revenues de Stripe sans payer
+							(bouton retour ou paiement abandonne).
+						</p>
+					}
+				</div>
+				<div class="stack">
+					<div class="card metric">
+						<span class="label">Clics « Soutenir » (Ko-fi)</span>
+						<strong>{{ m.monetization.donationClicks }}</strong>
+						<span class="sub">departs vers la page de don — Ko-fi ne permet pas de confirmer le paiement</span>
+					</div>
+					<div class="card metric">
+						<span class="label">Abandons sur Stripe</span>
+						<strong>{{ m.monetization.subscription.checkoutCancelled }}</strong>
+						<span class="sub">revenus avec « paiement annule »</span>
+					</div>
+				</div>
+			</div>
+			<div class="card table-card">
+				<div class="card-head">
+					<h3>D'ou viennent ceux qui paient</h3>
+					<span class="hint-inline">source d'acquisition de la 1ere visite</span>
+				</div>
+				<table>
+					<thead>
+						<tr>
+							<th>Source</th>
+							<th>Clics abonnement</th>
+							<th>Paiements confirmes</th>
+							<th>Clics donation</th>
+						</tr>
+					</thead>
+					<tbody>
+						@for (row of m.monetization.bySource; track row.source) {
+							<tr [class.converts]="row.subCompleted > 0">
+								<td>{{ sourceLabel(row.source) }}</td>
+								<td>{{ row.subClicks }}</td>
+								<td>{{ row.subCompleted }}</td>
+								<td>{{ row.donationClicks }}</td>
+							</tr>
+						} @empty {
+							<tr><td colspan="4" class="hint">Aucun evenement de monetisation sur la periode.</td></tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		</section>
+
+		<!-- ===== Activite sur la periode ===== -->
+		<section class="section">
+			<h2 class="section-title">Activite <span class="hint-inline">(sur la periode choisie)</span></h2>
+			<div class="grid activity-grid">
 				<div class="card metric">
 					<span class="label">Rooms creees</span>
 					<strong>{{ m.conversion.roomsCreated }}</strong>
-					<span class="sub">sur la periode</span>
-				</div>
-				<div class="card metric">
-					<span class="label">Parties jouees</span>
-					<strong>{{ m.engagement.totalGamesPlayed }}</strong>
-					<span class="sub">{{ round(m.engagement.avgGamesPerRoom) }} en moyenne / room</span>
 				</div>
 				<div class="card metric">
 					<span class="label">Temps moyen de session</span>
@@ -81,11 +173,6 @@
 					<span class="label">Invitations generees</span>
 					<strong>{{ m.virality.invitesGenerated }}</strong>
 					<span class="sub">{{ pct(m.virality.inviteToJoinRate) }} convertissent en arrivee</span>
-				</div>
-				<div class="card metric muted">
-					<span class="label">Satisfaction moyenne</span>
-					<strong>—</strong>
-					<span class="sub">Pas encore de systeme de note</span>
 				</div>
 			</div>
 		</section>
@@ -131,9 +218,9 @@
 			</div>
 		</section>
 
-		<!-- ===== Conversion ===== -->
+		<!-- ===== Parcours joueur ===== -->
 		<section class="section">
-			<h2 class="section-title">Conversion</h2>
+			<h2 class="section-title">Parcours joueur</h2>
 			<div class="funnel">
 				<div class="funnel-step">
 					<strong>{{ m.acquisition.uniqueVisitors }}</strong>

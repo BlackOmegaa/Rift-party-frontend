@@ -1,4 +1,5 @@
-import { Injectable, signal } from "@angular/core";
+import { Injectable, inject, signal } from "@angular/core";
+import { TrackingService } from "./tracking.service";
 
 const DISMISSED_KEY = "rift-party-supporter-offer-dismissed";
 
@@ -10,6 +11,7 @@ const DISMISSED_KEY = "rift-party-supporter-offer-dismissed";
  */
 @Injectable({ providedIn: "root" })
 export class SupporterOfferService {
+	private readonly tracking = inject(TrackingService);
 	private readonly _isOpen = signal(false);
 	readonly isOpen = this._isOpen.asReadonly();
 
@@ -17,6 +19,8 @@ export class SupporterOfferService {
 	open(): void {
 		if (sessionStorage.getItem(DISMISSED_KEY)) return;
 		this._isOpen.set(true);
+		// Premiere marche du funnel abonnement : l'offre a ete vue.
+		this.tracking.funnel("SUBSCRIPTION", "OFFER_VIEWED");
 	}
 
 	close(): void {

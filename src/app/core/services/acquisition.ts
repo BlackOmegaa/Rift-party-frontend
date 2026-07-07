@@ -4,10 +4,12 @@
  * la retient qu'a la toute premiere visite d'un anonId (first-touch attribution,
  * voir PersistenceService.upsertVisitor) donc pas besoin de la persister ici.
  *
- * Deux mecanismes, par ordre de priorite :
+ * Trois mecanismes, par ordre de priorite :
  * 1. `?src=xxx` dans l'URL : controle total quand on partage un lien (ex.
  *    annonce Discord avec `?src=discord`, bio TikTok avec `?src=tiktok`).
- * 2. `document.referrer` : bucket les domaines connus, sinon "direct" si vide.
+ * 2. `?join=CODE` : lien d'invitation vers une room -> source "invitation"
+ *    (le bouche-a-oreille est un canal d'acquisition a part entiere).
+ * 3. `document.referrer` : bucket les domaines connus, sinon "direct" si vide.
  */
 const KNOWN_REFERRERS: Record<string, string> = {
 	"reddit.com": "reddit",
@@ -23,8 +25,11 @@ const KNOWN_REFERRERS: Record<string, string> = {
 
 export function getAcquisitionSource(): string | null {
 	try {
-		const fromQuery = new URLSearchParams(window.location.search).get("src");
+		const params = new URLSearchParams(window.location.search);
+		const fromQuery = params.get("src");
 		if (fromQuery) return fromQuery.trim().toLowerCase().slice(0, 40);
+
+		if (params.get("join")) return "invitation";
 
 		const referrer = document.referrer;
 		if (!referrer) return "direct";

@@ -1,1 +1,0 @@
-import{Ua as o,bb as n,n as r,r as e}from"./chunk-STWG2HW3.js";var c=n.backendUrl,d=(()=>{class t{http=e(o);list(){return this.http.get(`${c}/games`)}static \u0275fac=function(i){return new(i||t)};static \u0275prov=r({token:t,factory:t.\u0275fac,providedIn:"root"})}return t})();export{d as a};

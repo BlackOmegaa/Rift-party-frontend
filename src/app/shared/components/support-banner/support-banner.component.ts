@@ -1,5 +1,6 @@
-import { ChangeDetectionStrategy, Component, input } from "@angular/core";
+import { ChangeDetectionStrategy, Component, inject, input } from "@angular/core";
 import { IconComponent } from "../icon/icon.component";
+import { TrackingService } from "../../../core/services/tracking.service";
 
 /** Lien Ko-fi unique pour tout le site : changer ici suffit, jamais hardcode ailleurs. */
 export const KOFI_URL = "https://ko-fi.com/benson10451";
@@ -17,7 +18,7 @@ export const KOFI_URL = "https://ko-fi.com/benson10451";
 	imports: [IconComponent],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	template: `
-		<a class="support-banner card" [class.compact]="variant() === 'compact'" [href]="kofiUrl" target="_blank" rel="noopener noreferrer">
+		<a class="support-banner card" [class.compact]="variant() === 'compact'" [href]="kofiUrl" target="_blank" rel="noopener noreferrer" (click)="onDonationClick()">
 			<app-icon name="support" [size]="variant() === 'compact' ? 16 : 20" />
 			<span class="text">
 				<strong>Soutenir Rift Party</strong>
@@ -52,6 +53,12 @@ export const KOFI_URL = "https://ko-fi.com/benson10451";
 	`,
 })
 export class SupportBannerComponent {
+	private readonly tracking = inject(TrackingService);
 	readonly variant = input<"default" | "compact">("default");
 	protected readonly kofiUrl = KOFI_URL;
+
+	/** Ko-fi est externe : impossible de suivre le paiement lui-meme, on mesure au moins les departs vers la page de don. */
+	protected onDonationClick(): void {
+		this.tracking.funnel("DONATION", "CTA_CLICKED");
+	}
 }

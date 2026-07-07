@@ -4,6 +4,7 @@ import { BACKEND_URL } from "./socket.service";
 
 export interface AdminMetrics {
 	period: { from: string; to: string };
+	meta: { excludedVisitors: number };
 	live: { activeRoomsNow: number; activePlayersNow: number; activeUsersToday: number };
 	todayVsYesterday: {
 		activeUsers: { today: number; yesterday: number };
@@ -41,6 +42,18 @@ export interface AdminMetrics {
 	};
 	retention: { d1: number | null; d7: number | null; d30: number | null };
 	virality: { invitesGenerated: number; joinedViaInvite: number; inviteToJoinRate: number | null };
+	monetization: {
+		activeSubscribers: number;
+		subscription: {
+			offerViewed: number;
+			ctaClicked: number;
+			checkoutStarted: number;
+			checkoutCancelled: number;
+			completed: number;
+		};
+		donationClicks: number;
+		bySource: { source: string; subClicks: number; subCompleted: number; donationClicks: number }[];
+	};
 }
 
 export type PeriodPreset = "today" | "yesterday" | "7d" | "30d" | "custom";
@@ -73,5 +86,13 @@ export class AdminMetricsService {
 
 	getMetrics(range: { from: string; to: string }) {
 		return this.http.get<AdminMetrics>(`${BACKEND_URL}/admin/metrics`, { params: range });
+	}
+
+	/** Marque l'appareil courant (anonId) comme appartenant a l'equipe : exclu de toutes les stats. */
+	excludeMe(anonId: string) {
+		return this.http.post<{ excluded: boolean; totalExcluded: number }>(
+			`${BACKEND_URL}/admin/metrics/exclude-me`,
+			{ anonId },
+		);
 	}
 }

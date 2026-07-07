@@ -9,6 +9,8 @@ import {
 	periodRangeFor,
 } from "../../core/services/admin-metrics.service";
 import { GamesService } from "../../core/services/games.service";
+import { getOrCreateAnonId } from "../../core/services/anon-id";
+import { isAnalyticsOptedOut, markAnalyticsOptedOut } from "../../core/services/tracking.service";
 import { BarListComponent, BarListItem } from "../../shared/components/charts/bar-list.component";
 import { TrendAreaComponent, TrendPoint } from "../../shared/components/charts/trend-area.component";
 
@@ -79,11 +81,45 @@ export class AdminDashboardComponent implements OnInit {
 		})),
 	);
 
+	/** Marches du funnel abonnement, avec largeur de barre (relative au max) et taux de passage depuis la marche precedente. */
+	protected readonly subFunnelSteps = computed(() => {
+		const s = this.metrics()?.monetization.subscription;
+		if (!s) return [];
+		const steps = [
+			{ label: "Offre affichée", value: s.offerViewed },
+			{ label: "Clic « Devenir Supporter »", value: s.ctaClicked },
+			{ label: "Arrivé sur Stripe", value: s.checkoutStarted },
+			{ label: "Paiement confirmé", value: s.completed },
+		];
+		const max = Math.max(...steps.map((x) => x.value), 1);
+		return steps.map((step, i) => ({
+			...step,
+			width: (step.value / max) * 100,
+			rate: i === 0 ? null : steps[i - 1].value ? step.value / steps[i - 1].value : null,
+		}));
+	});
+
 	ngOnInit(): void {
+		this.ensureDeviceExcluded();
 		this.gamesService.list().subscribe((games) => {
 			this.gameLabels.set(Object.fromEntries(games.map((g) => [g.id, g.label])));
 		});
 		this.load();
+	}
+
+	/**
+	 * Ouvrir le dashboard = appareil de l'equipe : marque l'anonId `excluded`
+	 * cote serveur (filtre tout l'historique deja emis par cet appareil) et
+	 * pose le flag local (coupe le tracking futur). Une seule fois par
+	 * appareil grace au flag ; pour exclure le telephone, il suffit d'ouvrir
+	 * le dashboard dessus une fois.
+	 */
+	private ensureDeviceExcluded(): void {
+		if (isAnalyticsOptedOut()) return;
+		this.adminMetrics.excludeMe(getOrCreateAnonId()).subscribe({
+			next: () => markAnalyticsOptedOut(),
+			error: () => {},
+		});
 	}
 
 	load(): void {
@@ -161,6 +197,7 @@ export class AdminDashboardComponent implements OnInit {
 			youtube: "YouTube",
 			google: "Google",
 			direct: "Acces direct",
+			invitation: "Invitation room",
 			autre: "Autre",
 			inconnu: "Inconnu",
 		};

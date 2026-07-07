@@ -3,6 +3,7 @@ import { FormsModule } from "@angular/forms";
 import { SupporterOfferService } from "../../../core/services/supporter-offer.service";
 import { PlayerAuthService } from "../../../core/services/player-auth.service";
 import { BillingService } from "../../../core/services/billing.service";
+import { TrackingService } from "../../../core/services/tracking.service";
 import { IconComponent } from "../icon/icon.component";
 
 type Step = "offer" | "auth";
@@ -28,6 +29,7 @@ export class SupporterOfferModalComponent {
 	protected readonly offer = inject(SupporterOfferService);
 	protected readonly playerAuth = inject(PlayerAuthService);
 	private readonly billing = inject(BillingService);
+	private readonly tracking = inject(TrackingService);
 
 	protected readonly step = signal<Step>("offer");
 	protected readonly authMode = signal<AuthMode>("register");
@@ -49,6 +51,7 @@ export class SupporterOfferModalComponent {
 	}
 
 	onCtaClick(): void {
+		this.tracking.funnel("SUBSCRIPTION", "CTA_CLICKED");
 		if (this.playerAuth.isAuthenticated()) {
 			void this.goToCheckout();
 		} else {

@@ -1,5 +1,6 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from "@angular/core";
 import { PlayerAuthService } from "../../../core/services/player-auth.service";
+import { TrackingService } from "../../../core/services/tracking.service";
 import { IconComponent } from "../icon/icon.component";
 
 type Status = "confirming" | "success" | "timeout" | "cancelled";
@@ -93,6 +94,7 @@ type Status = "confirming" | "success" | "timeout" | "cancelled";
 })
 export class CheckoutConfirmationComponent {
 	private readonly playerAuth = inject(PlayerAuthService);
+	private readonly tracking = inject(TrackingService);
 
 	protected readonly status = signal<Status | null>(null);
 
@@ -104,8 +106,13 @@ export class CheckoutConfirmationComponent {
 		if (checkout === "success" || checkout === "cancelled") {
 			this.stripQueryParam();
 			this.status.set(checkout === "success" ? "confirming" : "cancelled");
-			if (checkout === "success") void this.confirm();
-			else setTimeout(() => this.dismiss(), 4000);
+			if (checkout === "success") {
+				void this.confirm();
+			} else {
+				// Abandon sur la page Stripe : point de fuite precieux pour le funnel.
+				this.tracking.funnel("SUBSCRIPTION", "CHECKOUT_CANCELLED");
+				setTimeout(() => this.dismiss(), 4000);
+			}
 		}
 	}
 
