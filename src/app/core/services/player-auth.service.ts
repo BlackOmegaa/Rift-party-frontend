@@ -4,6 +4,8 @@ import { firstValueFrom } from "rxjs";
 import { BACKEND_URL } from "./socket.service";
 
 const TOKEN_KEY = "rift-party-player-token";
+const POLL_INTERVAL_MS = 2000;
+const POLL_MAX_ATTEMPTS = 8; // ~16s : le webhook Stripe arrive presque toujours en 1-3s, marge large.
 
 export interface PlayerProfile {
 	id: string;
@@ -62,6 +64,21 @@ export class PlayerAuthService {
 		} finally {
 			this.profileLoaded.set(true);
 		}
+	}
+
+	/**
+	 * Le webhook Stripe arrive de facon asynchrone apres le retour de checkout :
+	 * on sonde /me au lieu d'un seul refresh, avec une sortie propre (booleen)
+	 * plutot qu'un signal local a chaque appelant. Reutilise par n'importe quelle
+	 * page qui gere `?checkout=success` (voir CheckoutConfirmationComponent).
+	 */
+	async pollUntilSubscribed(): Promise<boolean> {
+		for (let attempt = 0; attempt < POLL_MAX_ATTEMPTS; attempt++) {
+			await new Promise((resolve) => setTimeout(resolve, POLL_INTERVAL_MS));
+			await this.refreshProfile();
+			if (this.profile()?.isSubscriber) return true;
+		}
+		return false;
 	}
 
 	logout(): void {

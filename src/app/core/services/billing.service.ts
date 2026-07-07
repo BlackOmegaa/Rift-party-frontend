@@ -9,8 +9,11 @@ export class BillingService {
 	private readonly http = inject(HttpClient);
 
 	async startCheckout(): Promise<void> {
+		// Ramene le joueur la ou il a lance le paiement (ex. sa room) plutot que
+		// de le rediriger de force vers /account apres coup.
+		const returnPath = window.location.pathname;
 		const res = await firstValueFrom(
-			this.http.post<{ url: string }>(`${BACKEND_URL}/billing/checkout-session`, {}),
+			this.http.post<{ url: string }>(`${BACKEND_URL}/billing/checkout-session`, { returnPath }),
 		);
 		window.location.href = res.url;
 	}

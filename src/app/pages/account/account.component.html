@@ -24,43 +24,26 @@
 				<p class="value">{{ profile.email }}</p>
 			</div>
 
-			@if (confirmingPayment()) {
-				<div class="confirm-box">
-					<span class="spinner"></span>
-					<p>Confirmation du paiement en cours...</p>
-				</div>
-			} @else if (confirmTimedOut()) {
-				<div class="confirm-box warn">
-					<p>Ça prend plus de temps que prévu. Le paiement a peut-être quand même fonctionné.</p>
-					<button class="btn btn-ghost" (click)="retryConfirm()">Revérifier</button>
-				</div>
-			} @else {
-				<div class="field">
-					<label>Abonnement</label>
-					<p class="value" [class.active]="profile.isSubscriber">
-						{{ profile.isSubscriber ? "Actif" : "Aucun abonnement en cours" }}
-					</p>
-				</div>
-			}
+			<div class="field">
+				<label>Abonnement</label>
+				<p class="value" [class.active]="profile.isSubscriber">
+					{{ profile.isSubscriber ? "Actif" : "Aucun abonnement en cours" }}
+				</p>
+			</div>
 
-			@if (checkoutStatus() === "cancelled") {
-				<p class="notice muted">Paiement annulé.</p>
-			}
 			@if (error(); as err) {
 				<p class="error">{{ err }}</p>
 			}
 
-			@if (!confirmingPayment()) {
-				@if (profile.isSubscriber) {
-					<button class="btn btn-primary submit" [disabled]="loading()" (click)="manageBilling()">
-						Gérer mon abonnement
-					</button>
-				} @else {
-					<button class="btn btn-gold submit" [disabled]="loading()" (click)="subscribe()">
-						<app-icon name="crown" [size]="16" />
-						Devenir Supporter — 3€/mois
-					</button>
-				}
+			@if (profile.isSubscriber) {
+				<button class="btn btn-primary submit" [disabled]="loading()" (click)="manageBilling()">
+					Gérer mon abonnement
+				</button>
+			} @else {
+				<button class="btn btn-gold submit" [disabled]="loading()" (click)="subscribe()">
+					<app-icon name="crown" [size]="16" />
+					Devenir Supporter — 3€/mois
+				</button>
 			}
 
 			<button class="btn btn-ghost submit" (click)="logout()">Se déconnecter</button>
