@@ -22,9 +22,12 @@ export class PlayerAuthService {
 
 	readonly isAuthenticated = signal<boolean>(!!this.getToken());
 	readonly profile = signal<PlayerProfile | null>(null);
+	/** True des que le premier appel a /me est retombe (succes OU echec) - permet de distinguer "en cours de chargement" de "charge mais vide/en erreur", pour ne jamais afficher un spinner infini. */
+	readonly profileLoaded = signal<boolean>(false);
 
 	constructor() {
 		if (this.getToken()) void this.refreshProfile();
+		else this.profileLoaded.set(true);
 	}
 
 	getToken(): string | null {
@@ -56,6 +59,8 @@ export class PlayerAuthService {
 			// transitoire (500, reseau...) ne doit jamais deconnecter quelqu'un
 			// dont le token est encore parfaitement valide.
 			if (err instanceof HttpErrorResponse && err.status === 401) this.logout();
+		} finally {
+			this.profileLoaded.set(true);
 		}
 	}
 

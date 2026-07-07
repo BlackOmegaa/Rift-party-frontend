@@ -64,8 +64,17 @@
 			}
 
 			<button class="btn btn-ghost submit" (click)="logout()">Se déconnecter</button>
+		} @else if (!playerAuth.profileLoaded()) {
+			<div class="confirm-box">
+				<span class="spinner"></span>
+				<p>Chargement...</p>
+			</div>
 		} @else {
-			<p class="value">Chargement...</p>
+			<div class="confirm-box warn">
+				<p>Impossible de charger ton compte pour le moment.</p>
+				<button class="btn btn-ghost" (click)="playerAuth.refreshProfile()">Réessayer</button>
+				<button class="btn btn-ghost" (click)="logout()">Se déconnecter</button>
+			</div>
 		}
 	</div>
 </div>
