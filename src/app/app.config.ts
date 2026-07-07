@@ -4,12 +4,13 @@ import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideAnimations } from '@angular/platform-browser/animations';
 import { routes } from './app.routes';
 import { adminAuthInterceptor } from './core/interceptors/admin-auth.interceptor';
+import { playerAuthInterceptor } from './core/interceptors/player-auth.interceptor';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideZoneChangeDetection({ eventCoalescing: true }),
     provideRouter(routes),
-    provideHttpClient(withInterceptors([adminAuthInterceptor])),
+    provideHttpClient(withInterceptors([adminAuthInterceptor, playerAuthInterceptor])),
     provideAnimations(),
   ],
 };

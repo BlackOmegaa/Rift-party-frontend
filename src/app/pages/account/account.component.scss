@@ -1,0 +1,80 @@
+.hero {
+	min-height: 100vh;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 2.5rem;
+	padding: 2rem;
+	position: relative;
+	overflow: hidden;
+}
+.brand {
+	text-align: center;
+	z-index: 1;
+}
+.brand h1 {
+	font-size: 2.6rem;
+	color: var(--gold-bright);
+	text-shadow: 0 0 30px rgba(200, 170, 110, 0.25);
+}
+.brand h1 span {
+	color: var(--teal);
+	text-shadow: 0 0 30px var(--teal-glow);
+}
+
+.panel {
+	width: 100%;
+	max-width: 420px;
+	padding: 1.6rem;
+	display: flex;
+	flex-direction: column;
+	gap: 1.1rem;
+	z-index: 1;
+	animation: fade-in-up var(--transition-med);
+}
+
+.field {
+	display: flex;
+	flex-direction: column;
+	gap: 0.3rem;
+}
+.field label {
+	font-size: 0.8rem;
+	color: var(--text-secondary);
+}
+.value {
+	font-weight: 700;
+	font-size: 1rem;
+}
+.value.active {
+	color: var(--teal);
+}
+
+.notice {
+	font-size: 0.85rem;
+	color: var(--teal);
+}
+.notice.muted {
+	color: var(--text-secondary);
+}
+.error {
+	color: var(--danger);
+	font-size: 0.85rem;
+}
+.submit {
+	width: 100%;
+	padding: 0.85rem;
+	font-size: 1rem;
+}
+
+.hero-glow {
+	position: absolute;
+	inset: 0;
+	background: radial-gradient(
+		circle 500px at 50% 30%,
+		rgba(10, 200, 185, 0.12),
+		transparent 70%
+	);
+	pointer-events: none;
+}

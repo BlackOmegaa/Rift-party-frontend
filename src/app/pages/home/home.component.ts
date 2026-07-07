@@ -5,16 +5,17 @@ import {
 	signal,
 } from "@angular/core";
 import { FormsModule } from "@angular/forms";
-import { ActivatedRoute, Router } from "@angular/router";
+import { ActivatedRoute, Router, RouterLink } from "@angular/router";
 import { RoomService } from "../../core/services/room.service";
 import { SupportBannerComponent } from "../../shared/components/support-banner/support-banner.component";
+import { PlayerAuthService } from "../../core/services/player-auth.service";
 
 type Mode = "create" | "join";
 
 @Component({
 	selector: "app-home",
 	standalone: true,
-	imports: [FormsModule, SupportBannerComponent],
+	imports: [FormsModule, SupportBannerComponent, RouterLink],
 	changeDetection: ChangeDetectionStrategy.OnPush,
 	templateUrl: "./home.component.html",
 	styleUrl: "./home.component.scss",
@@ -28,6 +29,7 @@ export class HomeComponent {
 
 	constructor(
 		protected readonly roomService: RoomService,
+		protected readonly playerAuth: PlayerAuthService,
 		private readonly router: Router,
 		route: ActivatedRoute,
 	) {

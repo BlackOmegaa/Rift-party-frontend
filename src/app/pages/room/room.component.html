@@ -45,6 +45,9 @@
         </div>
       </div>
       <app-support-banner variant="compact" />
+      <a class="account-link" [routerLink]="playerAuth.isAuthenticated() ? '/account' : '/login'">
+        {{ playerAuth.isAuthenticated() ? "Mon compte" : "Se connecter" }}
+      </a>
       @if (!currentRoom.activeMix) {
         <button class="leave-room" (click)="leave()">
           <app-icon name="leave" [size]="16" />

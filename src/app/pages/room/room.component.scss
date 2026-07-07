@@ -205,6 +205,18 @@ button {
   min-width: 180px;
 }
 
+.account-link {
+  text-align: center;
+  font-size: .78rem;
+  color: var(--text-muted);
+  text-decoration: none;
+  letter-spacing: .03em;
+  transition: color var(--transition-fast);
+}
+.account-link:hover {
+  color: var(--gold);
+}
+
 /* Bouton quitter lobby */
 .leave-room {
   margin-top: auto;

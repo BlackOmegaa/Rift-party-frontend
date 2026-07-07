@@ -62,4 +62,7 @@
 	</div>
 
 	<app-support-banner />
+	<a class="account-link" [routerLink]="playerAuth.isAuthenticated() ? '/account' : '/login'">
+		{{ playerAuth.isAuthenticated() ? "Mon compte" : "Se connecter" }}
+	</a>
 </div>

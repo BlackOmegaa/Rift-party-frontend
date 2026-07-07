@@ -1,7 +1,8 @@
 import { ChangeDetectionStrategy, Component, ElementRef, OnDestroy, effect, inject, isDevMode, signal } from '@angular/core';
 import { NgComponentOutlet } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { RoomService } from '../../core/services/room.service';
+import { PlayerAuthService } from '../../core/services/player-auth.service';
 import { GamesService } from '../../core/services/games.service';
 import { PlayerBadgeComponent } from '../../shared/components/player-badge/player-badge.component';
 import { MINI_GAME_COMPONENTS } from '../../mini-games/mini-games.registry';
@@ -47,7 +48,7 @@ interface RoundIntro {
 @Component({
   selector: 'app-room',
   standalone: true,
-  imports: [NgComponentOutlet, PlayerBadgeComponent, IconComponent, SoundToggleComponent, SupportBannerComponent],
+  imports: [NgComponentOutlet, PlayerBadgeComponent, IconComponent, SoundToggleComponent, SupportBannerComponent, RouterLink],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './room.component.html',
   styleUrl: './room.component.scss',
@@ -85,6 +86,7 @@ export class RoomComponent implements OnDestroy {
     protected readonly devBots: DevBotsService,
     protected readonly mix: MixRuntimeService,
     protected readonly audio: AudioService,
+    protected readonly playerAuth: PlayerAuthService,
   ) {
     this.gamesService.list().subscribe((games) => this.games.set(games));
 
