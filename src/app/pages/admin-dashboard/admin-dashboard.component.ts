@@ -10,7 +10,7 @@ import {
 } from "../../core/services/admin-metrics.service";
 import { GamesService } from "../../core/services/games.service";
 import { getOrCreateAnonId } from "../../core/services/anon-id";
-import { isAnalyticsOptedOut, markAnalyticsOptedOut } from "../../core/services/tracking.service";
+import { markAnalyticsOptedOut } from "../../core/services/tracking.service";
 import { BarListComponent, BarListItem } from "../../shared/components/charts/bar-list.component";
 import { TrendAreaComponent, TrendPoint } from "../../shared/components/charts/trend-area.component";
 
@@ -110,12 +110,12 @@ export class AdminDashboardComponent implements OnInit {
 	/**
 	 * Ouvrir le dashboard = appareil de l'equipe : marque l'anonId `excluded`
 	 * cote serveur (filtre tout l'historique deja emis par cet appareil) et
-	 * pose le flag local (coupe le tracking futur). Une seule fois par
-	 * appareil grace au flag ; pour exclure le telephone, il suffit d'ouvrir
-	 * le dashboard dessus une fois.
+	 * pose le flag local (coupe le tracking futur). Appele a CHAQUE ouverture
+	 * (upsert idempotent, pas seulement quand le flag local manque) : un reset
+	 * des stats supprime les lignes Visitor, il faut pouvoir se re-marquer.
+	 * Pour exclure le telephone, il suffit d'ouvrir le dashboard dessus une fois.
 	 */
 	private ensureDeviceExcluded(): void {
-		if (isAnalyticsOptedOut()) return;
 		this.adminMetrics.excludeMe(getOrCreateAnonId()).subscribe({
 			next: () => markAnalyticsOptedOut(),
 			error: () => {},
