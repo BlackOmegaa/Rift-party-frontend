@@ -13,6 +13,7 @@ import { IconComponent, IconName } from '../../shared/components/icon/icon.compo
 import { MixRuntimeService } from '../../core/services/mix-runtime.service';
 import { AudioService } from '../../core/services/audio.service';
 import { SoundToggleComponent } from '../../shared/components/sound-toggle/sound-toggle.component';
+import { SupportBannerComponent } from '../../shared/components/support-banner/support-banner.component';
 import { burstParticles, countUp, punchIn, slideUp } from '../../shared/cinematic/cinematic';
 
 interface GameSettings {
@@ -46,7 +47,7 @@ interface RoundIntro {
 @Component({
   selector: 'app-room',
   standalone: true,
-  imports: [NgComponentOutlet, PlayerBadgeComponent, IconComponent, SoundToggleComponent],
+  imports: [NgComponentOutlet, PlayerBadgeComponent, IconComponent, SoundToggleComponent, SupportBannerComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './room.component.html',
   styleUrl: './room.component.scss',

@@ -37,6 +37,13 @@
 	z-index: 1;
 	animation: fade-in-up var(--transition-med);
 }
+
+app-support-banner {
+	display: block;
+	width: 100%;
+	max-width: 420px;
+	z-index: 1;
+}
 .tabs {
 	display: flex;
 	gap: 0.5rem;
