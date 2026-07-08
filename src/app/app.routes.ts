@@ -19,6 +19,12 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/login/login.component').then((m) => m.LoginComponent),
   },
   {
+    path: 'reset-password',
+    title: 'Nouveau mot de passe — Rift Party',
+    loadComponent: () =>
+      import('./pages/reset-password/reset-password.component').then((m) => m.ResetPasswordComponent),
+  },
+  {
     path: 'account',
     title: 'Mon compte — Rift Party',
     loadComponent: () => import('./pages/account/account.component').then((m) => m.AccountComponent),

@@ -70,6 +70,20 @@ export class PlayerAuthService {
 		await this.refreshProfile();
 	}
 
+	/** Demande d'email de reinitialisation. Le backend repond toujours 200 (anti-enumeration). */
+	async requestPasswordReset(email: string): Promise<void> {
+		await firstValueFrom(this.http.post(`${BACKEND_URL}/player-auth/forgot-password`, { email }));
+	}
+
+	/** Change le mot de passe via le token recu par email, puis connecte directement. */
+	async resetPassword(token: string, password: string): Promise<void> {
+		const res = await firstValueFrom(
+			this.http.post<{ token: string }>(`${BACKEND_URL}/player-auth/reset-password`, { token, password }),
+		);
+		this.setToken(res.token);
+		await this.refreshProfile();
+	}
+
 	async refreshProfile(): Promise<void> {
 		try {
 			const profile = await firstValueFrom(this.http.get<PlayerProfile>(`${BACKEND_URL}/player-auth/me`));

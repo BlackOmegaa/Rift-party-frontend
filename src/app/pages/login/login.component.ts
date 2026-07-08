@@ -4,7 +4,7 @@ import { Router } from "@angular/router";
 import { PlayerAuthService } from "../../core/services/player-auth.service";
 import { AdSlotComponent } from "../../shared/components/ad-slot/ad-slot.component";
 
-type Mode = "login" | "register";
+type Mode = "login" | "register" | "forgot";
 
 @Component({
 	selector: "app-login",
@@ -20,14 +20,25 @@ export class LoginComponent {
 	password = "";
 	loading = signal(false);
 	error = signal<string | null>(null);
+	/** Email de reset envoye : on fige le formulaire "forgot" sur un message de confirmation. */
+	resetSent = signal(false);
 
 	constructor(
 		private readonly playerAuth: PlayerAuthService,
 		private readonly router: Router,
 	) {}
 
+	setMode(mode: Mode): void {
+		this.mode.set(mode);
+		this.error.set(null);
+		this.resetSent.set(false);
+	}
+
 	canSubmit(): boolean {
-		return !!this.email.trim() && this.password.length >= (this.mode() === "register" ? 8 : 1) && !this.loading();
+		if (this.loading()) return false;
+		if (!this.email.trim()) return false;
+		if (this.mode() === "forgot") return true;
+		return this.password.length >= (this.mode() === "register" ? 8 : 1);
 	}
 
 	async submit(): Promise<void> {
@@ -35,12 +46,16 @@ export class LoginComponent {
 		this.loading.set(true);
 		this.error.set(null);
 		try {
-			if (this.mode() === "register") {
+			if (this.mode() === "forgot") {
+				await this.playerAuth.requestPasswordReset(this.email.trim());
+				this.resetSent.set(true);
+			} else if (this.mode() === "register") {
 				await this.playerAuth.register(this.email.trim(), this.password);
+				this.router.navigate(["/account"]);
 			} else {
 				await this.playerAuth.login(this.email.trim(), this.password);
+				this.router.navigate(["/account"]);
 			}
-			this.router.navigate(["/account"]);
 		} catch (err) {
 			this.error.set(this.extractMessage(err));
 		} finally {
