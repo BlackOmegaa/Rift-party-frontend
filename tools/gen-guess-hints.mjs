@@ -11,32 +11,28 @@ const allChamps = [...comp.matchAll(/answer:\s*"([^"]+)"/g)].map((m) => m[1]);
 
 // Mode : "sample" (6 champions variés) ou "all".
 const mode = process.argv[2] === "all" ? "all" : "sample";
-const SAMPLE = ["Aatrox", "Ahri", "Thresh", "Teemo", "Jinx", "Malphite"];
+const SAMPLE = ["Aatrox", "Ahri", "Thresh", "Teemo", "Jinx", "Malphite", "Lux", "Darius", "Yuumi", "Kaisa"];
 const champs = mode === "all" ? allChamps : SAMPLE;
 
 const SYSTEM =
 	"Tu génères des indices pour un jeu \"devine le champion de League of Legends\". " +
-	"Pour le champion donné, écris EXACTEMENT 5 indices en français, du plus DIFFICILE (indice 1) " +
-	"au plus FACILE (indice 5). Difficulté progressive, mais CHAQUE indice doit être un VRAI indice " +
-	"concret et compréhensible, sur lequel un joueur peut raisonner.\n\n" +
-	"CONTENU des indices (utilise des faits CONCRETS, pas de la poésie abstraite) :\n" +
-	"- Indice 1 (dur mais juste) : rôle/classe + nature générale (ex: yordle, mort-vivant, Darkin, créature du Néant, esprit, homme-bête) OU un fait de personnalité/lore peu évident.\n" +
-	"- Indices 2-3 : mécanique de gameplay reconnaissable, style de jeu, trait visuel marquant.\n" +
-	"- Indice 4 : élément iconique (capacité signature décrite SANS son nom, relation avec un autre champion, réplique culte).\n" +
-	"- Indice 5 (facile) : le trait le plus évident, presque donné — mais toujours sans le nom.\n\n" +
-	"Règles :\n" +
-	"- NE JAMAIS écrire le nom du champion (ni un mot qui le contient).\n" +
-	"- NE JAMAIS écrire le nom exact de ses sorts/ulti (décris l'effet à la place).\n" +
-	"- CLARTÉ avant tout : un joueur doit COMPRENDRE chaque indice. Interdit : métaphores obscures, fragments absurdes.\n" +
-	"- N'AFFIRME PAS de ville/région précise (Zaun, Piltover, Ionia, Ixtal, Noxus, Demacia, Îles Obscures...) : c'est une source d'erreurs. Reste sur la NATURE générale (yordle, Darkin, mort-vivant, créature du Néant...) que tu connais avec certitude.\n" +
-	"- EXACTITUDE : rôle, gameplay, apparence, lore corrects. Dans le doute, décris le gameplay/visuel plutôt que le lore.\n" +
-	"- Phrases courtes mais COMPLÈTES et naturelles (8-14 mots), pas des fragments décoratifs.\n\n" +
-	"Exemple pour Yasuo : {\"hints\":[" +
-	"\"Épéiste errant et maudit, accusé à tort du meurtre de son maître.\"," +
-	"\"Un bretteur très mobile qui manie le vent au combat.\"," +
-	"\"Peut ériger un mur mouvant qui bloque tous les projectiles.\"," +
-	"\"Traverse sbires et ennemis d'un dash sans réelle limite.\"," +
-	"\"Le frère de Yone, fidèle à une seule et unique épée.\"]}\n\n" +
+	"Écris EXACTEMENT 5 indices en français, du plus DUR (indice 1) au plus FACILE (indice 5).\n\n" +
+	"IMPÉRATIF DE FORMAT : chaque indice est TRÈS COURT — 2 à 6 mots maximum. " +
+	"Des phrases nominales, sèches et CLAIRES (pas de métaphore, pas de poésie). " +
+	"Un joueur doit comprendre l'indice immédiatement.\n\n" +
+	"Progression RÉGULIÈRE (respecte ce dosage pour CHAQUE champion) :\n" +
+	"- Indice 1 : classe + nature générale, large. Ex: \"Assassin mort-vivant.\", \"Tank homme-bête.\"\n" +
+	"- Indice 2 : une mécanique ou un trait de gameplay. Ex: \"Manie le vent.\", \"Devient invisible.\"\n" +
+	"- Indice 3 : un trait visuel ou de style marquant. Ex: \"Immense épée noire.\", \"Chapeau et sarbacane.\"\n" +
+	"- Indice 4 : sa signature (effet d'ulti SANS son nom, ou une relation). Ex: \"Bloque tous les projectiles.\"\n" +
+	"- Indice 5 : quasi donné, le trait le plus évident. Ex: \"Renard à neuf queues.\"\n\n" +
+	"Règles strictes :\n" +
+	"- JAMAIS le nom du champion, ni un mot qui le contient.\n" +
+	"- JAMAIS le nom exact de ses sorts/ulti (décris l'effet).\n" +
+	"- N'AFFIRME PAS de région/cité précise (Zaun/Piltover/Ionia/Ixtal/Noxus/Demacia...) : source d'erreurs. Nature générale seulement (yordle, Darkin, mort-vivant, créature du Néant, esprit...).\n" +
+	"- Exactitude sur le rôle, le gameplay et l'apparence.\n\n" +
+	"Exemple pour Yasuo : {\"hints\":[\"Épéiste maudit et exilé.\",\"Manie le vent.\",\"Une seule longue épée.\",\"Bloque tous les projectiles.\",\"Le frère de Yone.\"]}\n" +
+	"Exemple pour Teemo : {\"hints\":[\"Yordle éclaireur espiègle.\",\"Devient invisible à l'arrêt.\",\"Petit, chapeau et sourire.\",\"Pose des champignons piégés.\",\"Fléchettes empoisonnées.\"]}\n\n" +
 	"Réponds UNIQUEMENT en JSON strict : {\"hints\":[\"i1\",\"i2\",\"i3\",\"i4\",\"i5\"]}";
 
 async function genOne(name) {
@@ -49,7 +45,7 @@ async function genOne(name) {
 				{ role: "system", content: SYSTEM },
 				{ role: "user", content: `Champion : ${name}` },
 			],
-			temperature: 0.9,
+			temperature: 0.45,
 			response_format: { type: "json_object" },
 		}),
 	});
