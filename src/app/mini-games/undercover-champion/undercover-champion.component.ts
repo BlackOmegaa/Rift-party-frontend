@@ -127,6 +127,7 @@ export class UndercoverChampionComponent {
 	private flipTimer?: ReturnType<typeof setTimeout>;
 	private flipSfxTimer?: ReturnType<typeof setTimeout>;
 	private revealTimer?: ReturnType<typeof setTimeout>;
+	private ackTimer?: ReturnType<typeof setTimeout>;
 
 	constructor(
 		protected readonly room: RoomService,
@@ -140,19 +141,23 @@ export class UndercoverChampionComponent {
 			clearTimeout(this.flipTimer);
 			clearTimeout(this.flipSfxTimer);
 			clearTimeout(this.revealTimer);
+			clearTimeout(this.ackTimer);
 		});
 		// Toujours se resynchroniser au montage : les events one-shot (START,
 		// REVEAL...) peuvent avoir ete emis par le serveur avant que ce
 		// composant (et les listeners d'UndercoverService) n'existent.
 		this.uc.requestState();
 
-		// Reveal du mot secret : la carte punch a l'ecran, puis se retourne avec un impact sonore.
+		// Reveal du mot secret : la carte punch a l'ecran, se retourne avec un impact
+		// sonore, puis se marque automatiquement "prete" apres un temps de lecture -
+		// aucun bouton a cliquer, le mot etant deja affiche des le flip.
 		effect(() => {
 			const word = this.uc.myWord();
 			if (this.uc.phase() !== "reveal" || !word) return;
 			this.wordFlipped.set(false);
 			clearTimeout(this.flipTimer);
 			clearTimeout(this.flipSfxTimer);
+			clearTimeout(this.ackTimer);
 			requestAnimationFrame(() => {
 				const host = this.hostElement.nativeElement;
 				punchIn(host.querySelector(".word-card-3d"));
@@ -160,6 +165,7 @@ export class UndercoverChampionComponent {
 					this.wordFlipped.set(true);
 					this.audio.play("whoosh", { volume: 0.6 });
 					this.flipSfxTimer = setTimeout(() => this.audio.play("impact", { volume: 0.7 }), 260);
+					this.ackTimer = setTimeout(() => this.uc.acknowledgeReveal(), 2600);
 				}, 550);
 			});
 		});
@@ -233,19 +239,6 @@ export class UndercoverChampionComponent {
 		return pseudo.trim().slice(0, 2).toUpperCase();
 	}
 
-	/**
-	 * Skin Supporter sur le pseudo (feed de mots, votes, spotlight) : resolu
-	 * cote frontend via RoomService.players() (deja porteur d'isSubscriber),
-	 * aucun changement backend necessaire.
-	 */
-	protected isSupporterPlayer(playerId: string): boolean {
-		return this.room.players().find((p) => p.id === playerId)?.isSubscriber ?? false;
-	}
-
-	acknowledgeReveal(): void {
-		this.uc.acknowledgeReveal();
-		this.audio.play("ui-click", { volume: 0.6 });
-	}
 
 	submitWord(): void {
 		const word = this.wordInput.trim();

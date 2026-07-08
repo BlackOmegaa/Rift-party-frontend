@@ -1,8 +1,5 @@
-<div class="player-badge" [class.me]="isMe()" [class.supporter]="player().isSubscriber">
+<div class="player-badge" [class.me]="isMe()">
   <span class="dot" [class.offline]="!player().connected"></span>
-  @if (player().isSubscriber) {
-    <app-icon name="crown" [size]="12" class="supporter-crown" />
-  }
   <span class="pseudo">{{ player().pseudo }}</span>
   @if (player().isHost) {
     <span class="badge badge-gold">Host</span>

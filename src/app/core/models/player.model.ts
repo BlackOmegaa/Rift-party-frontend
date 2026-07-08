@@ -5,6 +5,4 @@ export interface Player {
   connected: boolean;
   score: number;
   joinedAt: string;
-  /** Statut Supporter au moment de l'entree en room (snapshot, ne se met pas a jour en live). */
-  isSubscriber: boolean;
 }

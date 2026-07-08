@@ -1,7 +1,8 @@
 export interface CroquisGalleryItem {
 	artistId: string;
 	artistPseudo: string;
-	image: string;
+	/** Null si l'artiste n'a pas rendu de dessin a temps : garde quand meme sa place dans la galerie. */
+	image: string | null;
 	index: number;
 	total: number;
 	deadline: number;
@@ -11,7 +12,7 @@ export interface CroquisReveal {
 	artistId: string;
 	artistPseudo: string;
 	champion: string;
-	image: string;
+	image: string | null;
 	guesses: { playerId: string; pseudo: string; guess: string; correct: boolean }[];
 	roundPoints: Record<string, number>;
 	totalScores: Record<string, number>;

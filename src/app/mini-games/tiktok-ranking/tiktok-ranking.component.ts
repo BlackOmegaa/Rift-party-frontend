@@ -2385,14 +2385,7 @@ export class TiktokRankingComponent implements OnDestroy {
 	protected readonly timer = new RoundTimer();
 	protected remainingSec = signal(0);
 	finished = computed(() => this.index() >= this.maxRounds());
-	/** Pseudo du premier abonne present dans la room, ou null - detremine l'acces aux questions premium ET credite qui les a debloquees pour le groupe. */
-	protected readonly premiumUnlockedBy = computed(
-		() => this.room.players().find((p) => p.isSubscriber)?.pseudo ?? null,
-	);
-	/** Pool filtre AVANT indexation (pas d'index hors-limites possible) : sans abonne dans la room, les questions `premium` sont simplement absentes du pool. */
-	private readonly roundPool = computed(() =>
-		this.premiumUnlockedBy() ? ROUNDS : ROUNDS.filter((r) => !r.premium),
-	);
+	private readonly roundPool = computed(() => ROUNDS);
 	round = computed(() => {
 		const roomCode = this.room.room()?.code ?? "default";
 		const pool = this.roundPool();

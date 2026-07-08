@@ -1,0 +1,1 @@
+import{b as n}from"./chunk-VPCYYSUC.js";import{Ua as o,q as r,u as e}from"./chunk-LTEJZNMR.js";var c=n.backendUrl,d=(()=>{class t{http=e(o);list(){return this.http.get(`${c}/games`)}static \u0275fac=function(i){return new(i||t)};static \u0275prov=r({token:t,factory:t.\u0275fac,providedIn:"root"})}return t})();export{d as a};

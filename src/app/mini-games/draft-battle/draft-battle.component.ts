@@ -1228,6 +1228,9 @@ export class DraftBattleComponent implements OnDestroy {
 		{ x: (v: number) => void; y: (v: number) => void; scale: (v: number) => void }
 	>();
 
+	/** Vrai pendant que animateOffersEntrance() possede rotateX/rotateZ des cartes : bloque le tilt au survol pour eviter que les deux systemes GSAP n'ecrivent sur les memes proprietes en meme temps (les cartes "petent un plomb"). */
+	protected readonly entranceAnimating = signal(false);
+
 	private tilterFor(card: HTMLElement) {
 		let tilter = this.cardTilters.get(card);
 		if (!tilter) {
@@ -1246,7 +1249,7 @@ export class DraftBattleComponent implements OnDestroy {
 
 	/** Tilt de la carte suivant la position du curseur (effet "carte a collectionner"). */
 	onPickCardMove(event: MouseEvent): void {
-		if (this.confirmingStep()) return;
+		if (this.confirmingStep() || this.entranceAnimating()) return;
 		const card = event.currentTarget as HTMLElement;
 		const rect = card.getBoundingClientRect();
 		const px = (event.clientX - rect.left) / rect.width - 0.5;
@@ -1258,6 +1261,7 @@ export class DraftBattleComponent implements OnDestroy {
 	}
 
 	onPickCardLeave(event: MouseEvent): void {
+		if (this.entranceAnimating()) return;
 		const card = event.currentTarget as HTMLElement;
 		const tilter = this.tilterFor(card);
 		tilter.x(0);
@@ -1286,10 +1290,11 @@ export class DraftBattleComponent implements OnDestroy {
 	}
 
 	private shakeLockedCard(championId: string): void {
+		if (this.destroyed) return;
 		this.audio.play("wrong", { volume: 0.35 });
 		const card = document.querySelector<HTMLElement>(`.pick-card[data-champ-id="${championId}"]`);
 		if (!card) return;
-		gsap.fromTo(card, { x: -6 }, { x: 0, duration: 0.4, ease: "elastic.out(1, 0.3)", clearProps: "x" });
+		this.track(gsap.fromTo(card, { x: -6 }, { x: 0, duration: 0.4, ease: "elastic.out(1, 0.3)", clearProps: "x" }));
 	}
 
 	/**
@@ -1300,13 +1305,14 @@ export class DraftBattleComponent implements OnDestroy {
 	 * simple fondu — le moment ou l'offre est revelee doit se sentir.
 	 */
 	private animateOffersEntrance(): void {
+		this.entranceAnimating.set(true);
 		requestAnimationFrame(() => {
-			if (this.destroyed) return;
+			if (this.destroyed) { this.entranceAnimating.set(false); return; }
 			const cards = document.querySelectorAll<HTMLElement>(".pick-card");
-			if (!cards.length) return;
+			if (!cards.length) { this.entranceAnimating.set(false); return; }
 			gsap.killTweensOf(cards);
 			this.audio.play("whoosh", { volume: 0.55 });
-			const tl = this.track(gsap.timeline());
+			const tl = this.track(gsap.timeline({ onComplete: () => this.entranceAnimating.set(false) }));
 			tl.from(cards, {
 				opacity: 0,
 				y: -90,
@@ -1559,7 +1565,14 @@ export class DraftBattleComponent implements OnDestroy {
 		return Math.min(92, Math.max(52, 58 + Math.round(diff * 0.8)));
 	}
 
+	/** Empeche un double-clic/evenement rebondi (plus rapide que le prochain rendu) de faire sauter deux etapes de nextCinematic() d'un coup (increment de phase + finalize dans le meme tick) - meme logique que confirmingStep sur pick(). */
+	private cinematicAdvancing = false;
+
 	nextCinematic(): void {
+		if (this.cinematicAdvancing) return;
+		this.cinematicAdvancing = true;
+		this.track(gsap.delayedCall(0.3, () => { this.cinematicAdvancing = false; }));
+
 		const phaseCount = this.currentScenario()?.phases.length ?? 1;
 		if (this.cinematicStep() < phaseCount - 1) {
 			this.cinematicStep.update((step) => step + 1);

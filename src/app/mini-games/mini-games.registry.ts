@@ -9,8 +9,6 @@ import { BrumeComponent } from "./brume/brume.component";
 import { LoldleComponent } from "./loldle/loldle.component";
 import { IntrusComponent } from "./intrus/intrus.component";
 import { VotePartyComponent } from "./vote-party/vote-party.component";
-import { LastSurvivorComponent } from "./last-survivor/last-survivor.component";
-import { WhoamiComponent } from "./whoami/whoami.component";
 import { CroquisComponent } from "./croquis/croquis.component";
 
 export const MINI_GAME_COMPONENTS: Record<string, Type<unknown>> = {
@@ -24,7 +22,5 @@ export const MINI_GAME_COMPONENTS: Record<string, Type<unknown>> = {
 	"loldle": LoldleComponent,
 	"intrus": IntrusComponent,
 	"vote-party": VotePartyComponent,
-	"last-survivor": LastSurvivorComponent,
-	"qui-suis-je": WhoamiComponent,
 	"croquis": CroquisComponent,
 };

@@ -39,13 +39,7 @@
 				</div>
 
 				@if (!uc.revealReady()) {
-					<button
-						class="rift-btn rift-btn-confirm"
-						[disabled]="!wordFlipped()"
-						(click)="acknowledgeReveal()"
-					>
-						<span>J'ai mémorisé mon mot</span>
-					</button>
+					<p class="turn-hint">Mémorise ton mot...</p>
 				} @else {
 					<p class="turn-hint">En attente des autres joueurs...</p>
 				}
@@ -68,7 +62,7 @@
 				>
 					{{ activePlayer() ? initials(activePlayer()!.pseudo) : "?" }}
 				</span>
-				<h2 class="spotlight-name" [class.supporter-name]="!isMyTurn() && activePlayer() && isSupporterPlayer(activePlayer()!.id)">
+				<h2 class="spotlight-name">
 					{{ isMyTurn() ? "C'est ton tour" : activePlayerPseudo() }}
 				</h2>
 				<p class="spotlight-hint">
@@ -120,7 +114,7 @@
 						<div class="feed-round-chips">
 							@for (entry of wordsRound1(); track entry.playerId) {
 								<span class="feed-chip" [class.me]="entry.playerId === room.myId()">
-									<b [class.supporter-name]="isSupporterPlayer(entry.playerId)">{{ entry.pseudo }}</b
+									<b>{{ entry.pseudo }}</b
 									><span class="feed-sep">:</span>
 									{{ entry.timedOut ? "⏱" : entry.word }}
 								</span>
@@ -134,7 +128,7 @@
 						<div class="feed-round-chips">
 							@for (entry of wordsRound2(); track entry.playerId) {
 								<span class="feed-chip round2" [class.me]="entry.playerId === room.myId()">
-									<b [class.supporter-name]="isSupporterPlayer(entry.playerId)">{{ entry.pseudo }}</b
+									<b>{{ entry.pseudo }}</b
 									><span class="feed-sep">:</span>
 									{{ entry.timedOut ? "⏱" : entry.word }}
 								</span>
@@ -235,7 +229,7 @@
 							<span class="avatar" [style.background]="avatarColor(player.id)">{{
 								initials(player.pseudo)
 							}}</span>
-							<span class="vote-name" [class.supporter-name]="isSupporterPlayer(player.id)">{{ player.pseudo }}</span>
+							<span class="vote-name">{{ player.pseudo }}</span>
 							<div class="tally-bar">
 								<div class="tally-fill" [style.width.%]="voteTallyPct(player.id)"></div>
 							</div>

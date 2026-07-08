@@ -99,24 +99,6 @@ export class AdminDashboardComponent implements OnInit {
 		})),
 	);
 
-	/** Marches du funnel abonnement, avec largeur de barre (relative au max) et taux de passage depuis la marche precedente. */
-	protected readonly subFunnelSteps = computed(() => {
-		const s = this.metrics()?.monetization.subscription;
-		if (!s) return [];
-		const steps = [
-			{ label: "Offre affichée", value: s.offerViewed },
-			{ label: "Clic « Devenir Supporter »", value: s.ctaClicked },
-			{ label: "Arrivé sur Stripe", value: s.checkoutStarted },
-			{ label: "Paiement confirmé", value: s.completed },
-		];
-		const max = Math.max(...steps.map((x) => x.value), 1);
-		return steps.map((step, i) => ({
-			...step,
-			width: (step.value / max) * 100,
-			rate: i === 0 ? null : steps[i - 1].value ? step.value / steps[i - 1].value : null,
-		}));
-	});
-
 	ngOnInit(): void {
 		this.ensureDeviceExcluded();
 		this.gamesService.list().subscribe((games) => {
@@ -207,19 +189,9 @@ export class AdminDashboardComponent implements OnInit {
 		return `${Math.round(value * 100)}%`;
 	}
 
-	/** Montant Stripe (centimes) -> "12,34 €". */
-	euros(cents: number): string {
-		return new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(cents / 100);
-	}
-
 	/** Date+heure lisible pour les signalements. */
 	localDateTime(iso: string): string {
 		return new Date(iso).toLocaleString("fr-FR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
-	}
-
-	/** Nom du mois en cours ("juillet"), pour la carte revenus. */
-	currentMonthLabel(): string {
-		return new Date().toLocaleDateString("fr-FR", { month: "long" });
 	}
 
 	duration(seconds: number | null): string {

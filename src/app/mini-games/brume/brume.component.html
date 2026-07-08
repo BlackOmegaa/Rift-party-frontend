@@ -263,7 +263,7 @@
               <span class="teammates-label">Tes complices</span>
               <div class="teammates-list">
                 @for (mate of brume.myTeammates(); track mate.id) {
-                  <span class="teammate-chip" [class.supporter-name]="isSupporterPlayer(mate.id)">{{ mate.pseudo }} <em>({{ roleLabelFor(mate.role) }})</em></span>
+                  <span class="teammate-chip">{{ mate.pseudo }} <em>({{ roleLabelFor(mate.role) }})</em></span>
                 }
               </div>
             </div>
@@ -273,7 +273,7 @@
               @if (msg.kind === 'text') {
                 <div class="chat-bubble-row" [class.me]="msg.playerId === room.myId()">
                   <div class="chat-bubble">
-                    <b [class.supporter-name]="isSupporterPlayer(msg.playerId)">{{ msg.pseudo }}</b>
+                    <b>{{ msg.pseudo }}</b>
                     <span>{{ msg.text }}</span>
                   </div>
                 </div>
@@ -363,7 +363,7 @@
               (click)="castVote(p.id)"
             >
               <span class="vote-avatar-fallback" aria-hidden="true">{{ p.pseudo.charAt(0).toUpperCase() }}</span>
-              <span class="vote-name" [class.supporter-name]="isSupporterPlayer(p.id)">{{ p.pseudo }}</span>
+              <span class="vote-name">{{ p.pseudo }}</span>
               @if (votersFor(p.id).length) {
                 <div class="incoming-votes">
                   @for (voter of votersFor(p.id); track voter) {
@@ -384,7 +384,7 @@
             @if (msg.kind === 'text') {
               <div class="chat-bubble-row" [class.me]="msg.playerId === room.myId()">
                 <div class="chat-bubble">
-                  <b [class.supporter-name]="isSupporterPlayer(msg.playerId)">{{ msg.pseudo }}</b>
+                  <b>{{ msg.pseudo }}</b>
                   <span>{{ msg.text }}</span>
                 </div>
               </div>

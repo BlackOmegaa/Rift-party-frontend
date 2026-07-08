@@ -49,18 +49,8 @@ export interface AdminMetrics {
 	retention: { d1: number | null; d7: number | null; d30: number | null };
 	virality: { invitesGenerated: number; joinedViaInvite: number; inviteToJoinRate: number | null };
 	monetization: {
-		activeSubscribers: number;
-		/** Argent encaisse (factures Stripe payees) sur le mois calendaire en cours. Null si Stripe indisponible. */
-		monthRevenue: { amountCents: number; payments: number; currency: string } | null;
-		subscription: {
-			offerViewed: number;
-			ctaClicked: number;
-			checkoutStarted: number;
-			checkoutCancelled: number;
-			completed: number;
-		};
 		donationClicks: number;
-		bySource: { source: string; subClicks: number; subCompleted: number; donationClicks: number }[];
+		bySource: { source: string; donationClicks: number }[];
 	};
 }
 

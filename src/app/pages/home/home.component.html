@@ -4,13 +4,6 @@
 	<div class="brand">
 		<h1>RIFT <span>PARTY</span></h1>
 		<p>Mini-jeux multijoueurs entre amis, dans le navigateur.</p>
-		<app-supporter-badge />
-		<a class="account-link" [routerLink]="playerAuth.isAuthenticated() ? '/account' : '/login'">
-			@if (playerAuth.profile()?.isSubscriber) {
-				<app-icon name="crown" [size]="12" />
-			}
-			{{ playerAuth.isAuthenticated() ? "Mon compte" : "Se connecter" }}
-		</a>
 	</div>
 
 	<div class="card panel">
@@ -68,14 +61,12 @@
 		</button>
 	</div>
 
-	@if (!playerAuth.profile()?.isSubscriber) {
-		<app-ad-slot [minHeight]="90" />
-	}
+	<app-ad-slot [minHeight]="90" />
 
 	<app-support-banner />
 
 	<a class="scroll-hint" href="#mini-jeux">
-		<span>Découvrir les 13 mini-jeux</span>
+		<span>Découvrir les 11 mini-jeux</span>
 		<span class="chevron"></span>
 	</a>
 </div>
@@ -83,7 +74,7 @@
 <section class="games-section" id="mini-jeux">
 	<header class="section-head">
 		<span class="eyebrow">Party games League of Legends</span>
-		<h2>13 mini-jeux à jouer entre amis</h2>
+		<h2>11 mini-jeux à jouer entre amis</h2>
 		<p>
 			Gratuit, sans installation, directement dans le navigateur. Crée un lobby,
 			partage le code à tes amis, et que le meilleur invocateur l'emporte.
@@ -133,7 +124,6 @@
 		<a routerLink="/a-propos">À propos</a>
 		<a routerLink="/a-propos" fragment="mentions-legales">Mentions légales</a>
 		<a routerLink="/a-propos" fragment="confidentialite">Confidentialité</a>
-		<a routerLink="/a-propos" fragment="cgv">CGV</a>
 		<a routerLink="/a-propos" fragment="contact">Contact</a>
 	</nav>
 </section>

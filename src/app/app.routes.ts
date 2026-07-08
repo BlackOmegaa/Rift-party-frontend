@@ -1,6 +1,5 @@
 import { Routes } from '@angular/router';
 import { adminAuthGuard } from './core/guards/admin-auth.guard';
-import { playerAuthGuard } from './core/guards/player-auth.guard';
 
 export const routes: Routes = [
   {
@@ -12,29 +11,6 @@ export const routes: Routes = [
     path: 'room/:code',
     title: 'Lobby — Rift Party',
     loadComponent: () => import('./pages/room/room.component').then((m) => m.RoomComponent),
-  },
-  {
-    path: 'login',
-    title: 'Connexion — Rift Party',
-    loadComponent: () => import('./pages/login/login.component').then((m) => m.LoginComponent),
-  },
-  {
-    path: 'reset-password',
-    title: 'Nouveau mot de passe — Rift Party',
-    loadComponent: () =>
-      import('./pages/reset-password/reset-password.component').then((m) => m.ResetPasswordComponent),
-  },
-  {
-    path: 'verify-email',
-    title: 'Confirmation d\'email — Rift Party',
-    loadComponent: () =>
-      import('./pages/verify-email/verify-email.component').then((m) => m.VerifyEmailComponent),
-  },
-  {
-    path: 'account',
-    title: 'Mon compte — Rift Party',
-    loadComponent: () => import('./pages/account/account.component').then((m) => m.AccountComponent),
-    canActivate: [playerAuthGuard],
   },
   {
     path: 'a-propos',

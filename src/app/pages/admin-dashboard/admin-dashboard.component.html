@@ -85,14 +85,9 @@
 							</span>
 						</div>
 						<div class="card metric big gold">
-							<span class="label">Revenus de {{ currentMonthLabel() }}</span>
-							@if (m.monetization.monthRevenue; as rev) {
-								<strong>{{ euros(rev.amountCents) }}</strong>
-								<span class="sub">{{ rev.payments }} paiement(s) · {{ m.monetization.activeSubscribers }} abonne(s) actifs</span>
-							} @else {
-								<strong>—</strong>
-								<span class="sub">Stripe indisponible</span>
-							}
+							<span class="label">Clics « Soutenir » (Ko-fi)</span>
+							<strong>{{ m.monetization.donationClicks }}</strong>
+							<span class="sub">sur la periode choisie</span>
 						</div>
 					</div>
 				</section>
@@ -153,86 +148,37 @@
 				<section class="section">
 					<div class="grid essentials-grid">
 						<div class="card metric big gold">
-							<span class="label">Revenus de {{ currentMonthLabel() }} <em>(mois en cours)</em></span>
-							@if (m.monetization.monthRevenue; as rev) {
-								<strong>{{ euros(rev.amountCents) }}</strong>
-								<span class="sub">{{ rev.payments }} paiement(s) encaisses via Stripe</span>
-							} @else {
-								<strong>—</strong>
-								<span class="sub">Stripe indisponible ou non configure</span>
-							}
-						</div>
-						<div class="card metric big">
-							<span class="label">Abonnes Supporter actifs</span>
-							<strong>{{ m.monetization.activeSubscribers }}</strong>
-							<span class="sub">{{ m.monetization.subscription.completed }} nouveau(x) sur la periode</span>
-						</div>
-						<div class="card metric big">
 							<span class="label">Clics « Soutenir » (Ko-fi)</span>
 							<strong>{{ m.monetization.donationClicks }}</strong>
-							<span class="sub">Ko-fi ne permet pas de confirmer le paiement</span>
+							<span class="sub">sur la periode choisie</span>
 						</div>
 					</div>
 				</section>
 
 				<section class="section">
-					<div class="two-col">
-						<div class="card">
-							<div class="card-head">
-								<h3>Funnel abonnement</h3>
-								<span class="hint-inline">ou les gens s'arretent-ils ?</span>
-							</div>
-							<div class="funnel-bars">
-								@for (step of subFunnelSteps(); track step.label) {
-									<div class="funnel-bar-row">
-										<span class="fb-label">{{ step.label }}</span>
-										<div class="fb-track">
-											<div class="fb-fill" [style.width.%]="step.width"></div>
-										</div>
-										<strong class="fb-value">{{ step.value }}</strong>
-										@if (step.rate !== null) {
-											<span class="fb-rate" [class.low]="step.rate < 0.3">{{ pct(step.rate) }}</span>
-										} @else {
-											<span class="fb-rate start">—</span>
-										}
-									</div>
-								}
-							</div>
-							@if (m.monetization.subscription.checkoutCancelled > 0) {
-								<p class="funnel-note">
-									{{ m.monetization.subscription.checkoutCancelled }} personne(s) sont revenues de Stripe sans payer
-									(bouton retour ou paiement abandonne).
-								</p>
-							}
+					<div class="card table-card">
+						<div class="card-head">
+							<h3>D'ou viennent ceux qui cliquent sur Soutenir</h3>
+							<span class="hint-inline">source de la 1ere visite</span>
 						</div>
-						<div class="card table-card">
-							<div class="card-head">
-								<h3>D'ou viennent ceux qui paient</h3>
-								<span class="hint-inline">source de la 1ere visite</span>
-							</div>
-							<table>
-								<thead>
+						<table>
+							<thead>
+								<tr>
+									<th>Source</th>
+									<th>Clics don</th>
+								</tr>
+							</thead>
+							<tbody>
+								@for (row of m.monetization.bySource; track row.source) {
 									<tr>
-										<th>Source</th>
-										<th>Clics abo</th>
-										<th>Paiements</th>
-										<th>Clics don</th>
+										<td>{{ sourceLabel(row.source) }}</td>
+										<td>{{ row.donationClicks }}</td>
 									</tr>
-								</thead>
-								<tbody>
-									@for (row of m.monetization.bySource; track row.source) {
-										<tr [class.converts]="row.subCompleted > 0">
-											<td>{{ sourceLabel(row.source) }}</td>
-											<td>{{ row.subClicks }}</td>
-											<td>{{ row.subCompleted }}</td>
-											<td>{{ row.donationClicks }}</td>
-										</tr>
-									} @empty {
-										<tr><td colspan="4" class="hint">Aucun evenement de monetisation sur la periode.</td></tr>
-									}
-								</tbody>
-							</table>
-						</div>
+								} @empty {
+									<tr><td colspan="2" class="hint">Aucun clic Soutenir sur la periode.</td></tr>
+								}
+							</tbody>
+						</table>
 					</div>
 				</section>
 			}

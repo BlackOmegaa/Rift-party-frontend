@@ -1,6 +1,5 @@
 import { Injectable, computed, signal } from "@angular/core";
 import { SocketService } from "./socket.service";
-import { getPlayerToken } from "./player-auth.service";
 import { Room } from "../models/room.model";
 import { Player } from "../models/player.model";
 
@@ -45,8 +44,6 @@ export class RoomService {
 	private readonly _error = signal<string | null>(null);
 	private readonly _lastGameStarted = signal<string | null>(null);
 	private readonly _joinedMidGame = signal(false);
-	/** Dernier abonne arrive dans la room (evenement PLAYER_JOINED, jamais emis a soi-meme) : consomme par RoomComponent pour la mise en scene "Entree Supporter" (burst + toast), puis remis a null. */
-	private readonly _justJoinedSupporter = signal<Player | null>(null);
 	private hasReceivedFirstState = false;
 	/** Pseudo utilise pour le create/join en cours, pour pouvoir sauvegarder la session {code, pseudo} des reception du premier STATE (voir tryRejoin, appele au reload par RoomComponent). */
 	private pendingPseudo: string | null = null;
@@ -70,7 +67,6 @@ export class RoomService {
 	 * meme. Repasse a false des que la manche/le segment suivant demarre.
 	 */
 	readonly joinedMidGame = this._joinedMidGame.asReadonly();
-	readonly justJoinedSupporter = this._justJoinedSupporter.asReadonly();
 
 	// `socket.id` est un signal (mis a jour a chaque 'connect') : ces computed
 	// sont donc bien recalcules apres une reconnexion (nouveau socket.id).
@@ -112,11 +108,6 @@ export class RoomService {
 		this.socket.on<{ gameId: string }>(ROOM_EVENTS.GAME_STARTED, (payload) => {
 			this._lastGameStarted.set(payload.gameId);
 			this._joinedMidGame.set(false);
-		});
-		// Emis par le backend aux AUTRES joueurs de la room (jamais a soi-meme) :
-		// declenche la mise en scene "Entree Supporter" cote RoomComponent.
-		this.socket.on<Player>(ROOM_EVENTS.PLAYER_JOINED, (player) => {
-			if (player.isSubscriber) this._justJoinedSupporter.set(player);
 		});
 		// Reco transport (wifi coupe puis revenu) : socket.io reconnecte tout seul
 		// mais cote serveur c'est une toute nouvelle connexion (nouveau socket.id),
@@ -197,18 +188,13 @@ export class RoomService {
 	createRoom(pseudo: string): void {
 		this._error.set(null);
 		this.pendingPseudo = pseudo;
-		this.socket.emit(ROOM_EVENTS.CREATE, { pseudo, playerToken: getPlayerToken() ?? undefined });
+		this.socket.emit(ROOM_EVENTS.CREATE, { pseudo });
 	}
 
 	joinRoom(code: string, pseudo: string, viaInvite = false): void {
 		this._error.set(null);
 		this.pendingPseudo = pseudo;
-		this.socket.emit(ROOM_EVENTS.JOIN, {
-			code,
-			pseudo,
-			viaInvite,
-			playerToken: getPlayerToken() ?? undefined,
-		});
+		this.socket.emit(ROOM_EVENTS.JOIN, { code, pseudo, viaInvite });
 	}
 
 	/** A appeler quand le joueur copie le lien d'invitation (voir room.component.ts copyInviteLink), pour la stat de viralite. */
@@ -283,10 +269,5 @@ export class RoomService {
 
 	clearError(): void {
 		this._error.set(null);
-	}
-
-	/** A appeler par RoomComponent une fois la mise en scene "Entree Supporter" jouee, pour ne pas la rejouer au prochain recalcul du signal. */
-	clearJustJoinedSupporter(): void {
-		this._justJoinedSupporter.set(null);
 	}
 }

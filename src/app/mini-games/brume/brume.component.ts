@@ -270,16 +270,6 @@ export class BrumeComponent {
     return BRUME_ROLE_LABELS[role];
   }
 
-  /**
-   * Skin Supporter sur le pseudo (chat, votes, complices) : resolu cote
-   * frontend via RoomService.players() (deja porteur d'isSubscriber, voir
-   * Player), aucun changement backend necessaire - Brume ne transmet que des
-   * refs {id, pseudo} mais le room signal complet est deja disponible ici.
-   */
-  protected isSupporterPlayer(playerId: string | null): boolean {
-    return this.room.players().find((p) => p.id === playerId)?.isSubscriber ?? false;
-  }
-
   /** Bouton toujours visible en dehors du reveal initial : pratique pour les streamers/joueurs distraits qui veulent revoir leur role sans le laisser affiche en permanence a l'ecran. */
   protected readonly roleReminderOpen = signal(false);
   toggleRoleReminder(): void {

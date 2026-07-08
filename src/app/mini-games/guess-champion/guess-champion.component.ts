@@ -470,11 +470,11 @@ const ROUNDS: GuessRound[] = [
 	{
 		answer: "Hwei",
 		hints: [
-			"Combattant au corps à corps.",
-			"Maîtrise l'art du sabre.",
-			"Peut parer les attaques.",
-			"Utilise des techniques ancestrales.",
-			"Maître épéiste de la tribu.",
+			"Mage à distance.",
+			"Peint des toiles magiques.",
+			"Invoque des esprits élémentaires.",
+			"Combine feu, eau et terre.",
+			"Peintre du Konkat, fils adoptif de Nagakabouros.",
 		],
 	},
 	{

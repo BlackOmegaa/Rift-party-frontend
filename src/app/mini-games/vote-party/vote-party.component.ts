@@ -40,10 +40,8 @@ export class VotePartyComponent {
 		return Math.max(0, Math.ceil((deadline - this.now()) / 1000));
 	});
 
-	/** Les cibles votables : tout le lobby sauf moi (pas de self-vote). */
-	protected readonly targets = computed(() =>
-		this.room.players().filter((p) => p.id !== this.room.myId()),
-	);
+	/** Les cibles votables : tout le lobby, y compris soi-meme. */
+	protected readonly targets = computed(() => this.room.players());
 
 	protected readonly finished = computed(() => !!this.voteParty.results());
 

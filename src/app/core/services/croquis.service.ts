@@ -98,6 +98,14 @@ export class CroquisService {
 			this._results.set(payload);
 		});
 
+		// Le serveur peut rejeter la soumission (dessin trop lourd, phase deja
+		// avancee...) : l'ack optimiste de submitDrawing() doit revenir en
+		// arriere, sinon l'UI affiche "envoye" alors que le serveur n'a rien
+		// stocke - et l'artiste disparait silencieusement de la galerie.
+		this.socket.on<{ message: string }>('room:error', () => {
+			if (this._phase() === 'drawing') this._mySubmitted.set(false);
+		});
+
 		// Photo instantanee demandee au montage (voir requestState()) : ne peut
 		// jamais etre manquee contrairement aux broadcasts one-shot ci-dessus.
 		this.socket.on<CroquisSnapshot>(CROQUIS_EVENTS.STATE, (snapshot) => {

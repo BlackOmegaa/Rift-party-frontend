@@ -362,13 +362,6 @@
 	color: var(--text-muted);
 	margin-right: 0.3rem;
 }
-/* Skin Supporter : pseudo dore, reutilise sur feed/votes/spotlight (voir isSupporterPlayer). */
-.supporter-name {
-	background: linear-gradient(90deg, var(--gold-bright), var(--gold) 55%, var(--gold-bright));
-	background-clip: text;
-	-webkit-background-clip: text;
-	-webkit-text-fill-color: transparent;
-}
 .feed-chip.me {
 	border-color: rgba(200, 170, 110, 0.4);
 }

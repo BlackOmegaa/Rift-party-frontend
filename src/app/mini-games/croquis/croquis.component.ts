@@ -26,7 +26,7 @@ const CANVAS_WIDTH = 520;
 const CANVAS_HEIGHT = 390;
 /** Doit rester synchro avec DRAWING_TIME_SEC cote backend (backend/src/croquis/croquis.service.ts). */
 const DRAWING_TIME_SEC = 90;
-const PALETTE = ["#111111", "#c0392b", "#2980b9", "#27ae60", "#f1c40f", "#8e44ad", "#e67e22", "#7f8c8d"];
+const PALETTE = ["#ffffff", "#111111", "#7f8c8d", "#c0392b", "#e67e22", "#f1c40f", "#27ae60", "#1abc9c", "#2980b9", "#8e44ad", "#ff6fae", "#8b5a2b"];
 const SIZES = [3, 7, 14];
 
 @Component({

@@ -31,12 +31,6 @@
   @if (room.reconnecting()) {
     <div class="reconnect-banner" role="status">Connexion perdue, reconnexion en cours...</div>
   }
-  @if (room.justJoinedSupporter(); as supporter) {
-    <div class="supporter-toast" role="status">
-      <app-icon name="crown" [size]="14" />
-      <span><strong>{{ supporter.pseudo }}</strong> a rejoint en Supporter</span>
-    </div>
-  }
   <div class="layout" [class.cinematic]="cinematicMode(currentRoom)">
     <aside class="sidebar">
       <div class="room-code card">
@@ -57,12 +51,6 @@
         </div>
       </div>
       <app-support-banner variant="compact" />
-      <a class="account-link" [routerLink]="playerAuth.isAuthenticated() ? '/account' : '/login'">
-        @if (playerAuth.profile()?.isSubscriber) {
-          <app-icon name="crown" [size]="12" />
-        }
-        {{ playerAuth.isAuthenticated() ? "Mon compte" : "Se connecter" }}
-      </a>
       <button class="bug-report-btn" (click)="openBugReport()">
         <app-icon name="bug" [size]="14" />
         <span>Signaler un bug</span>
@@ -245,9 +233,7 @@
               </div>
             }
           </div>
-          @if (!playerAuth.profile()?.isSubscriber) {
-            <app-ad-slot [minHeight]="100" />
-          }
+          <app-ad-slot [minHeight]="100" />
           @if (room.isHost()) {
             <div class="resume-actions">
               <button class="btn btn-primary" (click)="room.nextMixSegment()">Continuer</button>
@@ -323,9 +309,7 @@
               </div>
             }
           </div>
-          @if (!playerAuth.profile()?.isSubscriber) {
-            <app-ad-slot [minHeight]="100" />
-          }
+          <app-ad-slot [minHeight]="100" />
           @if (room.isHost()) {
             <button class="btn btn-primary" (click)="room.finishMix()">Retour au lobby</button>
           } @else {
@@ -342,9 +326,7 @@
           <div class="hero-rune"><app-icon name="sparkle" [size]="92" /></div>
         </section>
 
-        @if (!playerAuth.profile()?.isSubscriber) {
-          <app-ad-slot [minHeight]="100" />
-        }
+        <app-ad-slot [minHeight]="100" />
 
         @if (room.isHost()) {
           @if (partyMix(); as mix) {
@@ -382,9 +364,6 @@
               <article class="game-wrap" [style.animation-delay.ms]="i * 65">
                 <button class="game-card" [attr.data-game]="game.id" [class.locked]="currentRoom.players.length < game.minPlayers" [disabled]="currentRoom.players.length < game.minPlayers" (click)="launchGame(game.id)">
                   <div class="game-bg"><app-icon [name]="iconFor(game.id)" [size]="22" /></div>
-                  @if (game.beta) {
-                    <span class="beta-tag">Accès anticipé</span>
-                  }
                   <h2>{{ game.label }}</h2>
                   <p>{{ game.description }}</p>
                   <div class="meta-line"><span>{{ game.minPlayers }}-{{ game.maxPlayers }} joueurs</span><span>{{ gameSettings.roundTimeSec() }}s</span></div>
@@ -433,7 +412,7 @@
         <span class="eyebrow">Paramètres</span>
         <h2>{{ labelFor(gameId) }}</h2>
         <label>Temps par manche <strong>{{ gameSettings.roundTimeSec() }}s</strong><input type="range" min="15" max="90" step="5" [value]="gameSettings.roundTimeSec()" (input)="updateRoundTime($event)" /></label>
-        @if (gameId !== 'party-mix' && gameId !== 'draft-battle' && gameId !== 'undercover-champion' && gameId !== 'brume' && gameId !== 'loldle' && gameId !== 'last-survivor' && gameId !== 'qui-suis-je' && gameId !== 'croquis') {
+        @if (gameId !== 'party-mix' && gameId !== 'draft-battle' && gameId !== 'undercover-champion' && gameId !== 'brume' && gameId !== 'loldle' && gameId !== 'croquis') {
           <label>Nombre de manches <strong>{{ gameSettings.roundsFor(gameId) }}</strong><input type="range" min="1" max="20" step="1" [value]="gameSettings.roundsFor(gameId)" (input)="updateGameRounds(gameId, $event)" /></label>
         }
         @if (gameId === 'loldle') {

@@ -354,6 +354,25 @@ canvas {
 		width: min(50vw, 320px);
 	}
 }
+.artwork-missing {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 0.6rem;
+	width: min(60vw, 560px);
+	max-width: 100%;
+	min-height: 200px;
+	border-radius: 16px;
+	background: rgba(0, 0, 0, 0.25);
+	color: var(--text-muted, #9a94a8);
+	text-align: center;
+	padding: 1rem;
+	&.small {
+		width: min(50vw, 320px);
+		min-height: 140px;
+	}
+}
 
 .guess-bar {
 	position: relative;

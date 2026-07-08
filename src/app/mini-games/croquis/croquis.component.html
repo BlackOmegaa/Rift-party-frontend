@@ -111,7 +111,14 @@
 
 			<div class="gallery-frame">
 				<div class="gallery-frame-glow"></div>
-				<img class="artwork" [src]="croquis.item()?.image" alt="Croquis à deviner" />
+				@if (croquis.item()?.image; as image) {
+					<img class="artwork" [src]="image" alt="Croquis à deviner" />
+				} @else {
+					<div class="artwork-missing">
+						<app-icon name="x-circle" [size]="28" />
+						<span>{{ croquis.item()?.artistPseudo }} n'a pas eu le temps de terminer son dessin.</span>
+					</div>
+				}
 			</div>
 
 			<div class="guess-bar">
@@ -145,7 +152,14 @@
 			<span class="verdict-sub">Croquis signé {{ reveal.artistPseudo }}</span>
 
 			<div class="reveal-duo">
-				<img class="artwork small" [src]="reveal.image" alt="Croquis" />
+				@if (reveal.image; as image) {
+					<img class="artwork small" [src]="image" alt="Croquis" />
+				} @else {
+					<div class="artwork-missing small">
+						<app-icon name="x-circle" [size]="22" />
+						<span>Dessin non terminé</span>
+					</div>
+				}
 				<img class="real-champion" [src]="square(reveal.champion)" alt="" />
 			</div>
 

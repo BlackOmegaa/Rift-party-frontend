@@ -1,10 +1,9 @@
 import { ChangeDetectionStrategy, Component, ElementRef, OnDestroy, effect, inject, isDevMode, signal } from '@angular/core';
 import { NgComponentOutlet } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { TrackingService } from '../../core/services/tracking.service';
 import { RoomService } from '../../core/services/room.service';
-import { PlayerAuthService } from '../../core/services/player-auth.service';
 import { GamesService } from '../../core/services/games.service';
 import { PlayerBadgeComponent } from '../../shared/components/player-badge/player-badge.component';
 import { MINI_GAME_COMPONENTS } from '../../mini-games/mini-games.registry';
@@ -17,7 +16,6 @@ import { MixRuntimeService } from '../../core/services/mix-runtime.service';
 import { AudioService } from '../../core/services/audio.service';
 import { SoundToggleComponent } from '../../shared/components/sound-toggle/sound-toggle.component';
 import { SupportBannerComponent } from '../../shared/components/support-banner/support-banner.component';
-import { SupporterOfferService } from '../../core/services/supporter-offer.service';
 import { AdSlotComponent } from '../../shared/components/ad-slot/ad-slot.component';
 import { burstParticles, countUp, punchIn, slideUp } from '../../shared/cinematic/cinematic';
 
@@ -38,7 +36,7 @@ const SPECTATABLE_GAMES = new Set([
 /** Petits jeux express : parties courtes, alternees avec un gros jeu en Party Mix. */
 const SMALL_GAMES = new Set(['guess-champion', 'loldle', 'fusion-champions', 'turret-tank', 'intrus']);
 /** Gros jeux : setup plus long (draft, classement, deduction sociale...). */
-const BIG_GAMES = ['tiktok-ranking', 'undercover-champion', 'draft-battle', 'brume', 'vote-party', 'last-survivor'];
+const BIG_GAMES = ['tiktok-ranking', 'undercover-champion', 'draft-battle', 'brume', 'vote-party'];
 
 interface RoundIntro {
   gameId: string;
@@ -52,7 +50,7 @@ interface RoundIntro {
 @Component({
   selector: 'app-room',
   standalone: true,
-  imports: [NgComponentOutlet, FormsModule, PlayerBadgeComponent, IconComponent, SoundToggleComponent, SupportBannerComponent, RouterLink, AdSlotComponent],
+  imports: [NgComponentOutlet, FormsModule, PlayerBadgeComponent, IconComponent, SoundToggleComponent, SupportBannerComponent, AdSlotComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './room.component.html',
   styleUrl: './room.component.scss',
@@ -86,7 +84,6 @@ export class RoomComponent implements OnDestroy {
   protected readonly countdownValue = signal(3);
   private introTimers: ReturnType<typeof setTimeout>[] = [];
   private introKey: string | null = null;
-  private supporterToastTimer: ReturnType<typeof setTimeout> | null = null;
   private readonly hostElement = inject(ElementRef<HTMLElement>);
   /** Detecte les transitions (pas juste la presence) des ecrans de resultats, pour ne jouer le fanfare/particles qu'une fois par apparition. */
   private lastRoomStatus: string | null = null;
@@ -97,8 +94,6 @@ export class RoomComponent implements OnDestroy {
     protected readonly devBots: DevBotsService,
     protected readonly mix: MixRuntimeService,
     protected readonly audio: AudioService,
-    protected readonly playerAuth: PlayerAuthService,
-    private readonly supporterOffer: SupporterOfferService,
   ) {
     this.gamesService.list().subscribe((games) => this.games.set(games));
 
@@ -156,24 +151,6 @@ export class RoomComponent implements OnDestroy {
           slideUp(host.querySelector('.podium-top .podium-block.second'), { delay: 0.1 });
           slideUp(host.querySelector('.podium-top .podium-block.third'), { delay: 0.16 });
           burstParticles(host.querySelector('.rift-report'), { count: 46, colors: ['#c8aa6e', '#f0e6d2', '#3fd67a'] });
-          // "Victoire doree" : le vainqueur (1ere place) est abonne -> burst
-          // supplementaire cible sur son bloc de podium, visible par toute la
-          // room. Purement cosmetique, aucun impact sur le classement/score.
-          if (this.room.sortedByScore()[0]?.isSubscriber) {
-            burstParticles(firstBlock as HTMLElement | null, { count: 30, colors: ['#c8aa6e', '#f0e6d2'] });
-          }
-          // Laisse la cinematique de victoire respirer avant de proposer l'offre.
-          // Garde-fou : certains mini-jeux (ex Draft Battle en fin de tournoi)
-          // jouent encore LEUR PROPRE cinematique de resultats au moment ou la
-          // room passe a "finished" (les joueurs ne signalent pas tous
-          // party:segment-complete au meme rythme) - sans ce garde-fou, la
-          // popup pouvait surgir en pleine cinematique du mini-jeu plutot
-          // qu'apres le vrai ecran de recap final (Rift Report).
-          setTimeout(() => {
-            if (this.room.room()?.status === 'finished' && host.querySelector('.rift-report')) {
-              this.supporterOffer.open();
-            }
-          }, 2600);
         } else {
           this.audio.play('round-win', { volume: 0.7 });
           const leader = host.querySelector('.mix-resume .rank-card.leader') as HTMLElement | null;
@@ -181,27 +158,10 @@ export class RoomComponent implements OnDestroy {
         }
       });
     });
-
-    // "Entree Supporter" : un abonne rejoint la room, burst dore + toast
-    // visibles par tout le monde (voir RoomService.justJoinedSupporter,
-    // alimente par l'event PLAYER_JOINED que le backend n'emet jamais a
-    // soi-meme - donc jamais declenche pour sa propre arrivee).
-    effect(() => {
-      const supporter = this.room.justJoinedSupporter();
-      if (!supporter) return;
-      const host = this.hostElement.nativeElement;
-      requestAnimationFrame(() => {
-        burstParticles(host.querySelector('.players'), { count: 22, colors: ['#c8aa6e', '#f0e6d2'] });
-        this.audio.play('reveal', { volume: 0.6 });
-      });
-      if (this.supporterToastTimer) clearTimeout(this.supporterToastTimer);
-      this.supporterToastTimer = setTimeout(() => this.room.clearJustJoinedSupporter(), 3200);
-    });
   }
 
   ngOnDestroy(): void {
     this.clearIntroTimers();
-    if (this.supporterToastTimer) clearTimeout(this.supporterToastTimer);
     this.audio.stopMusic();
   }
 
@@ -280,19 +240,12 @@ export class RoomComponent implements OnDestroy {
   }
 
   partyMix() { return this.games().find((g) => g.id === 'party-mix'); }
-  /**
-   * Filtre aussi les modes `beta` (acces anticipe) tant qu'aucun abonne
-   * Supporter n'est present dans la room - meme logique communautaire que le
-   * contenu premium TikTok Ranking : un abonne "debloque" pour tout le
-   * groupe, il ne joue jamais seul dans son coin.
-   */
   secondaryGames() {
-    const hasSupporter = this.room.players().some((p) => p.isSubscriber);
-    return this.games().filter((g) => g.id !== 'party-mix' && (!g.beta || hasSupporter));
+    return this.games().filter((g) => g.id !== 'party-mix');
   }
   componentFor(gameId: string) { return MINI_GAME_COMPONENTS[gameId] ?? null; }
-  iconFor(gameId: string): IconName { return ({ 'party-mix': 'sparkle', 'draft-battle': 'sword', 'guess-champion': 'question', 'fusion-champions': 'flask', 'turret-tank': 'tower', 'tiktok-ranking': 'list', 'whos-inting': 'skull', 'undercover-champion': 'mask', 'brume': 'fog', 'loldle': 'letters', 'intrus': 'search', 'vote-party': 'scale', 'last-survivor': 'crown', 'qui-suis-je': 'eye', 'croquis': 'brush' } as Record<string, IconName>)[gameId] ?? 'sparkle'; }
-  accentFor(gameId?: string | null): string { return ({ 'party-mix': '#c8aa6e', 'draft-battle': '#c8aa6e', 'guess-champion': '#0ac8b9', 'fusion-champions': '#b673ff', 'turret-tank': '#ffb347', 'tiktok-ranking': '#ff4fd8', 'whos-inting': '#c13c4d', 'undercover-champion': '#6c5ce7', 'brume': '#c13c4d', 'loldle': '#3fd67a', 'intrus': '#e0a94a', 'vote-party': '#ff4fd8', 'last-survivor': '#c13c4d', 'qui-suis-je': '#0ac8b9', 'croquis': '#b673ff' } as Record<string, string>)[gameId ?? ''] ?? '#c8aa6e'; }
+  iconFor(gameId: string): IconName { return ({ 'party-mix': 'sparkle', 'draft-battle': 'sword', 'guess-champion': 'question', 'fusion-champions': 'flask', 'turret-tank': 'tower', 'tiktok-ranking': 'list', 'whos-inting': 'skull', 'undercover-champion': 'mask', 'brume': 'fog', 'loldle': 'letters', 'intrus': 'search', 'vote-party': 'scale', 'croquis': 'brush' } as Record<string, IconName>)[gameId] ?? 'sparkle'; }
+  accentFor(gameId?: string | null): string { return ({ 'party-mix': '#c8aa6e', 'draft-battle': '#c8aa6e', 'guess-champion': '#0ac8b9', 'fusion-champions': '#b673ff', 'turret-tank': '#ffb347', 'tiktok-ranking': '#ff4fd8', 'whos-inting': '#c13c4d', 'undercover-champion': '#6c5ce7', 'brume': '#c13c4d', 'loldle': '#3fd67a', 'intrus': '#e0a94a', 'vote-party': '#ff4fd8', 'croquis': '#b673ff' } as Record<string, string>)[gameId ?? ''] ?? '#c8aa6e'; }
   labelFor(gameId?: string | null): string { return this.games().find((g) => g.id === gameId)?.label ?? (gameId || 'Mini-jeu'); }
   openSettings(gameId: string) { this.settingsGameId.set(gameId); }
   closeSettings() { this.settingsGameId.set(null); }
