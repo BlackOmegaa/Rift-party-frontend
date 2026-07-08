@@ -20,19 +20,22 @@ const SYSTEM =
 	"IMPÉRATIF DE FORMAT : chaque indice est TRÈS COURT — 2 à 6 mots maximum. " +
 	"Des phrases nominales, sèches et CLAIRES (pas de métaphore, pas de poésie). " +
 	"Un joueur doit comprendre l'indice immédiatement.\n\n" +
-	"Progression RÉGULIÈRE (respecte ce dosage pour CHAQUE champion) :\n" +
-	"- Indice 1 : classe + nature générale, large. Ex: \"Assassin mort-vivant.\", \"Tank homme-bête.\"\n" +
-	"- Indice 2 : une mécanique ou un trait de gameplay. Ex: \"Manie le vent.\", \"Devient invisible.\"\n" +
-	"- Indice 3 : un trait visuel ou de style marquant. Ex: \"Immense épée noire.\", \"Chapeau et sarbacane.\"\n" +
-	"- Indice 4 : sa signature (effet d'ulti SANS son nom, ou une relation). Ex: \"Bloque tous les projectiles.\"\n" +
-	"- Indice 5 : quasi donné, le trait le plus évident. Ex: \"Renard à neuf queues.\"\n\n" +
+	"PROGRESSION (le plus IMPORTANT) : l'indice 1 doit correspondre à BEAUCOUP de champions " +
+	"(uniquement le rôle/la classe, AUCUN trait unique qui identifie). Chaque indice suivant RESTREINT. " +
+	"Le trait le plus reconnaissable (espèce, relation, arme signature) arrive SEULEMENT à l'indice 5. " +
+	"NE METS JAMAIS l'espèce/le détail identifiant (renard, Darkin, taureau, momie...) avant l'indice 4.\n" +
+	"- Indice 1 : rôle/classe SEUL, très large. Ex: \"Mage à distance.\", \"Combattant au corps à corps.\", \"Support tank.\", \"Assassin furtif.\"\n" +
+	"- Indice 2 : un trait de style/gameplay encore partagé par plusieurs. Ex: \"Très mobile.\", \"Inflige du poison.\", \"Excelle en duel.\"\n" +
+	"- Indice 3 : une mécanique plus spécifique. Ex: \"Bloque les projectiles.\", \"Devient invisible.\", \"Se soigne en frappant.\"\n" +
+	"- Indice 4 : un trait distinctif marquant (visuel ou signature). Ex: \"Immense épée noire.\", \"Neuf queues.\"\n" +
+	"- Indice 5 : le plus évident, quasi donné. Ex: \"Frère de Yone.\", \"Renard légendaire.\"\n\n" +
 	"Règles strictes :\n" +
 	"- JAMAIS le nom du champion, ni un mot qui le contient.\n" +
 	"- JAMAIS le nom exact de ses sorts/ulti (décris l'effet).\n" +
 	"- N'AFFIRME PAS de région/cité précise (Zaun/Piltover/Ionia/Ixtal/Noxus/Demacia...) : source d'erreurs. Nature générale seulement (yordle, Darkin, mort-vivant, créature du Néant, esprit...).\n" +
 	"- Exactitude sur le rôle, le gameplay et l'apparence.\n\n" +
-	"Exemple pour Yasuo : {\"hints\":[\"Épéiste maudit et exilé.\",\"Manie le vent.\",\"Une seule longue épée.\",\"Bloque tous les projectiles.\",\"Le frère de Yone.\"]}\n" +
-	"Exemple pour Teemo : {\"hints\":[\"Yordle éclaireur espiègle.\",\"Devient invisible à l'arrêt.\",\"Petit, chapeau et sourire.\",\"Pose des champignons piégés.\",\"Fléchettes empoisonnées.\"]}\n\n" +
+	"Exemple pour Yasuo : {\"hints\":[\"Combattant au corps à corps.\",\"Très mobile, enchaîne les dashs.\",\"Manie le vent.\",\"Bloque tous les projectiles.\",\"Le frère de Yone.\"]}\n" +
+	"Exemple pour Teemo : {\"hints\":[\"Tireur à distance.\",\"Compte sur la ruse et le poison.\",\"Devient invisible à l'arrêt.\",\"Pose des champignons piégés.\",\"Petit yordle au chapeau.\"]}\n\n" +
 	"Réponds UNIQUEMENT en JSON strict : {\"hints\":[\"i1\",\"i2\",\"i3\",\"i4\",\"i5\"]}";
 
 async function genOne(name) {
