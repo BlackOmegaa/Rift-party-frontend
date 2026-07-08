@@ -1,5 +1,6 @@
 import { Injectable, inject } from "@angular/core";
 import { HttpClient } from "@angular/common/http";
+import { firstValueFrom } from "rxjs";
 import { BACKEND_URL } from "./socket.service";
 import { getOrCreateAnonId } from "./anon-id";
 
@@ -44,6 +45,22 @@ export class TrackingService {
 		this.http
 			.post(`${BACKEND_URL}/track/funnel`, { anonId: getOrCreateAnonId(), kind, step })
 			.subscribe({ error: () => {} });
+	}
+
+	/**
+	 * Enregistre le resultat d'une fusion devinee et recupere le "% de joueurs
+	 * qui ont trouve". Les appareils equipe (opt-out) ne sont PAS comptes
+	 * (record: false) mais recoivent quand meme le % pour l'afficher.
+	 */
+	async reportFusionResult(fusionId: string, found: boolean): Promise<{ foundPct: number | null; total: number }> {
+		return await firstValueFrom(
+			this.http.post<{ foundPct: number | null; total: number }>(`${BACKEND_URL}/track/fusion-result`, {
+				anonId: getOrCreateAnonId(),
+				fusionId,
+				found,
+				record: !isAnalyticsOptedOut(),
+			}),
+		);
 	}
 
 	/**

@@ -9,7 +9,7 @@
 				<span>points</span>
 			</div>
 			<span class="sub-stat">
-				{{ correctCount() }}/{{ maxRounds() }} duos trouvés
+				{{ correctCount() }}/{{ maxRounds() }} fusions trouvées
 			</span>
 			<div class="leaderboard">
 				@for (row of leaderboardRows(); track row.playerId; let i = $index) {
@@ -49,28 +49,14 @@
 		<main
 			class="cine-stage"
 			[class.locked]="locked()"
-			[class.swapping]="splashesPending() > 0"
 			[class.won]="verdict() === 'correct'"
 			[class.lost]="verdict() === 'wrong' || verdict() === 'timeout'"
 		>
-			<div class="stage-splash-pair">
-				<img
-					class="stage-splash left"
-					draggable="false"
-					[src]="splash(fusion().a)"
-					(load)="onSplashLoaded()"
-					alt=""
-				/>
-				<img
-					class="stage-splash right"
-					draggable="false"
-					[src]="splash(fusion().b)"
-					(load)="onSplashLoaded()"
-					alt=""
-				/>
+			<!-- L'image de fusion : le coeur du puzzle, visible pendant la devinette ET la révélation -->
+			<div class="fusion-image-wrap">
+				<img class="fusion-image" draggable="false" [src]="imageUrl(fusion().id)" alt="" />
+				<div class="stage-vignette"></div>
 			</div>
-			<div class="stage-seam"></div>
-			<div class="stage-vignette"></div>
 
 			<!-- HUD minimal : progression, timer, score -->
 			<header class="hud-top">
@@ -103,31 +89,34 @@
 				}
 			</header>
 
-			<!-- La fusion, plein centre -->
 			@if (!locked()) {
-				<div class="fusion-stage-art">
-					<span class="stake">EN JEU · {{ pointsPerFusion }} PTS</span>
-					<div class="sigil">?</div>
-				</div>
-
-				<div class="fusion-vibe">
-					<h2>{{ fusion().vibe }}</h2>
+				<div class="fusion-prompt">
+					<span class="stake">QUELS 2 CHAMPIONS ? · {{ pointsPerFusion }} PTS</span>
 				</div>
 			} @else {
-				<!-- Verdict cinématique : chaque moitié de la fusion validée séparément -->
+				<!-- Révélation : nom de la fusion, les 2 champions (avec le verdict de chacun), phrase, % -->
 				<div class="verdict" [class.win]="verdict() === 'correct'">
-					<span class="verdict-stamp"><app-icon [name]="verdict() === 'correct' ? 'check-circle' : 'x-circle'" [size]="72" /></span>
+					<span class="verdict-stamp"><app-icon [name]="verdict() === 'correct' ? 'check-circle' : 'x-circle'" [size]="60" /></span>
+					<strong class="verdict-name">{{ fusion().name }}</strong>
 					<div class="verdict-duo">
 						<span class="verdict-half" [class.ok]="firstOk()" [class.ko]="!firstOk()">
-							<em><app-icon [name]="firstOk() ? 'check-circle' : 'x-circle'" [size]="24" /></em>
+							<em><app-icon [name]="firstOk() ? 'check-circle' : 'x-circle'" [size]="20" /></em>
 							<strong>{{ fusion().a }}</strong>
 						</span>
 						<b class="verdict-plus">+</b>
 						<span class="verdict-half" [class.ok]="secondOk()" [class.ko]="!secondOk()">
-							<em><app-icon [name]="secondOk() ? 'check-circle' : 'x-circle'" [size]="24" /></em>
+							<em><app-icon [name]="secondOk() ? 'check-circle' : 'x-circle'" [size]="20" /></em>
 							<strong>{{ fusion().b }}</strong>
 						</span>
 					</div>
+					<p class="verdict-phrase">{{ fusion().phrase }}</p>
+					<span class="verdict-found">
+						@if (pctLoading()) {
+							…
+						} @else if (foundPct() !== null) {
+							<b>{{ pctLabel() }}</b> des joueurs ont trouvé
+						}
+					</span>
 					<span class="verdict-points">
 						@switch (verdict()) {
 							@case ("correct") { +{{ lastGain() }} pts }

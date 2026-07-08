@@ -446,7 +446,7 @@
 	z-index: 1;
 	background: linear-gradient(90deg, rgba(200, 170, 110, 0.24), rgba(200, 170, 110, 0.1));
 	transform-origin: left;
-	animation: next-fill 3.2s linear both;
+	animation: next-fill 5s linear both;
 }
 @keyframes next-fill {
 	from { transform: scaleX(0); }
@@ -583,5 +583,90 @@
 	}
 	.verdict-half {
 		padding: 0.4rem 0.7rem;
+	}
+}
+
+/* ===== Image de fusion (nouveau mode : 1 image IA à deviner) ===== */
+
+.fusion-image-wrap {
+	position: absolute;
+	inset: 0;
+	z-index: 0;
+}
+.fusion-image {
+	width: 100%;
+	height: 100%;
+	object-fit: cover;
+	object-position: center 32%;
+	user-select: none;
+	pointer-events: none;
+	transition: filter 0.6s ease, transform 6s cubic-bezier(0.2, 0.6, 0.3, 1);
+	transform: scale(1.04);
+}
+/* À la révélation, l'image s'assombrit un peu pour que le texte du verdict ressorte. */
+.cine-stage.locked .fusion-image {
+	filter: brightness(0.42) saturate(1.05);
+	transform: scale(1);
+}
+
+.fusion-prompt {
+	position: absolute;
+	top: 4.6rem;
+	left: 50%;
+	transform: translateX(-50%);
+	z-index: 6;
+}
+.fusion-prompt .stake {
+	display: inline-block;
+	font-size: 0.74rem;
+	font-weight: 1000;
+	letter-spacing: 0.22em;
+	color: var(--gold);
+	background: rgba(1, 10, 19, 0.6);
+	border: 1px solid rgba(200, 170, 110, 0.35);
+	border-radius: 999px;
+	padding: 0.5rem 1.1rem;
+	backdrop-filter: blur(8px);
+	text-shadow: 0 0 18px rgba(200, 170, 110, 0.4);
+}
+
+/* Panneau translucide derrière le verdict, pour la lisibilité par-dessus l'image. */
+.verdict {
+	background: rgba(1, 10, 19, 0.66);
+	backdrop-filter: blur(12px);
+	border: 1px solid rgba(182, 115, 255, 0.28);
+	border-radius: 24px;
+	padding: 1.3rem 1.7rem;
+	max-width: min(580px, 92%);
+	box-shadow: 0 18px 50px rgba(0, 0, 0, 0.5);
+}
+.verdict-name {
+	font-size: clamp(1.8rem, 5vw, 3rem);
+	font-weight: 1000;
+	line-height: 1;
+	letter-spacing: 0.02em;
+	background: linear-gradient(90deg, var(--fusion), var(--gold-bright));
+	-webkit-background-clip: text;
+	background-clip: text;
+	color: transparent;
+	text-shadow: 0 0 40px var(--fusion-glow);
+	animation: stamp-slam 0.5s 0.05s cubic-bezier(0.16, 1.3, 0.3, 1) both;
+}
+.verdict-phrase {
+	font-size: clamp(0.95rem, 2vw, 1.15rem);
+	line-height: 1.45;
+	color: var(--text-secondary);
+	animation: verdict-rise 0.45s 0.28s ease both;
+}
+.verdict-found {
+	font-size: 0.95rem;
+	color: var(--text-primary);
+	animation: verdict-rise 0.45s 0.36s ease both;
+
+	b {
+		font-size: 1.15rem;
+		font-weight: 1000;
+		color: var(--fusion);
+		text-shadow: 0 0 16px var(--fusion-glow);
 	}
 }
