@@ -24,7 +24,7 @@ export class LoginComponent {
 	resetSent = signal(false);
 
 	constructor(
-		private readonly playerAuth: PlayerAuthService,
+		protected readonly playerAuth: PlayerAuthService,
 		private readonly router: Router,
 	) {}
 

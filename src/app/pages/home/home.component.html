@@ -20,7 +20,7 @@
 				[class.active]="mode() === 'create'"
 				(click)="mode.set('create')"
 			>
-				Creer un lobby
+				Créer un lobby
 			</button>
 			<button
 				class="tab"
@@ -64,7 +64,7 @@
 			[disabled]="!canSubmit() || busy()"
 			(click)="submit()"
 		>
-			{{ busy() ? "Connexion..." : mode() === "create" ? "Creer le lobby" : "Rejoindre le lobby" }}
+			{{ busy() ? "Connexion..." : mode() === "create" ? "Créer le lobby" : "Rejoindre le lobby" }}
 		</button>
 	</div>
 

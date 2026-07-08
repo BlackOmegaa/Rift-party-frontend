@@ -3,7 +3,7 @@
 
 	<div class="brand">
 		<h1>RIFT <span>PARTY</span></h1>
-		<p>Un compte optionnel, juste pour garder ton abonnement d'une session a l'autre.</p>
+		<p>Un compte optionnel, juste pour garder ton abonnement d'une session à l'autre.</p>
 	</div>
 
 	<div class="card panel">
@@ -12,7 +12,7 @@
 				Connexion
 			</button>
 			<button class="tab" [class.active]="mode() === 'register'" (click)="setMode('register')">
-				Creer un compte
+				Créer un compte
 			</button>
 		</div>
 
@@ -20,9 +20,9 @@
 			@if (resetSent()) {
 				<p class="reset-sent">
 					Si un compte existe avec cette adresse, un email vient de partir avec un lien pour
-					choisir un nouveau mot de passe (valable 1 heure). Pense a verifier tes spams.
+					choisir un nouveau mot de passe (valable 1 heure). Pense à vérifier tes spams.
 				</p>
-				<button class="btn btn-primary submit" (click)="setMode('login')">Retour a la connexion</button>
+				<button class="btn btn-primary submit" (click)="setMode('login')">Retour à la connexion</button>
 			} @else {
 				<p class="forgot-intro">
 					Indique ton email : on t'envoie un lien pour choisir un nouveau mot de passe.
@@ -45,7 +45,7 @@
 				<button class="btn btn-primary submit" [disabled]="!canSubmit()" (click)="submit()">
 					{{ loading() ? "..." : "Envoyer le lien" }}
 				</button>
-				<button class="forgot-link" (click)="setMode('login')">Retour a la connexion</button>
+				<button class="forgot-link" (click)="setMode('login')">Retour à la connexion</button>
 			}
 		} @else {
 			<div class="field">
@@ -64,7 +64,7 @@
 					class="input"
 					type="password"
 					[(ngModel)]="password"
-					placeholder="8 caracteres minimum"
+					placeholder="8 caractères minimum"
 					(keyup.enter)="submit()"
 				/>
 			</div>
@@ -74,14 +74,16 @@
 			}
 
 			<button class="btn btn-primary submit" [disabled]="!canSubmit()" (click)="submit()">
-				{{ loading() ? "..." : mode() === "register" ? "Creer mon compte" : "Se connecter" }}
+				{{ loading() ? "..." : mode() === "register" ? "Créer mon compte" : "Se connecter" }}
 			</button>
 
 			@if (mode() === "login") {
-				<button class="forgot-link" (click)="setMode('forgot')">Mot de passe oublie ?</button>
+				<button class="forgot-link" (click)="setMode('forgot')">Mot de passe oublié ?</button>
 			}
 		}
 	</div>
 
-	<app-ad-slot [minHeight]="250" />
+	@if (!playerAuth.profile()?.isSubscriber) {
+		<app-ad-slot [minHeight]="250" />
+	}
 </div>

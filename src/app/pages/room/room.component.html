@@ -159,6 +159,15 @@
             } @else {
               <p class="spectate-fallback">Ce mode ne peut pas encore etre suivi en direct, tu rejoins a la prochaine manche.</p>
             }
+            <!-- Filet de securite : si l'host s'est reconnecte en pleine manche
+                 (ecran spectateur, sans les controles du lobby), ce bouton permet
+                 de forcer le retour au lobby plutot que d'attendre un jeu fige. -->
+            @if (room.isHost() && !currentRoom.activeMix) {
+              <button class="rift-btn rift-btn-ghost mid-game-escape" (click)="room.endGame('Manche interrompue par l\'hote.')">
+                <app-icon name="back" [size]="15" />
+                <span>Forcer le retour au lobby</span>
+              </button>
+            }
           </section>
         } @else if (!roundIntro()) {
           <ng-container [ngComponentOutlet]="componentFor(currentRoom.currentGameId)" />
