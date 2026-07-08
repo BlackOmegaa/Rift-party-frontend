@@ -7,9 +7,6 @@
 				<strong><span data-count-up>{{ score() }}</span>/{{ maxRounds() }}</strong>
 				<span>bonnes estimations</span>
 			</div>
-			<span class="sub-stat">
-				Les joueurs qui respectent l'armor devant ceux qui disent "il tank 10 easy".
-			</span>
 			<div class="leaderboard">
 				@for (row of leaderboardRows(); track row.playerId; let i = $index) {
 					<div class="lb-row" [class.me]="row.playerId === room.myId()" [class.leader]="i === 0">

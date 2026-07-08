@@ -232,10 +232,61 @@ if (failures.length) {
 console.log("\n--- distribution des réponses ---");
 for (const k of Object.keys(distribution).sort((a, b) => a - b)) console.log(`${String(k).padStart(2)} coups : ${"#".repeat(distribution[k])} (${distribution[k]})`);
 
+const TURRET_LABELS = {
+	"outer": "Première tour (T1)",
+	"inner": "Deuxième tour (T2)",
+	"inhibitor": "Tour d'inhibiteur (T3)",
+	"nexus": "Tour du Nexus"
+};
+const NOTES = {
+	"Malphite": "Il fonce sur la tour… finalement, le seul vraiment stoppé, c'est lui.",
+	"Ornn": "Il forge des objets légendaires, mais toujours pas un anti-tour visiblement.",
+	"Rammus": "« Ok. » C'est aussi ce qu'a répondu la tour avant de continuer à tirer.",
+	"K'Sante": "Il repousse tout le monde… sauf les dégâts de la tour.",
+	"Alistar": "Il charge la tour de toutes ses forces. La tour répond avec intérêt.",
+	"Shen": "Il pourrait sauver un allié à l'autre bout de la carte… dommage qu'il soit occupé à mourir sous sa tour.",
+	"Zac": "Il rebondit partout, sauf hors de portée de la tour.",
+	"Braum": "Le bouclier protège les alliés… lui, c'est une autre histoire.",
+	"Poppy": "Elle adore empêcher les dashs. La tour, elle, empêche juste de vivre.",
+	"Leona": "Elle engage sans hésiter. La tour aussi.",
+	"Sion": "Même mort, il continue d'avancer. La tour aussi.",
+	"Volibear": "Il coupe les tours… encore faut-il survivre jusqu'à l'arrivée.",
+	"Gragas": "Le tonneau explose. Son HP aussi.",
+	"Sett": "Les abdos encaissent beaucoup de choses. Pas les tirs de tour.",
+	"Mordekaiser": "Il emmène ses ennemis dans son royaume. La tour lui avait déjà réservé une place.",
+	"Nasus": "Encore quelques stacks et il sera fort. Encore quelques tirs et il sera mort.",
+	"Garen": "DEMACIA ! La tour n'était pas impressionnée.",
+	"Aatrox": "Il refuse de mourir. La tour insiste.",
+	"Darius": "Cinq stacks… puis un tir de tour qui vole tout le travail.",
+	"Wukong": "Le clone trompe les joueurs. Pas la tour.",
+	"Pantheon": "Entrée spectaculaire. Sortie beaucoup moins.",
+	"Draven": "Il adore être sous les projecteurs. La tour lui envoie toute la lumière.",
+	"Thresh": "Il lance une lanterne… personne ne clique.",
+	"Pyke": "Il exécute tout le monde. La tour avait commencé avant lui.",
+	"Yasuo": "Le vent bloque beaucoup de choses. Les tirs de tour, bizarrement non.",
+	"Vayne": "Invisible quelques secondes. Très visible sur la minimap après sa mort.",
+	"Lux": "Elle éclaire la carte entière. Son écran de mort aussi.",
+	"Yuumi": "Une fois descendue de son taxi, la tour s'occupe du reste.",
+	"Jinx": "Tout est drôle… jusqu'au premier tir de tour.",
+	"Kai'Sa": "Elle évolue toute la partie. La tour, elle, est déjà au maximum."
+};
+
 // Sortie TypeScript
 import { writeFileSync } from "fs";
 const lines = results.map((r) =>
-	`\t{ champ: ${JSON.stringify(r.champ)}, level: ${r.level}, hp: ${r.hp}, armor: ${r.armor}, items: ${JSON.stringify(r.items)}, turret: ${JSON.stringify(r.turret)}, minute: ${r.minute}, answer: ${r.answer} },`,
+	[
+		"\t{",
+		`\t\tchamp: ${JSON.stringify(r.champ)},`,
+		`\t\tlevel: ${r.level},`,
+		`\t\thp: ${r.hp},`,
+		`\t\tarmor: ${r.armor},`,
+		`\t\titems: ${JSON.stringify(r.items)},`,
+		`\t\tturret: ${JSON.stringify(TURRET_LABELS[r.turret])},`,
+		`\t\tminute: ${r.minute},`,
+		`\t\tanswer: ${r.answer},`,
+		`\t\tnote: ${JSON.stringify(NOTES[r.champ])},`,
+		"\t},",
+	].join("\n"),
 );
 writeFileSync(new URL("./scenarios-out.ts", import.meta.url), lines.join("\n") + "\n");
 console.log(`\n${results.length} scénarios écrits dans scenarios-out.ts`);
