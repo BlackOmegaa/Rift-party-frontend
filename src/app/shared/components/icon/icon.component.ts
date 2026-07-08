@@ -2,6 +2,7 @@ import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 import {
 	LucideArrowLeft,
 	LucideBrush,
+	LucideBug,
 	LucideCaseSensitive,
 	LucideCheck,
 	LucideCircleCheck,
@@ -38,6 +39,7 @@ import {
 } from '@lucide/angular';
 
 export type IconName =
+	| 'bug'
 	| 'sword'
 	| 'question'
 	| 'flask'
@@ -87,6 +89,7 @@ export type IconName =
 	imports: [
 		LucideArrowLeft,
 		LucideBrush,
+		LucideBug,
 		LucideCaseSensitive,
 		LucideCheck,
 		LucideCircleCheck,
@@ -126,6 +129,9 @@ export type IconName =
 	},
 	template: `
 		@switch (name()) {
+			@case ('bug') {
+				<svg lucideBug [size]="size()" [strokeWidth]="1.6" />
+			}
 			@case ('sword') {
 				<svg lucideSword [size]="size()" [strokeWidth]="1.6" />
 			}

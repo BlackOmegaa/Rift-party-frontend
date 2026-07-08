@@ -5,6 +5,7 @@ import { AdminAuthService } from "../../core/services/admin-auth.service";
 import {
 	AdminMetrics,
 	AdminMetricsService,
+	BugReport,
 	PeriodPreset,
 	periodRangeFor,
 } from "../../core/services/admin-metrics.service";
@@ -21,6 +22,16 @@ const PRESET_LABELS: Record<PeriodPreset, string> = {
 	"30d": "30 derniers jours",
 	custom: "Personnalise",
 };
+
+/** Onglets du dashboard : une categorie = un ecran, plus de scroll infini. */
+export type DashboardTab = "overview" | "monetization" | "acquisition" | "engagement" | "reports";
+const TABS: { id: DashboardTab; label: string }[] = [
+	{ id: "overview", label: "Vue d'ensemble" },
+	{ id: "monetization", label: "Monétisation" },
+	{ id: "acquisition", label: "Acquisition" },
+	{ id: "engagement", label: "Engagement" },
+	{ id: "reports", label: "Signalements" },
+];
 
 @Component({
 	selector: "app-admin-dashboard",
@@ -46,6 +57,13 @@ export class AdminDashboardComponent implements OnInit {
 	protected readonly loading = signal(true);
 	protected readonly error = signal<string | null>(null);
 	private readonly gameLabels = signal<Record<string, string>>({});
+
+	protected readonly tabs = TABS;
+	protected readonly activeTab = signal<DashboardTab>("overview");
+
+	protected readonly bugReports = signal<BugReport[]>([]);
+	protected readonly bugOpenCount = signal(0);
+	protected readonly bugLoading = signal(false);
 
 	protected readonly roomSizeItems = computed<BarListItem[]>(() =>
 		(this.metrics()?.engagement.roomSizeDistribution ?? []).map((r) => ({
@@ -105,6 +123,34 @@ export class AdminDashboardComponent implements OnInit {
 			this.gameLabels.set(Object.fromEntries(games.map((g) => [g.id, g.label])));
 		});
 		this.load();
+		this.loadBugReports();
+	}
+
+	selectTab(tab: DashboardTab): void {
+		this.activeTab.set(tab);
+		if (tab === "reports") this.loadBugReports();
+	}
+
+	loadBugReports(): void {
+		this.bugLoading.set(true);
+		this.adminMetrics.getBugReports().subscribe({
+			next: (res) => {
+				this.bugReports.set(res.reports);
+				this.bugOpenCount.set(res.openCount);
+				this.bugLoading.set(false);
+			},
+			error: () => this.bugLoading.set(false),
+		});
+	}
+
+	toggleBugReport(report: BugReport): void {
+		const next = report.status === "OPEN" ? "DONE" : "OPEN";
+		this.adminMetrics.setBugReportStatus(report.id, next).subscribe({
+			next: (updated) => {
+				this.bugReports.update((list) => list.map((r) => (r.id === updated.id ? updated : r)));
+				this.bugOpenCount.update((n) => (next === "DONE" ? Math.max(0, n - 1) : n + 1));
+			},
+		});
 	}
 
 	/**
@@ -159,6 +205,21 @@ export class AdminDashboardComponent implements OnInit {
 	pct(value: number | null): string {
 		if (value === null) return "—";
 		return `${Math.round(value * 100)}%`;
+	}
+
+	/** Montant Stripe (centimes) -> "12,34 €". */
+	euros(cents: number): string {
+		return new Intl.NumberFormat("fr-FR", { style: "currency", currency: "EUR" }).format(cents / 100);
+	}
+
+	/** Date+heure lisible pour les signalements. */
+	localDateTime(iso: string): string {
+		return new Date(iso).toLocaleString("fr-FR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
+	}
+
+	/** Nom du mois en cours ("juillet"), pour la carte revenus. */
+	currentMonthLabel(): string {
+		return new Date().toLocaleDateString("fr-FR", { month: "long" });
 	}
 
 	duration(seconds: number | null): string {

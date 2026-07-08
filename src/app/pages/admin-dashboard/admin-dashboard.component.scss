@@ -400,3 +400,118 @@ td {
 tr.danger td {
 	color: var(--danger);
 }
+
+/* ===== Navigation par onglets ===== */
+
+.tab-nav {
+	position: sticky;
+	top: 0;
+	z-index: 10;
+	display: flex;
+	gap: 0.4rem;
+	flex-wrap: wrap;
+	padding: 0.7rem 0;
+	margin-bottom: 1rem;
+	background: linear-gradient(to bottom, var(--bg-void) 80%, transparent);
+}
+.tab-nav-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.45rem;
+	padding: 0.6rem 1.1rem;
+	border-radius: 999px;
+	border: 1px solid var(--border-subtle);
+	background: var(--bg-base);
+	color: var(--text-secondary);
+	font-weight: 700;
+	font-size: 0.88rem;
+	cursor: pointer;
+	transition: all var(--transition-fast);
+
+	&:hover {
+		color: var(--text-primary);
+		border-color: rgba(200, 170, 110, 0.4);
+	}
+	&.active {
+		color: var(--bg-void);
+		background: var(--gold-bright);
+		border-color: var(--gold-bright);
+	}
+}
+.tab-badge {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 20px;
+	height: 20px;
+	padding: 0 5px;
+	border-radius: 999px;
+	background: var(--danger);
+	color: #fff;
+	font-size: 0.72rem;
+	font-weight: 800;
+}
+.tab-nav-btn.active .tab-badge {
+	background: var(--bg-void);
+	color: var(--gold-bright);
+}
+
+/* ===== Carte "en ligne" ===== */
+
+.live-card .label {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.45rem;
+}
+.live-dot {
+	width: 9px;
+	height: 9px;
+	border-radius: 50%;
+	background: var(--teal);
+	box-shadow: 0 0 8px var(--teal-glow);
+	animation: live-pulse 1.6s ease-in-out infinite;
+}
+@keyframes live-pulse {
+	0%, 100% { opacity: 1; }
+	50% { opacity: 0.35; }
+}
+
+/* ===== Signalements ===== */
+
+.reports-list {
+	display: flex;
+	flex-direction: column;
+	gap: 0.6rem;
+}
+.report-row {
+	display: flex;
+	align-items: flex-start;
+	justify-content: space-between;
+	gap: 1rem;
+	padding: 0.9rem 1rem;
+	border-radius: var(--radius-md);
+	background: var(--bg-base);
+	border: 1px solid var(--border-subtle);
+
+	&.done {
+		opacity: 0.55;
+	}
+}
+.report-message {
+	font-size: 0.92rem;
+	line-height: 1.5;
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+.report-meta {
+	margin-top: 0.4rem;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.35rem;
+	font-size: 0.78rem;
+	color: var(--text-muted);
+}
+.report-toggle {
+	flex-shrink: 0;
+	white-space: nowrap;
+}

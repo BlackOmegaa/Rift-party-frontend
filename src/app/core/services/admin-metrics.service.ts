@@ -5,7 +5,13 @@ import { BACKEND_URL } from "./socket.service";
 export interface AdminMetrics {
 	period: { from: string; to: string };
 	meta: { excludedVisitors: number };
-	live: { activeRoomsNow: number; activePlayersNow: number; activeUsersToday: number };
+	live: {
+		/** Appareils distincts connectes en ce moment (site ouvert), equipe exclue. */
+		onlinePlayersNow: number;
+		activeRoomsNow: number;
+		activePlayersNow: number;
+		activeUsersToday: number;
+	};
 	todayVsYesterday: {
 		activeUsers: { today: number; yesterday: number };
 		newVisitors: { today: number; yesterday: number };
@@ -44,6 +50,8 @@ export interface AdminMetrics {
 	virality: { invitesGenerated: number; joinedViaInvite: number; inviteToJoinRate: number | null };
 	monetization: {
 		activeSubscribers: number;
+		/** Argent encaisse (factures Stripe payees) sur le mois calendaire en cours. Null si Stripe indisponible. */
+		monthRevenue: { amountCents: number; payments: number; currency: string } | null;
 		subscription: {
 			offerViewed: number;
 			ctaClicked: number;
@@ -54,6 +62,18 @@ export interface AdminMetrics {
 		donationClicks: number;
 		bySource: { source: string; subClicks: number; subCompleted: number; donationClicks: number }[];
 	};
+}
+
+export interface BugReport {
+	id: string;
+	message: string;
+	pseudo: string | null;
+	roomCode: string | null;
+	gameId: string | null;
+	anonId: string | null;
+	page: string | null;
+	status: "OPEN" | "DONE";
+	createdAt: string;
 }
 
 export type PeriodPreset = "today" | "yesterday" | "7d" | "30d" | "custom";
@@ -86,6 +106,14 @@ export class AdminMetricsService {
 
 	getMetrics(range: { from: string; to: string }) {
 		return this.http.get<AdminMetrics>(`${BACKEND_URL}/admin/metrics`, { params: range });
+	}
+
+	getBugReports() {
+		return this.http.get<{ openCount: number; reports: BugReport[] }>(`${BACKEND_URL}/admin/metrics/bug-reports`);
+	}
+
+	setBugReportStatus(id: string, status: "OPEN" | "DONE") {
+		return this.http.patch<BugReport>(`${BACKEND_URL}/admin/metrics/bug-reports/${id}`, { status });
 	}
 
 	/** Marque l'appareil courant (anonId) comme appartenant a l'equipe : exclu de toutes les stats. */

@@ -45,4 +45,22 @@ export class TrackingService {
 			.post(`${BACKEND_URL}/track/funnel`, { anonId: getOrCreateAnonId(), kind, step })
 			.subscribe({ error: () => {} });
 	}
+
+	/**
+	 * Signalement de bug (bouton "Signaler un bug" de la room). Contrairement au
+	 * funnel, PAS de filtre opt-out : un admin doit aussi pouvoir signaler. La
+	 * promesse permet au bouton d'afficher un etat "envoye"/"erreur".
+	 */
+	async reportBug(message: string, context: { pseudo?: string; roomCode?: string; gameId?: string }): Promise<void> {
+		await new Promise<void>((resolve, reject) => {
+			this.http
+				.post(`${BACKEND_URL}/track/bug-report`, {
+					message,
+					anonId: getOrCreateAnonId(),
+					page: location.pathname,
+					...context,
+				})
+				.subscribe({ next: () => resolve(), error: reject });
+		});
+	}
 }

@@ -63,6 +63,10 @@
         }
         {{ playerAuth.isAuthenticated() ? "Mon compte" : "Se connecter" }}
       </a>
+      <button class="bug-report-btn" (click)="openBugReport()">
+        <app-icon name="bug" [size]="14" />
+        <span>Signaler un bug</span>
+      </button>
       @if (!currentRoom.activeMix) {
         <button class="leave-room" (click)="leave()">
           <app-icon name="leave" [size]="16" />
@@ -72,6 +76,47 @@
         <div class="mix-locked card">Party Mix en cours · sortie verrouillée</div>
       }
     </aside>
+
+    @if (bugModalOpen()) {
+      <div class="bug-modal-backdrop" (click)="closeBugReport()">
+        <div class="bug-modal card" (click)="$event.stopPropagation()">
+          @if (bugState() === "sent") {
+            <div class="bug-sent">
+              <app-icon name="check-circle" [size]="40" />
+              <p>Merci ! Ton signalement est bien parti, on regarde ça vite.</p>
+            </div>
+          } @else {
+            <div class="bug-head">
+              <h3><app-icon name="bug" [size]="18" /> Signaler un bug</h3>
+              <button class="bug-close" (click)="closeBugReport()" title="Fermer">
+                <app-icon name="close" [size]="16" />
+              </button>
+            </div>
+            <p class="bug-hint">
+              Un truc qui bug, qui bloque ou qui cloche ? Décris ce qui s'est passé — le code de la
+              room et le jeu en cours sont joints automatiquement.
+            </p>
+            <textarea
+              class="input bug-textarea"
+              rows="4"
+              maxlength="2000"
+              [(ngModel)]="bugMessage"
+              placeholder="Ex : le timer est resté bloqué à 0 pendant le round Loldle..."
+            ></textarea>
+            @if (bugState() === "error") {
+              <p class="bug-error">Envoi impossible pour le moment, réessaie dans une minute.</p>
+            }
+            <button
+              class="btn btn-primary bug-submit"
+              [disabled]="bugMessage.trim().length < 10 || bugState() === 'sending'"
+              (click)="submitBugReport()"
+            >
+              {{ bugState() === "sending" ? "Envoi..." : "Envoyer le signalement" }}
+            </button>
+          }
+        </div>
+      </div>
+    }
 
     <main class="main">
       @if (currentRoom.status === 'in-game' && currentRoom.currentGameId) {

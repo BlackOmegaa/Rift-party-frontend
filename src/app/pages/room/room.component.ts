@@ -1,6 +1,8 @@
 import { ChangeDetectionStrategy, Component, ElementRef, OnDestroy, effect, inject, isDevMode, signal } from '@angular/core';
 import { NgComponentOutlet } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { TrackingService } from '../../core/services/tracking.service';
 import { RoomService } from '../../core/services/room.service';
 import { PlayerAuthService } from '../../core/services/player-auth.service';
 import { GamesService } from '../../core/services/games.service';
@@ -50,7 +52,7 @@ interface RoundIntro {
 @Component({
   selector: 'app-room',
   standalone: true,
-  imports: [NgComponentOutlet, PlayerBadgeComponent, IconComponent, SoundToggleComponent, SupportBannerComponent, RouterLink, AdSlotComponent],
+  imports: [NgComponentOutlet, FormsModule, PlayerBadgeComponent, IconComponent, SoundToggleComponent, SupportBannerComponent, RouterLink, AdSlotComponent],
   changeDetection: ChangeDetectionStrategy.OnPush,
   templateUrl: './room.component.html',
   styleUrl: './room.component.scss',
@@ -59,6 +61,7 @@ interface RoundIntro {
 export class RoomComponent implements OnDestroy {
   protected readonly router = inject(Router);
   private readonly gamesService = inject(GamesService);
+  private readonly tracking = inject(TrackingService);
   protected readonly games = signal<MiniGame[]>([]);
   protected readonly settingsGameId = signal<string | null>(null);
   /** Mode dev : force un event Draft Battle special au lieu du tirage aleatoire (~10% de chances en temps normal), pour pouvoir le tester a volonte. 'none' = valeur par defaut (tirage normal). */
@@ -70,6 +73,11 @@ export class RoomComponent implements OnDestroy {
 
   protected readonly copiedCode = signal(false);
   protected readonly copiedInvite = signal(false);
+
+  /** Modal "Signaler un bug" : le contexte (room, jeu, pseudo) part automatiquement avec le message. */
+  protected readonly bugModalOpen = signal(false);
+  protected readonly bugState = signal<'idle' | 'sending' | 'sent' | 'error'>('idle');
+  protected bugMessage = '';
   protected readonly isDevMode = isDevMode;
 
   /** Ecran cinematique affiche en debut de manche : carte-titre puis countdown 3-2-1-GO. */
@@ -427,5 +435,32 @@ export class RoomComponent implements OnDestroy {
   /** Lien d'invitation direct : la home lit ?join=CODE et pre-remplit l'onglet Rejoindre. */
   copyInviteLink(code: string): void { navigator.clipboard?.writeText(`${window.location.origin}/?join=${code}`).catch(() => undefined); this.copiedInvite.set(true); this.room.notifyInviteGenerated(); window.setTimeout(() => this.copiedInvite.set(false), 1200); }
   leave(): void { this.room.leaveRoom(); this.router.navigate(['/']); }
+
+  openBugReport(): void {
+    this.bugModalOpen.set(true);
+    this.bugState.set('idle');
+    this.bugMessage = '';
+  }
+  closeBugReport(): void {
+    if (this.bugState() === 'sending') return;
+    this.bugModalOpen.set(false);
+  }
+  async submitBugReport(): Promise<void> {
+    const message = this.bugMessage.trim();
+    if (message.length < 10 || this.bugState() === 'sending') return;
+    this.bugState.set('sending');
+    const current = this.room.room();
+    try {
+      await this.tracking.reportBug(message, {
+        pseudo: this.room.players().find((p) => p.id === this.room.myId())?.pseudo,
+        roomCode: current?.code,
+        gameId: current?.currentGameId ?? undefined,
+      });
+      this.bugState.set('sent');
+      window.setTimeout(() => this.bugModalOpen.set(false), 1800);
+    } catch {
+      this.bugState.set('error');
+    }
+  }
 }
 
