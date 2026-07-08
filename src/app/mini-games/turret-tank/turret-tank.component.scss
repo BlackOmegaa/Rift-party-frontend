@@ -264,6 +264,10 @@
 	font-weight: 800;
 	box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
 }
+.chip.stat-turret {
+	border-color: rgba(10, 200, 185, 0.4);
+	color: var(--teal);
+}
 .chip.stat-hp {
 	border-color: rgba(193, 60, 77, 0.4);
 	color: #ff9aa8;

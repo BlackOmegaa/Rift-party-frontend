@@ -99,6 +99,10 @@
 				</div>
 
 				<div class="stat-chips">
+					<span class="chip stat-turret">
+						<app-icon name="tower" [size]="15" />
+						{{ scenario().turret }} · {{ scenario().minute }} min
+					</span>
 					<span class="chip stat-hp">
 						<app-icon name="blood-drop" [size]="15" />
 						{{ scenario().hp }} HP
