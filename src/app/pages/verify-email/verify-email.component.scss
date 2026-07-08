@@ -1,0 +1,99 @@
+// Meme mise en page que les pages login / reset-password (hero centre + carte).
+.hero {
+	min-height: 100vh;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 2.5rem;
+	padding: 2rem;
+	position: relative;
+	overflow: hidden;
+}
+.brand {
+	text-align: center;
+	z-index: 1;
+}
+.brand h1 {
+	font-size: 3.2rem;
+	color: var(--gold-bright);
+	text-shadow: 0 0 30px rgba(200, 170, 110, 0.25);
+}
+.brand h1 span {
+	color: var(--teal);
+	text-shadow: 0 0 30px var(--teal-glow);
+}
+
+.panel {
+	width: 100%;
+	max-width: 420px;
+	padding: 1.6rem;
+	display: flex;
+	flex-direction: column;
+	gap: 1.1rem;
+	z-index: 1;
+	animation: fade-in-up var(--transition-med);
+}
+
+.confirm-box {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.6rem;
+	padding: 1rem;
+	border-radius: var(--radius-md);
+	background: var(--bg-base);
+	border: 1px solid var(--border-subtle);
+	text-align: center;
+	font-size: 0.85rem;
+	color: var(--text-secondary);
+}
+.spinner {
+	width: 22px;
+	height: 22px;
+	border-radius: 50%;
+	border: 3px solid rgba(10, 200, 185, 0.25);
+	border-top-color: var(--teal);
+	animation: spin 0.8s linear infinite;
+}
+@keyframes spin {
+	to {
+		transform: rotate(360deg);
+	}
+}
+
+.success {
+	color: var(--teal);
+	font-size: 1.05rem;
+	font-weight: 600;
+	text-align: center;
+}
+.detail {
+	font-size: 0.9rem;
+	color: var(--text-secondary);
+	text-align: center;
+	line-height: 1.5;
+}
+.error {
+	color: var(--danger);
+	font-size: 0.9rem;
+	text-align: center;
+	line-height: 1.5;
+}
+.submit {
+	width: 100%;
+	padding: 0.85rem;
+	font-size: 1rem;
+	text-align: center;
+}
+
+.hero-glow {
+	position: absolute;
+	inset: 0;
+	background: radial-gradient(
+		circle 500px at 50% 30%,
+		rgba(10, 200, 185, 0.12),
+		transparent 70%
+	);
+	pointer-events: none;
+}

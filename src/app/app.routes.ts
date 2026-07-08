@@ -25,6 +25,12 @@ export const routes: Routes = [
       import('./pages/reset-password/reset-password.component').then((m) => m.ResetPasswordComponent),
   },
   {
+    path: 'verify-email',
+    title: 'Confirmation d\'email — Rift Party',
+    loadComponent: () =>
+      import('./pages/verify-email/verify-email.component').then((m) => m.VerifyEmailComponent),
+  },
+  {
     path: 'account',
     title: 'Mon compte — Rift Party',
     loadComponent: () => import('./pages/account/account.component').then((m) => m.AccountComponent),

@@ -20,6 +20,8 @@ export class AccountComponent {
 
 	protected readonly loading = signal(false);
 	protected readonly error = signal<string | null>(null);
+	/** Etat du renvoi de l'email de confirmation : idle -> sending -> sent (ou error). */
+	protected readonly resendState = signal<"idle" | "sending" | "sent" | "error">("idle");
 
 	async subscribe(): Promise<void> {
 		this.loading.set(true);
@@ -40,6 +42,17 @@ export class AccountComponent {
 		} catch {
 			this.error.set("Impossible d'ouvrir la gestion d'abonnement pour le moment.");
 			this.loading.set(false);
+		}
+	}
+
+	async resendVerification(): Promise<void> {
+		if (this.resendState() === "sending") return;
+		this.resendState.set("sending");
+		try {
+			await this.playerAuth.resendVerification();
+			this.resendState.set("sent");
+		} catch {
+			this.resendState.set("error");
 		}
 	}
 

@@ -24,6 +24,8 @@ export function getPlayerToken(): string | null {
 export interface PlayerProfile {
 	id: string;
 	email: string;
+	/** Vrai si l'adresse a ete confirmee via le lien envoye par email (jamais bloquant). */
+	emailVerified: boolean;
 	isSubscriber: boolean;
 	/** Date du tout premier abonnement (ISO 8601), null si jamais abonne. */
 	supporterSince: string | null;
@@ -82,6 +84,17 @@ export class PlayerAuthService {
 		);
 		this.setToken(res.token);
 		await this.refreshProfile();
+	}
+
+	/** Confirme l'adresse email via le token du lien recu (fonctionne connecte ou non). */
+	async verifyEmail(token: string): Promise<void> {
+		await firstValueFrom(this.http.post(`${BACKEND_URL}/player-auth/verify-email`, { token }));
+		if (this.getToken()) await this.refreshProfile();
+	}
+
+	/** Renvoie l'email de confirmation au compte connecte. */
+	async resendVerification(): Promise<void> {
+		await firstValueFrom(this.http.post(`${BACKEND_URL}/player-auth/resend-verification`, {}));
 	}
 
 	async refreshProfile(): Promise<void> {

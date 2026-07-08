@@ -28,6 +28,29 @@
 			<div class="field">
 				<label>Email</label>
 				<p class="value">{{ profile.email }}</p>
+				@if (!profile.emailVerified) {
+					<div class="verify-hint">
+						@if (resendState() === "sent") {
+							<span class="verify-sent">Email envoyé ! Regarde ta boîte mail (et tes spams).</span>
+						} @else {
+							<span class="verify-badge">Email non vérifié</span>
+							<span class="verify-text">
+								Confirme ton adresse pour pouvoir récupérer ton compte en cas de mot de passe
+								oublié.
+							</span>
+							<button
+								class="verify-resend"
+								[disabled]="resendState() === 'sending'"
+								(click)="resendVerification()"
+							>
+								{{ resendState() === "sending" ? "Envoi..." : "Renvoyer l'email de confirmation" }}
+							</button>
+							@if (resendState() === "error") {
+								<span class="verify-error">Impossible d'envoyer l'email, réessaie dans quelques minutes.</span>
+							}
+						}
+					</div>
+				}
 			</div>
 
 			<div class="field">
