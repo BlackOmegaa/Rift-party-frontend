@@ -155,9 +155,9 @@ export class FusionChampionsComponent implements OnDestroy {
 		clearTimeout(this.autoNextTimer);
 	}
 
-	/** URL de l'image de fusion (deposee dans assets/fusions/). */
+	/** URL de l'image de fusion (WebP optimisé dans assets/fusions/). */
 	imageUrl(id: string): string {
-		return `/assets/fusions/fusion-${id}.png`;
+		return `/assets/fusions/fusion-${id}.webp`;
 	}
 
 	/** "72 %" pour l'affichage, chaine vide si le % n'est pas (encore) disponible. */

@@ -1,12 +1,16 @@
 # Images de fusion — Fusion Champions
 
-Dépose ici les 50 images générées, **une par fusion**, en respectant EXACTEMENT
-le nom de fichier indiqué dans la liste (voir le tableau du mode ou la conversation).
+Une image par fusion, servie en **WebP** (optimisé pour le web).
 
-- Format : `.png` (idéalement carré ou portrait, ~1024px, < 500 Ko après compression).
-- Convention de nom : `fusion-<champion1>-<champion2>.png`, tout en minuscules,
-  sans espace, sans apostrophe, sans accent (ex. `fusion-ahri-evelynn.png`,
-  `fusion-kaisa-vayne.png`, `fusion-twistedfate-graves.png`).
+## Workflow
 
-Le mode n'affiche que les fusions dont l'image est présente ici : tu peux donc
-en déposer 10 pour tester, puis compléter les 50 au fur et à mesure.
+1. Génère l'image de la fusion, dépose-la ici en `.png` avec le nom exact
+   `fusion-<champion1>-<champion2>.png` (minuscules, sans espace/apostrophe/accent,
+   ex. `fusion-ahri-evelynn.png`, `fusion-kaisa-vayne.png`, `fusion-xinzhao-jarvaniv.png`).
+2. Lance la conversion : elle redimensionne (max 1280px), encode en WebP (~130 Ko)
+   et supprime le PNG lourd. Puis régénère `fusion-data.ts` (le mode ne propose
+   que les fusions dont l'image WebP est présente).
+
+Ne PAS committer de PNG lourds ici : seuls les `.webp` optimisés restent.
+Le mode n'affiche que les fusions dont l'image est présente : tu peux en déposer
+10 pour tester, puis compléter au fur et à mesure.
