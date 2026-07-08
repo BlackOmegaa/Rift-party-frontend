@@ -26,7 +26,7 @@ const GAMES: GameCard[] = [
 	{ icon: "question", name: "Guess the Champion", desc: "Devine le champion à partir d'indices révélés un à un." },
 	{ icon: "letters", name: "Loldle", desc: "Le jeu de déduction LoL culte, en version multijoueur." },
 	{ icon: "sword", name: "Draft Battle", desc: "Compose la meilleure draft et affronte celles de tes amis." },
-	{ icon: "flask", name: "Fusion Champions", desc: "Deux champions fusionnés, à toi de les démasquer." },
+	{ icon: "flask", name: "Fusion Champions", desc: "Deux champions fusionnés en une image générée par IA, à toi de les démasquer." },
 	{ icon: "mask", name: "Undercover Champion", desc: "Un imposteur se cache parmi vous. Trouvez-le." },
 	{ icon: "brush", name: "Croquis", desc: "Dessine, fais deviner, et ris des chefs-d'œuvre des autres." },
 	{ icon: "search", name: "Qui suis-je ?", desc: "Pose les bonnes questions pour découvrir ton identité." },

@@ -670,3 +670,24 @@
 		text-shadow: 0 0 16px var(--fusion-glow);
 	}
 }
+
+/* Mention obligatoire : contenu généré par IA (transparence). */
+.ai-tag {
+	position: absolute;
+	bottom: 0.7rem;
+	right: 0.8rem;
+	z-index: 8;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.3rem;
+	padding: 0.28rem 0.6rem;
+	border-radius: 999px;
+	font-size: 0.66rem;
+	font-weight: 800;
+	letter-spacing: 0.03em;
+	color: rgba(255, 255, 255, 0.82);
+	background: rgba(1, 6, 12, 0.62);
+	border: 1px solid rgba(255, 255, 255, 0.16);
+	backdrop-filter: blur(6px);
+	pointer-events: none;
+}

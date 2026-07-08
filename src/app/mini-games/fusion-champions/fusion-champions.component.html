@@ -56,6 +56,10 @@
 			<div class="fusion-image-wrap">
 				<img class="fusion-image" draggable="false" [src]="imageUrl(fusion().id)" alt="" />
 				<div class="stage-vignette"></div>
+				<span class="ai-tag" title="Cette image a été générée par une intelligence artificielle.">
+					<app-icon name="sparkle" [size]="12" />
+					Image générée par IA
+				</span>
 			</div>
 
 			<!-- HUD minimal : progression, timer, score -->
