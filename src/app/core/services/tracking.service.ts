@@ -49,8 +49,9 @@ export class TrackingService {
 
 	/**
 	 * Enregistre le resultat d'une fusion devinee et recupere le "% de joueurs
-	 * qui ont trouve". Les appareils equipe (opt-out) ne sont PAS comptes
-	 * (record: false) mais recoivent quand meme le % pour l'afficher.
+	 * qui ont trouve". Stat de GAMEPLAY (pas de l'analytics sensible) : on compte
+	 * TOUT le monde, y compris l'equipe, sinon le createur/testeur ne verrait
+	 * jamais le %. Le serveur ne garde que la 1re exposition par joueur (upsert).
 	 */
 	async reportFusionResult(fusionId: string, found: boolean): Promise<{ foundPct: number | null; total: number }> {
 		return await firstValueFrom(
@@ -58,7 +59,6 @@ export class TrackingService {
 				anonId: getOrCreateAnonId(),
 				fusionId,
 				found,
-				record: !isAnalyticsOptedOut(),
 			}),
 		);
 	}

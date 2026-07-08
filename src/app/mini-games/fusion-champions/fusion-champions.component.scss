@@ -621,6 +621,10 @@
 	left: 50%;
 	transform: translateX(-50%);
 	z-index: 6;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.5rem;
 }
 .fusion-prompt .stake {
 	display: inline-block;
@@ -677,23 +681,20 @@
 	}
 }
 
-/* Mention obligatoire : contenu généré par IA (transparence). */
+/* Mention obligatoire : contenu généré par IA (transparence). Centrée sous le
+   prompt "quels 2 champions", clairement visible pendant le jeu. */
 .ai-tag {
-	position: absolute;
-	bottom: 0.7rem;
-	right: 0.8rem;
-	z-index: 8;
 	display: inline-flex;
 	align-items: center;
-	gap: 0.3rem;
-	padding: 0.28rem 0.6rem;
+	gap: 0.35rem;
+	padding: 0.3rem 0.7rem;
 	border-radius: 999px;
-	font-size: 0.66rem;
+	font-size: 0.7rem;
 	font-weight: 800;
 	letter-spacing: 0.03em;
-	color: rgba(255, 255, 255, 0.82);
-	background: rgba(1, 6, 12, 0.62);
-	border: 1px solid rgba(255, 255, 255, 0.16);
+	color: rgba(255, 255, 255, 0.9);
+	background: rgba(1, 6, 12, 0.55);
+	border: 1px solid rgba(182, 115, 255, 0.32);
 	backdrop-filter: blur(6px);
 	pointer-events: none;
 }
