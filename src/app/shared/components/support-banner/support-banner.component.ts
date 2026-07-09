@@ -22,9 +22,6 @@ export const KOFI_URL = "https://ko-fi.com/benson10451";
 			<app-icon name="support" [size]="variant() === 'compact' ? 16 : 20" />
 			<span class="text">
 				<strong>Soutenir Rift Party</strong>
-				@if (variant() !== 'compact') {
-					<small>Un café offert = un jeu de plus.</small>
-				}
 			</span>
 		</a>
 	`,
